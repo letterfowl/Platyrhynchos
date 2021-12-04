@@ -4,7 +4,7 @@ from bib import WORDS, Crossword
 
 class TestBuild(TestCase):
     def test_build(self):
-        self.assertEqual([i for i in Crossword.create_from({
+        self.assertEqual([i for i in Crossword.createFrom({
             "1": "abc",
             "2": "cdef",
             "3": "abcdefg"
@@ -25,7 +25,7 @@ class TestBuild(TestCase):
 
 class TestBasic(TestCase):
     def setUp(self) -> None:
-        self.words = Crossword.create_from(
+        self.words = Crossword.createFrom(
             {
                 "Jak się nazywa rezultat odgórnie podjętych decyzji lub negocjacji": "rozstrzygnięcie",
                 "Jak się nazywa nowotwór złośliwy skóry wywodzący się z komórek naskórka": "rak kolczystokomórkowy",
