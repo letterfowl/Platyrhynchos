@@ -16,8 +16,9 @@ WORDS_ITEMS = set(WORDS.items())
 class Crossword(object):
     letters: dict[tuple[int, int], str]
     words: set[str]
-    clueV: dict[tuple[int, int], str]
-    clueH: dict[tuple[int, int], str] = field(default_factory=dict)
+    clueH: dict[tuple[int, int], str]
+    clueV: dict[tuple[int, int], str] = field(default_factory=dict)
+    crossings: int = 0
 
     # Static methods
 
@@ -37,8 +38,7 @@ class Crossword(object):
         return Crossword(
             letters={(0, i): j for i, j in enumerate(word)},
             words={word},
-            clueH={(0, 0): clue},
-            clueV={}
+            clueH={(0, 0): clue}
         )
 
     @staticmethod
@@ -51,13 +51,13 @@ class Crossword(object):
         ch = sample(WORDS_ITEMS, k=am)
         for hint, word in ch:
             # print(word, "<-", hint, "\n")
-            yield Crossword.construct(add*"+"+word+add*" ", hint)
+            yield Crossword.construct(add*"+"+word+" ", hint)
 
     def createFor(self, am: int, add: bool = False) -> Iterator[Crossword]:
         ch = sample(WORDS_ITEMS - self.words, k=am)
         for hint, word in ch:
             # print(word, "<-", hint, "\n")
-            yield Crossword.construct(add*"+"+word+add*" ", hint)
+            yield Crossword.construct(add*"+"+word+" ", hint)
         
 
     # Magic methods
@@ -117,7 +117,8 @@ class Crossword(object):
                     letters=c1.letters | c2.letters,
                     words=c1.words | c2.words,
                     clueV=c1.clueV | c2.clueV,
-                    clueH=c1.clueH | c2.clueH
+                    clueH=c1.clueH | c2.clueH,
+                    crossings=sum(c1.letters[i] == c2.letters[i] for i in c1.letters.keys() & c2.letters.keys()) + c1.crossings + c2.crossings
                 )
                 return csum.absolute()
 
@@ -168,7 +169,8 @@ class Crossword(object):
             letters={(v-dv, h-dh): i for (v, h), i in self.letters.items()},
             words=self.words,
             clueV={(v-dv, h-dh): i for (v, h), i in self.clueV.items()},
-            clueH={(v-dv, h-dh): i for (v, h), i in self.clueH.items()}
+            clueH={(v-dv, h-dh): i for (v, h), i in self.clueH.items()},
+            crossings=self.crossings
         )
 
     def absolute(self):
@@ -183,6 +185,7 @@ class Crossword(object):
             words=self.words, 
             clueV={(j, i): clue for (i, j), clue in self.clueH.items()},
             clueH={(j, i): clue for (i, j), clue in self.clueV.items()},
+            crossings=self.crossings
         )
 
 
