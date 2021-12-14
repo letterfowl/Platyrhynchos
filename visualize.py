@@ -1,13 +1,14 @@
 import os
 from bib import Crossword
 from string import ascii_letters
+from re import sub
 
 HEADER = r"""
-\documentclass{article}
+\documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 
 \usepackage[unboxed]{cwpuzzle}
-\usepackage[left=5mm, right=5mm, bottom=5mm, top=5mm]{geometry}
+\usepackage[top=15mm,bottom=15mm,left=15mm,right=3cm,twoside]{geometry}
 \usepackage{adjustbox}
 
 \newcommand\drarr{$\rightarrow \!\!\!\!\! \downarrow$}
@@ -21,8 +22,26 @@ FOOTER = r"""
 \end{document}
 """
 
+EMPTY = r"*"
+CLEANER = {
+    "\\": "\\textbackslash",
+    "&": "\\&",
+    "%": "\\%",
+    "$": "\\$",
+    "_": "\\",
+    "{": "\\{",
+    "}": "\\}",
+    "~": "\\textasciitilde",
+    "^": "\\textasciicircum",
+}
+_cleantable = CLEANER|{" ": EMPTY, None: EMPTY}
+_cleanhint = CLEANER|{"#": "\\#"}
+def cleanhint(s: str) -> str:
+    for i,j in _cleanhint.items():
+        s = s.replace(i,j)
+    return s
+ 
 def gen_table(cross: Crossword):
-    EMPTY = r"*"
     SYMBOLS = ascii_letters+EMPTY+"ąęóśłżźćń"
 
     hintnum = 0
@@ -39,10 +58,7 @@ def gen_table(cross: Crossword):
             
             # Przetwarzanie wstępne
             add_symbol = cross.letters.get((i, j))
-            add_symbol = {
-                " ": EMPTY,
-                None: EMPTY,
-            }.get(add_symbol, add_symbol)
+            add_symbol = _cleantable.get(add_symbol, add_symbol)
 
 
             # Obsługa podpowiedzi
@@ -53,9 +69,9 @@ def gen_table(cross: Crossword):
                 hintnum += 1
                 hint = f"[{hintnum}]"
                 if new_clueH:
-                    hintsH.append(r"\Clue{%d}{}{%s}" % (hintnum, new_clueH))
+                    hintsH.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clueH)))
                 if new_clueV:
-                    hintsV.append(r"\Clue{%d}{}{%s}" % (hintnum, new_clueV))    
+                    hintsV.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clueV)))    
             else:
                 hint = ""
 
@@ -80,17 +96,25 @@ def gen_table(cross: Crossword):
         table.append("|"+"\t|".join(t)+"\t|.")
     return table, hintsH, hintsV 
 
-
-def gen_code(cross: Crossword) -> str:
+def _gen_code(cross: Crossword):
     table, hintsH, hintsV = gen_table(cross)
     rtable = r"\noindent\begin{Puzzle}{%d}{%d}%s\end{Puzzle}" % (cross.max[1], cross.max[0], "\n".join(table))
     rhintsH = r"\begin{PuzzleClues}{\textbf{Poziome}\\}%s\end{PuzzleClues}" % ("\n".join(hintsH))
     rhintsV = r"\begin{PuzzleClues}{\textbf{Pionowe}\\}%s\end{PuzzleClues}" % ("\n".join(hintsV))
-    return "\n\n".join((HEADER, 
-                        rtable, 
-                        r"\newpage",
-                        rhintsH, rhintsV, 
-                        FOOTER))
+    return rtable, rhintsH, rhintsV
+
+    
+def gen_code(cross: list[Crossword]) -> str:
+    strings = [HEADER+"\n\n"]
+    for n, i in enumerate(cross):
+        rtable, rhintsH, rhintsV = _gen_code(i)
+        strings.append("\n\n".join(( 
+                    r"\section*{Krzyżówka %d}" % (n+1),
+                    rtable, 
+                    r"\newpage",
+                    rhintsH, rhintsV, 
+                    )))
+    return r"\newpage".join(strings)+"\n\n"+FOOTER
 
 #\maxsizebox{\textwidth}{\textheight}{
 

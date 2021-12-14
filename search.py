@@ -1,8 +1,10 @@
+import os
 from bib import Crossword
 from random import random, shuffle
 from keyboard import is_pressed
-from time import perf_counter
+from time import perf_counter, time
 from multiprocessing import cpu_count, Pool
+from tqdm import tqdm
 
 from visualize import gen_code, render
 
@@ -14,9 +16,9 @@ NOT_WORKING_LIMIT = 8
 
 START_AM = 12
 
-TARGET_SIZE = (37, 30)
+TARGET_SIZE = 33, 25
 ADD_PLUS = True
-
+PUZZLE_AMOUNT = 200
 
 def goal(cross: Crossword) -> float:
     if cross is None:
@@ -45,75 +47,115 @@ def find_best(tpl: tuple[Crossword, float, list[Crossword]]):
             future = prod
     return future
 
+def getfiles():
+    if not os.path.isdir('data'):
+        os.mkdir('data')
+    if not os.path.isdir('data/finish'):
+        os.mkdir('data/finish')
+    if not os.path.isdir('data/process'):
+        os.mkdir('data/process')
+    
+    process_file = open(f'data/process/{int(time())}.csv', 'w')
+    process_file.write("puzzle;turn;currtemperature;turntime;currgoalval;currsize;currratio;currcrossings;currlen\n")
+    process_file.flush()
+    finish_file = open(f'data/finish/{int(time())}.csv', 'w')
+    finish_file.write("puzzle;turn_amount;sizeX;sizeY;finaltemperature;gentime;finalgoalval;finalsize;finalratio;finalcrossings;finallen\n")
+    finish_file.flush()
+    return process_file, finish_file
 
 if __name__ == "__main__":
     CPUS = cpu_count()-2
     pool = Pool(CPUS)
+    
+    process_file, finish_file = getfiles()
 
-    timer_main = perf_counter()
-    while True:
-        c = [i for i in Crossword.create(START_AM//2, ADD_PLUS)]
-        cr = [i.rotate() for i in Crossword.create(START_AM//2, ADD_PLUS)]
+    crosses = []
+    for puzzle in tqdm(range(PUZZLE_AMOUNT)):
 
-        s = list(c[1:])+list(cr[1:])
-        shuffle(s)
-        try:
-            cross = sum(s, c[0]+cr[0])
-        except TypeError:
-            continue
-        else:
-            if cross.max[0] < TARGET_SIZE[0] and cross.max[1] < TARGET_SIZE[1]:
-                break
+        timer_main = perf_counter()
+        while True:
+            c = [i for i in Crossword.create(START_AM//2, ADD_PLUS)]
+            cr = [i.rotate() for i in Crossword.create(START_AM//2, ADD_PLUS)]
 
-    T = START_T
-    turn = 1
-    golval = goal(cross)
-    not_working = 0
-    while True:  # golval<0.7:
-        timer_small = perf_counter()
-
-        future = None
-        new = tuple(cross.createFor(SAMPLE_SIZE, ADD_PLUS))
-
-        assigned = [(cross, T, new[i::CPUS]) for i in range(CPUS)]
-
-        calculated = [i for i in pool.map(
-            find_best, assigned) if i is not None]
-
-        if random() < T/SAMPLE_SIZE:
-            for i in calculated:
-                if goal(i) > golval:
-                    future = cross
+            s = list(c[1:])+list(cr[1:])
+            shuffle(s)
+            try:
+                cross = sum(s, c[0]+cr[0])
+            except TypeError:
+                continue
+            else:
+                if cross.max[0] < TARGET_SIZE[0] and cross.max[1] < TARGET_SIZE[1]:
                     break
-        elif len(calculated) > 0:
-            future = max(calculated, key=goal)
 
-        if future:
-            not_working = 0
-            cross = future
-            golval = goal(future)
-        else:
-            not_working += 1
-            if not_working > NOT_WORKING_LIMIT:
+        T = START_T
+        turn = 1
+        golval = goal(cross)
+        not_working = 0
+        while True:  # golval<0.7:
+            timer_small = perf_counter()
+
+            future = None
+            new = tuple(cross.createFor(SAMPLE_SIZE, ADD_PLUS))
+
+            assigned = [(cross, T, new[i::CPUS]) for i in range(CPUS)]
+
+            calculated = [i for i in pool.map(
+                find_best, assigned) if i is not None]
+
+            if random() < T/SAMPLE_SIZE:
+                for i in calculated:
+                    if goal(i) > golval:
+                        future = cross
+                        break
+            elif len(calculated) > 0:
+                future = max(calculated, key=goal)
+
+            if future:
+                not_working = 0
+                cross = future
+                golval = goal(future)
+            else:
+                not_working += 1
+                if not_working > NOT_WORKING_LIMIT:
+                    break
+                T /= SPEED
+
+            print(puzzle, turn,
+                "%.4f" % round(T, 4),
+                "%.4f" % round(perf_counter()-timer_small, 4),
+                "%.4f" % round(golval, 4),
+                "%.4f" % round(cross.size**0.5, 4),
+                "%.4f" % round(len(cross.letters)/cross.size, 4),
+                cross.crossings,
+                len(cross.words),
+                sep=";", file=process_file)
+
+            T *= SPEED
+            turn += 1
+
+            if is_pressed('ctrl+shift+space'):
                 break
-            T /= SPEED
-
-        print(turn,
+            
+        end = perf_counter()
+        
+        crosses.append(cross)
+        print(puzzle, 
+              turn, 
+              cross.max[0], cross.max[1],
               "%.4f" % round(T, 4),
-              "%.4f" % round(perf_counter()-timer_small, 4),
+              end-timer_main,
               "%.4f" % round(golval, 4),
               "%.4f" % round(cross.size**0.5, 4),
-              "%.4f" % round(golval, 4),
               "%.4f" % round(len(cross.letters)/cross.size, 4),
               cross.crossings,
               len(cross.words),
-              sep=";\t")
-
-        T *= SPEED
-        turn += 1
-
-        if is_pressed('space'):
+              sep=";", file=finish_file)
+        finish_file.flush()
+        process_file.flush()
+            
+        if is_pressed('ctrl+shift+enter'):
             break
 
-    print("====", perf_counter()-timer_main, "", str(cross), sep="\n")
-    render(gen_code(cross))
+    finish_file.close()
+    process_file.close()
+    render(gen_code(crosses))
