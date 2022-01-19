@@ -1,0 +1,93 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+library(tibble)
+library(ggplot2)
+library(latex2exp)
+```
+
+```{r}
+df_f <- read.csv('../generated/csvs/finish/prezent.csv', sep = ";")
+df_p <- read.csv('../generated/csvs/process/prezent.csv', sep = ";")
+
+```
+
+```{r}
+ggplot(df_f) +
+  aes(finalcrossings) +
+  geom_density()
+```
+```{r}
+ggplot(df_f) +
+  aes(x=gentime, y=turn_amount) +
+  geom_smooth()
+
+cor.test(df_f$gentime, df_f$turn_amount)
+```
+
+```{r}
+ggplot(df_f) +
+  aes(
+    x=finalratio, 
+    y=finalsize,
+    color=gentime) +
+  geom_jitter()+
+  geom_density2d(color='grey')+
+  scale_color_gradient(low="green", high="red") +
+  labs(
+    x="Filled-in fields and all fields ratio",
+    y=TeX("Size (\\sqrt{x*y})"),
+    color="Generation\ntime (s)",
+    )
+```
+
+```{r}
+ggplot(df_p) +
+  aes(
+    x=turn, 
+    y=currgoalval,
+    group=puzzle) +
+  geom_line(alpha=0.3) +
+  labs(
+    x="Turn",
+    y="Goal function value",
+    )
+```
+```{r}
+ggplot(df_p) +
+  aes(
+    x=turn, 
+    y=currratio ,
+    group=puzzle) +
+  geom_line(alpha=0.3) +
+  labs(
+    x="Turn",
+    y="Filled-in fields and all fields ratio",
+    )
+```
+```{r}
+ggplot(df_p) +
+  aes(
+    x=turn, 
+    y=currcrossings/(currratio*currsize^2)) +
+  geom_density_2d_filled() +
+  labs(
+    x="Turn",
+    y="Crossing and letter amount ratio",
+    level=
+    )
+```
+
+```{r}
+ggplot(df_f) +
+  aes(finalcrossings/(finalratio*finalsize^2)) +
+  geom_dotplot()+
+  labs(
+    x="Crossing and letter amount ratio",
+    y="Crossings",
+    )
+```
