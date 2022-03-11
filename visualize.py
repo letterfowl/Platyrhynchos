@@ -68,13 +68,13 @@ def gen_table(cross: Crossword):
             if new_clueH or new_clueV:
                 hintnum += 1
                 hint = f"[{hintnum}]"
-                if new_clueH:
-                    hintsH.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clueH)))
-                if new_clueV:
-                    hintsV.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clueV)))    
             else:
                 hint = ""
 
+            if new_clueH:
+                hintsH.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clueH)))
+            if new_clueV:
+                hintsV.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clueV)))
             # Dodawanie strzałek dla +
             if add_symbol == "+":
                 if new_clueH and not new_clueV:

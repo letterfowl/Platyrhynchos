@@ -66,7 +66,7 @@ def getfiles():
 if __name__ == "__main__":
     CPUS = cpu_count()-2
     pool = Pool(CPUS)
-    
+
     process_file, finish_file = getfiles()
 
     crosses = []
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
         timer_main = perf_counter()
         while True:
-            c = [i for i in Crossword.create(START_AM//2, ADD_PLUS)]
+            c = list(Crossword.create(START_AM//2, ADD_PLUS))
             cr = [i.rotate() for i in Crossword.create(START_AM//2, ADD_PLUS)]
 
             s = list(c[1:])+list(cr[1:])
@@ -135,9 +135,9 @@ if __name__ == "__main__":
 
             if is_pressed('ctrl+shift+space'):
                 break
-            
+
         end = perf_counter()
-        
+
         crosses.append(cross)
         print(puzzle, 
               turn, 
@@ -152,7 +152,7 @@ if __name__ == "__main__":
               sep=";", file=finish_file)
         finish_file.flush()
         process_file.flush()
-            
+
         if is_pressed('ctrl+shift+enter'):
             break
 
