@@ -11,8 +11,8 @@ library(latex2exp)
 ```
 
 ```{r}
-df_f <- read.csv('../generated/csvs/finish/prezent.csv', sep = ";")
-df_p <- read.csv('../generated/csvs/process/prezent.csv', sep = ";")
+df_f <- read.csv('../generated/finish/prezent.csv', sep = ";")
+df_p <- read.csv('../generated/process/prezent.csv', sep = ";")
 
 ```
 
