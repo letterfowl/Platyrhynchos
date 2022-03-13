@@ -1,11 +1,12 @@
 import os
-from bib import Crossword
+from multiprocessing import Pool, cpu_count
 from random import random, shuffle
-from keyboard import is_pressed
 from time import perf_counter, time
-from multiprocessing import cpu_count, Pool
+
+from keyboard import is_pressed
 from tqdm import tqdm
 
+from bib import Crossword
 from visualize import gen_code, render
 
 START_T = 1
@@ -19,6 +20,7 @@ START_AM = 12
 TARGET_SIZE = 33, 25
 ADD_PLUS = True
 PUZZLE_AMOUNT = 110
+
 
 def goal(cross: Crossword) -> float:
     if cross is None:
@@ -47,21 +49,25 @@ def find_best(tpl: tuple[Crossword, float, list[Crossword]]):
             future = prod
     return future
 
-def getfiles():
+
+def getfiles():  # sourcery skip: extract-duplicate-method
     if not os.path.isdir('data'):
         os.mkdir('data')
     if not os.path.isdir('data/finish'):
         os.mkdir('data/finish')
     if not os.path.isdir('data/process'):
         os.mkdir('data/process')
-    
+
     process_file = open(f'data/process/{int(time())}.csv', 'w')
-    process_file.write("puzzle;turn;currtemperature;turntime;currgoalval;currsize;currratio;currcrossings;currlen\n")
+    process_file.write(
+        "puzzle;turn;currtemperature;turntime;currgoalval;currsize;currratio;currcrossings;currlen\n")
     process_file.flush()
     finish_file = open(f'data/finish/{int(time())}.csv', 'w')
-    finish_file.write("puzzle;turn_amount;sizeX;sizeY;finaltemperature;gentime;finalgoalval;finalsize;finalratio;finalcrossings;finallen\n")
+    finish_file.write(
+        "puzzle;turn_amount;sizeX;sizeY;finaltemperature;gentime;finalgoalval;finalsize;finalratio;finalcrossings;finallen\n")
     finish_file.flush()
     return process_file, finish_file
+
 
 if __name__ == "__main__":
     CPUS = cpu_count()-2
@@ -80,18 +86,18 @@ if __name__ == "__main__":
             s = list(c[1:])+list(cr[1:])
             shuffle(s)
             try:
-                cross = sum(s, c[0]+cr[0])
+                crossword = sum(s, c[0]+cr[0])
             except TypeError:
                 continue
             else:
-                if cross.max[0] < TARGET_SIZE[0] and cross.max[1] < TARGET_SIZE[1]:
+                if crossword.max[0] < TARGET_SIZE[0] and crossword.max[1] < TARGET_SIZE[1]:
                     break
 
         T = START_T
         turn = 1
         golval = goal(cross)
         not_working = 0
-        while len(cross.letters)/cross.size<0.8: # True:  
+        while len(cross.letters)/cross.size < 0.8:  # True:
             timer_small = perf_counter()
 
             future = None
@@ -121,14 +127,14 @@ if __name__ == "__main__":
                 T /= SPEED
 
             print(puzzle, turn,
-                "%.4f" % round(T, 4),
-                "%.4f" % round(perf_counter()-timer_small, 4),
-                "%.4f" % round(golval, 4),
-                "%.4f" % round(cross.size**0.5, 4),
-                "%.4f" % round(len(cross.letters)/cross.size, 4),
-                cross.crossings,
-                len(cross.words),
-                sep=";", file=process_file)
+                  "%.4f" % round(T, 4),
+                  "%.4f" % round(perf_counter()-timer_small, 4),
+                  "%.4f" % round(golval, 4),
+                  "%.4f" % round(cross.size**0.5, 4),
+                  "%.4f" % round(len(cross.letters)/cross.size, 4),
+                  cross.crossings,
+                  len(cross.words),
+                  sep=";", file=process_file)
 
             T *= SPEED
             turn += 1
@@ -139,8 +145,8 @@ if __name__ == "__main__":
         end = perf_counter()
 
         crosses.append(cross)
-        print(puzzle, 
-              turn, 
+        print(puzzle,
+              turn,
               cross.max[0], cross.max[1],
               "%.4f" % round(T, 4),
               end-timer_main,

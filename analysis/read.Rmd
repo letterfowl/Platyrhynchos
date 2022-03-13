@@ -21,6 +21,7 @@ ggplot(df_f) +
   aes(finalcrossings) +
   geom_density()
 ```
+
 ```{r}
 ggplot(df_f) +
   aes(x=gentime, y=turn_amount) +
@@ -45,6 +46,7 @@ ggplot(df_f) +
     )
 ggsave('graphs/filledratio-size.png', dpi=300)
 ```
+
 ```{r}
 ggplot(df_f) +
   aes(
@@ -75,6 +77,7 @@ ggplot(df_p) +
     )
 ggsave('graphs/goal.png', dpi=300)
 ```
+
 ```{r}
 ggplot(df_p) +
   aes(
@@ -88,6 +91,7 @@ ggplot(df_p) +
     )
 ggsave('graphs/filled.svg')
 ```
+
 ```{r}
 ggplot(df_p) +
   aes(
@@ -112,6 +116,7 @@ ggplot(df_f) +
     )
 ggsave('graphs/size.png', dpi=300)
 ```
+
 ```{r}
 ggplot(df_f) +
   aes(gentime) +
