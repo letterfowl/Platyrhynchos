@@ -131,3 +131,4 @@ dmypy.json
 tmp/
 data/
 .Rproj.user
+generated/
