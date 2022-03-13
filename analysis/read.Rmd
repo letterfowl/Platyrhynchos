@@ -43,6 +43,23 @@ ggplot(df_f) +
     y=TeX("Size (\\sqrt{x*y})"),
     color="Generation\ntime (s)",
     )
+ggsave('graphs/filledratio-size.png', dpi=300)
+```
+```{r}
+ggplot(df_f) +
+  aes(
+    x=finalcrossings/(finalratio*finalsize^2), 
+    y=finalsize,
+    color=gentime) +
+  geom_jitter()+
+  geom_density2d(color='grey')+
+  scale_color_gradient(low="green", high="red") +
+  labs(
+    x="Intersections to letters ratio",
+    y=TeX("Size (\\sqrt{x*y})"),
+    color="Generation\ntime (s)",
+    )
+ggsave('graphs/crossings-size.png', dpi=300)
 ```
 
 ```{r}
@@ -56,6 +73,7 @@ ggplot(df_p) +
     x="Turn",
     y="Goal function value",
     )
+ggsave('graphs/goal.png', dpi=300)
 ```
 ```{r}
 ggplot(df_p) +
@@ -68,6 +86,7 @@ ggplot(df_p) +
     x="Turn",
     y="Filled-in fields and all fields ratio",
     )
+ggsave('graphs/filled.svg')
 ```
 ```{r}
 ggplot(df_p) +
@@ -77,17 +96,77 @@ ggplot(df_p) +
   geom_density_2d_filled() +
   labs(
     x="Turn",
-    y="Crossing and letter amount ratio",
-    level=
+    y="Crossing to letter ratio",
+    level="Percent of crosswords"
     )
+ggsave('graphs/cross.png', dpi=300)
 ```
 
 ```{r}
 ggplot(df_f) +
-  aes(finalcrossings/(finalratio*finalsize^2)) +
-  geom_dotplot()+
+  aes(finalsize) +
+  geom_histogram(binwidth = 2)+
   labs(
-    x="Crossing and letter amount ratio",
-    y="Crossings",
+    x="Puzzle size",
+    y="Puzzle amount",
     )
+ggsave('graphs/size.png', dpi=300)
+```
+```{r}
+ggplot(df_f) +
+  aes(gentime) +
+  geom_histogram(binwidth = 0.25)+
+  labs(
+    x="Puzzle size",
+    y="Puzzle amount",
+    )
+#ggsave('graphs/time.png', dpi=300)
+```
+
+```{r}
+no_outs <- df_p[df_p$puzzle != 0 | df_p$turn != 1, ]
+ggplot(no_outs) +
+  aes(x=turn, y=turntime) +
+  geom_point(alpha=0.5)+
+  geom_smooth(method='lm') +
+#  geom_rug(sides = "bl") +
+  labs(
+    x="Turn",
+    y="Turn time",
+    )
+ggsave('graphs/turntime.png', dpi=300)
+cor.test(no_outs$turn, no_outs$turntime)
+
+cor.test(no_outs$currtemperature, no_outs$turntime)
+cor.test(no_outs$currsize, no_outs$turntime)
+```
+
+```{r}
+no_outs <- df_p[df_p$puzzle != 0 | df_p$turn != 1, ]
+ggplot(no_outs) +
+  aes(x=turn, y=currtemperature, group=puzzle) +
+  geom_line(alpha=0.5)+
+  labs(
+    x="Turn",
+    y="Word amount",
+    )
+```
+
+```{r}
+a <- df_f %>% 
+  select(turn_amount, finaltemperature, gentime, finalgoalval, finalsize, finalratio, finalcrossings, finallen)
+summary(a)
+
+sd(a$turn_amount)
+sd(a$turn_amount)/mean(df_f$turn_amount)
+sd(df_f$gentime)
+sd(df_f$gentime)/mean(df_f$gentime)
+sd(df_f$finalratio)
+sd(df_f$finalratio)/mean(df_f$finalratio)
+
+print("")
+b <- df_f$finalcrossings/(df_f$finalratio*df_f$finalsize^2)
+sd(b)
+mean(b)
+sd(b)/mean(b)
 ```

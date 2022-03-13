@@ -194,13 +194,13 @@ if __name__ == '__main__':
 
     am = 5
 
-    c = [i for i in Crossword.create(am, True)]
+    c = list(Crossword.create(am, True))
     cr = [i.rotate() for i in Crossword.create(am, True)]
 
     s = list(c[1:])+list(cr[1:])
     shuffle(s)
     d = sum(s, c[0]+cr[0])
-    print(str(d))
+    print(d)
     print(d.max)
     # print(goal(d))
 
