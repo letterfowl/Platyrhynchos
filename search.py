@@ -29,7 +29,7 @@ def goal(cross: Crossword) -> float:
     words = len(cross.words)
     size = cross.size
 
-    return cross.crossings*letters/size
+    return len(cross.crossings)*letters/size
 
 
 def find_best(tpl: tuple[Crossword, float, list[Crossword]]):
@@ -132,7 +132,7 @@ if __name__ == "__main__":
                   "%.4f" % round(golval, 4),
                   "%.4f" % round(cross.size**0.5, 4),
                   "%.4f" % round(len(cross.letters)/cross.size, 4),
-                  cross.crossings,
+                  len(cross.crossings),
                   len(cross.words),
                   sep=";", file=process_file)
 
@@ -153,7 +153,7 @@ if __name__ == "__main__":
               "%.4f" % round(golval, 4),
               "%.4f" % round(cross.size**0.5, 4),
               "%.4f" % round(len(cross.letters)/cross.size, 4),
-              cross.crossings,
+              len(cross.crossings),
               len(cross.words),
               sep=";", file=finish_file)
         finish_file.flush()

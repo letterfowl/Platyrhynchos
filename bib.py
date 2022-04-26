@@ -1,8 +1,7 @@
 from __future__ import annotations
 from json import load
-import time
-from random import sample, random, shuffle
-from typing import Callable, ClassVar, Iterator
+from random import sample, random, shuffle, choice
+from typing import Callable, Iterator
 from dataclasses import dataclass, field
 from functools import cached_property
 
@@ -11,14 +10,14 @@ with open('words.json', 'r', encoding='utf8') as f:
 
 WORDS_ITEMS = set(WORDS.items())
 
-
 @dataclass(init=True, repr=True)
 class Crossword(object):
     letters: dict[tuple[int, int], str]
-    words: set[str]
+    wordsH: dict[str, set[tuple[int, int]]]
     clueH: dict[tuple[int, int], str]
+    wordsV: dict[str, set[tuple[int, int]]] = field(default_factory=dict)
     clueV: dict[tuple[int, int], str] = field(default_factory=dict)
-    crossings: int = 0
+    crossings: set[tuple[int, int]] = field(default_factory=set)
 
     # Static methods
 
@@ -37,7 +36,7 @@ class Crossword(object):
     def construct(word: str, clue: str) -> Crossword:
         return Crossword(
             letters={(0, i): j for i, j in enumerate(word)},
-            words={word},
+            wordsH={word:{(0, i) for i in range(len(word))}},
             clueH={(0, 0): clue}
         )
 
@@ -54,7 +53,7 @@ class Crossword(object):
             yield Crossword.construct(add*"+"+word+" ", hint)
 
     def createFor(self, am: int, add: bool = False) -> Iterator[Crossword]:
-        ch = sample(WORDS_ITEMS - self.words, k=am)
+        ch = sample(WORDS_ITEMS - self.words.keys(), k=am)
         for hint, word in ch:
             # print(word, "<-", hint, "\n")
             yield Crossword.construct(add*"+"+word+" ", hint)
@@ -102,7 +101,7 @@ class Crossword(object):
             return self.combine(other.rotate(), T)
 
     def combine(self, other: Crossword, T: float) -> Crossword:
-        if self.words & other.words:
+        if self.words.keys() & other.words.keys():
             return None
         if random() > T:
             found = sorted(self._check_crossings(
@@ -115,14 +114,37 @@ class Crossword(object):
             if all(c1.letters[i] == c2.letters[i] for i in c1.letters.keys() & c2.letters.keys()):
                 csum = Crossword(
                     letters=c1.letters | c2.letters,
-                    words=c1.words | c2.words,
+                    wordsH=c1.wordsH | c2.wordsH,
                     clueV=c1.clueV | c2.clueV,
+                    wordsV=c1.wordsV | c2.wordsV,
                     clueH=c1.clueH | c2.clueH,
-                    crossings=sum(c1.letters[i] == c2.letters[i] for i in c1.letters.keys() & c2.letters.keys()) + c1.crossings + c2.crossings
+                    crossings= {i for i in c1.letters.keys() & c2.letters.keys() if c1.letters[i] == c2.letters[i]} | c1.crossings | c2.crossings
                 )
                 return csum.absolute()
 
+
+    def remove(self, word: str) -> Crossword:
+        letter_coords = self.words.get(word, None)
+        if letter_coords is None:
+            raise KeyError("Nie ma takiego słowa")
+        new = Crossword(
+            letters={coord: i for coord, i in self.letters.items() if coord not in letter_coords or coord in self.crossings},
+            wordsV={w: i for w, i in self.wordsV.items() if word != w},
+            clueV=self.clueV if word in self.wordsH else {coord: i for coord, i in self.clueV.items() if coord not in letter_coords},
+            wordsH={w: i for w, i in self.wordsH.items() if word != w},
+            clueH=self.clueH if word in self.wordsV else {coord: i for coord, i in self.clueH.items() if coord not in letter_coords},
+            crossings={coords for coords in self.crossings if coords not in letter_coords}
+        )
+        if len(new.words) == 0:
+            return None
+        return new.absolute()
+            
+
     # Properties
+
+    @cached_property
+    def words(self) -> dict[str, set[tuple[int, int]]]:
+        return self.wordsH | self.wordsV
 
     @cached_property
     def max(self) -> tuple[int, int]:
@@ -138,7 +160,7 @@ class Crossword(object):
     def min(self) -> tuple[int, int]:
         v, h = zip(*self.letters.keys())
         return min(v), min(h)
-
+    
     # Other
 
     def _get_crossable(self, letter: str) -> Iterator[tuple[int, int, tuple[bool]]]:
@@ -167,10 +189,11 @@ class Crossword(object):
         dv, dh = field
         return Crossword(
             letters={(v-dv, h-dh): i for (v, h), i in self.letters.items()},
-            words=self.words,
+            wordsV={word: {(v-dv, h-dh) for (v, h) in i} for word, i in self.wordsV.items()},
             clueV={(v-dv, h-dh): i for (v, h), i in self.clueV.items()},
             clueH={(v-dv, h-dh): i for (v, h), i in self.clueH.items()},
-            crossings=self.crossings
+            wordsH={word: {(v-dv, h-dh) for (v, h) in i} for word, i in self.wordsH.items()},
+            crossings={(v-dv, h-dh) for (v, h) in self.crossings}
         )
 
     def absolute(self):
@@ -182,10 +205,11 @@ class Crossword(object):
         return Crossword(
             letters={(j, i): letter for (i, j),
                      letter in self.letters.items()},
-            words=self.words, 
+            wordsH={word: {(h, v) for (v, h) in i} for word, i in self.wordsV.items()},
+            wordsV={word: {(h, v) for (v, h) in i} for word, i in self.wordsH.items()},
             clueV={(j, i): clue for (i, j), clue in self.clueH.items()},
             clueH={(j, i): clue for (i, j), clue in self.clueV.items()},
-            crossings=self.crossings
+            crossings={(j, i) for (i, j) in self.crossings}
         )
 
 
@@ -202,6 +226,12 @@ if __name__ == '__main__':
     d = sum(s, c[0]+cr[0])
     print(d)
     print(d.max)
+    
+    a = d
+    for i in d.words:
+        print(i)
+        a = a.remove(i)
+        print(a)
     # print(goal(d))
 
     # sims = 500

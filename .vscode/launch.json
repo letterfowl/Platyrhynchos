@@ -8,6 +8,14 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Search",
+            "type": "python",
+            "request": "launch",
             "program": "${workspaceFolder}/search.py",
             "console": "integratedTerminal"
         }
