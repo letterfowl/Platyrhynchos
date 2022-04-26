@@ -9,7 +9,7 @@ from tqdm import tqdm
 from bib import Crossword
 from visualize import gen_code, render
 
-START_T = 1
+START_T = 0.2
 SPEED = 1-0.015
 
 SAMPLE_SIZE = 40
@@ -49,6 +49,11 @@ def find_best(tpl: tuple[Crossword, float, list[Crossword]]):
             future = prod
     return future
 
+def find_remove(tpl: tuple[Crossword, list[str]]):
+    cross, words = tpl
+    if len(words) == 0:
+        return None
+    return max((cross.remove(word) for word in words), key=goal)
 
 def getfiles():  # sourcery skip: extract-duplicate-method
     if not os.path.isdir('data'):
@@ -97,24 +102,24 @@ if __name__ == "__main__":
         turn = 1
         golval = goal(cross)
         not_working = 0
-        while len(cross.letters)/cross.size < 0.8:  # True:
+        while True: #len(cross.letters)/cross.size < 0.8:
             timer_small = perf_counter()
 
             future = None
-            new = tuple(cross.createFor(SAMPLE_SIZE, ADD_PLUS))
+            if random() > T:
+                new = tuple(cross.createFor(SAMPLE_SIZE, ADD_PLUS))
+                assigned = [(cross, T, new[i::CPUS]) for i in range(CPUS)]
 
-            assigned = [(cross, T, new[i::CPUS]) for i in range(CPUS)]
-
-            calculated = [i for i in pool.map(
-                find_best, assigned) if i is not None]
-
-            if random() < T/SAMPLE_SIZE:
-                for i in calculated:
-                    if goal(i) > golval:
-                        future = cross
-                        break
-            elif len(calculated) > 0:
+                calculated = [i for i in pool.map(
+                    find_best, assigned) if i is not None]
+            else:
+                assigned = [(cross, tuple(cross.words.keys())[i::CPUS]) for i in range(CPUS)]
+                calculated = [i for i in pool.map(
+                    find_remove, assigned) if i is not None]
+            try:
                 future = max(calculated, key=goal)
+            except ValueError:
+                future = None
 
             if future:
                 not_working = 0

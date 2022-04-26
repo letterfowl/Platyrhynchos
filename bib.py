@@ -82,6 +82,35 @@ class Crossword(object):
 
     def __add__(self, other: Crossword) -> Crossword:
         return self.combine(other, 1)
+    
+    # Properties
+
+    @cached_property
+    def words(self) -> dict[str, set[tuple[int, int]]]:
+        return self.wordsH | self.wordsV
+
+    @cached_property
+    def max(self) -> tuple[int, int]:
+        v, h = zip(*self.letters.keys())
+        return max(v), max(h)
+
+    @cached_property
+    def size(self) -> int:
+        a, b = self.max
+        return (a+1)*(b+1)
+
+    @cached_property
+    def min(self) -> tuple[int, int]:
+        v, h = zip(*self.letters.keys())
+        return min(v), min(h)
+    
+    # Getters
+
+    def getIntersecting(self, word: str) -> set[str]:
+        coords = self.words[word] & self.crossings
+        return {w for w, c in self.words.items() if w != word and any(coords & c)}
+
+    # Crossword operations
 
     def combineWRotated(self, other: Crossword, T: float, key: Callable[[Crossword], float] = lambda x: -x.size) -> Crossword:
         a = self.combine(other, T)
@@ -100,7 +129,7 @@ class Crossword(object):
         else:
             return self.combine(other.rotate(), T)
 
-    def combine(self, other: Crossword, T: float) -> Crossword:
+    def combine(self, other: Crossword, T: float = 0) -> Crossword:
         if self.words.keys() & other.words.keys():
             return None
         if random() > T:
@@ -139,28 +168,6 @@ class Crossword(object):
             return None
         return new.absolute()
             
-
-    # Properties
-
-    @cached_property
-    def words(self) -> dict[str, set[tuple[int, int]]]:
-        return self.wordsH | self.wordsV
-
-    @cached_property
-    def max(self) -> tuple[int, int]:
-        v, h = zip(*self.letters.keys())
-        return max(v), max(h)
-
-    @cached_property
-    def size(self) -> int:
-        a, b = self.max
-        return (a+1)*(b+1)
-
-    @cached_property
-    def min(self) -> tuple[int, int]:
-        v, h = zip(*self.letters.keys())
-        return min(v), min(h)
-    
     # Other
 
     def _get_crossable(self, letter: str) -> Iterator[tuple[int, int, tuple[bool]]]:
