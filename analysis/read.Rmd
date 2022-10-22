@@ -11,8 +11,11 @@ library(latex2exp)
 ```
 
 ```{r}
-df_f <- read.csv('../generated/finish/prezent.csv', sep = ";")
-df_p <- read.csv('../generated/process/prezent.csv', sep = ";")
+df_f <- read.csv('../generated/finish/removing.csv', sep = ";")
+df_p <- read.csv('../generated/process/removing.csv', sep = ";")
+
+#df_f <- read.csv('../generated/finish/prezent.csv', sep = ";")
+#df_p <- read.csv('../generated/process/prezent.csv', sep = ";")
 
 ```
 
@@ -174,4 +177,25 @@ b <- df_f$finalcrossings/(df_f$finalratio*df_f$finalsize^2)
 sd(b)
 mean(b)
 sd(b)/mean(b)
+```
+
+```{r}
+a <- read.csv('../generated/finish/removing.csv', sep = ";")
+b <- read.csv('../generated/finish/prezent.csv', sep = ";")
+
+t.test(a$gentime, b$gentime)
+t.test(a$finalsize, b$finalsize)
+t.test(a$finalcrossings, b$finalcrossings)
+t.test(a$finalgoalval, b$finalgoalval)
+t.test(a$finalratio, b$finalratio)
+t.test(a$finalcrossings/(a$finalratio*a$finalsize^2), b$finalcrossings/(b$finalratio*b$finalsize^2))
+
+
+a['source'] = 'remove' 
+b['source'] = ''
+
+ggplot(df_f) +
+  aes(finalcrossings) +
+  geom_density()
+
 ```

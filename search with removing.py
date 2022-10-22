@@ -19,7 +19,7 @@ START_AM = 12
 
 TARGET_SIZE = 33, 25
 ADD_PLUS = True
-PUZZLE_AMOUNT = 3
+PUZZLE_AMOUNT = 110
 
 
 def goal(cross: Crossword) -> float:
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         turn = 1
         golval = goal(cross)
         not_working = 0
-        while True: #len(cross.letters)/cross.size < 0.8:
+        while len(cross.letters)/cross.size < 0.8:
             timer_small = perf_counter()
 
             future = None
