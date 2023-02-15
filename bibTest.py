@@ -4,22 +4,33 @@ from bib import WORDS, Crossword
 
 class TestBuild(TestCase):
     def test_build(self):
-        self.assertEqual([i for i in Crossword.createFrom({
-            "1": "abc",
-            "2": "cdef",
-            "3": "abcdefg"
-        })],
+        self.assertEqual(
+            list(Crossword.createFrom({"1": "abc", "2": "cdef", "3": "abcdefg"})),
             [
-            Crossword(letters={(0, 0): 'a', (1, 0): 'b', (2, 0): 'c'},
-                      clueH={(0, 0): '1'},
-                      clueV={}),
-            Crossword(letters={(0, 0): 'c', (1, 0): 'd', (2, 0): 'e', (3, 0): 'f'},
-                      clueH={(0, 0): '2'},
-                      clueV={}),
-            Crossword(letters={(0, 0): 'a', (1, 0): 'b', (2, 0): 'c', (3, 0): 'd', (4, 0): 'e', (5, 0): 'f', (6, 0): 'g'},
-                      clueH={(0, 0): '3'},
-                      clueV={})
-            ]
+                Crossword(
+                    letters={(0, 0): 'a', (1, 0): 'b', (2, 0): 'c'},
+                    clueH={(0, 0): '1'},
+                    clueV={},
+                ),
+                Crossword(
+                    letters={(0, 0): 'c', (1, 0): 'd', (2, 0): 'e', (3, 0): 'f'},
+                    clueH={(0, 0): '2'},
+                    clueV={},
+                ),
+                Crossword(
+                    letters={
+                        (0, 0): 'a',
+                        (1, 0): 'b',
+                        (2, 0): 'c',
+                        (3, 0): 'd',
+                        (4, 0): 'e',
+                        (5, 0): 'f',
+                        (6, 0): 'g',
+                    },
+                    clueH={(0, 0): '3'},
+                    clueV={},
+                ),
+            ],
         )
 
 
