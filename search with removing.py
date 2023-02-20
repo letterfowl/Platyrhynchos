@@ -6,7 +6,7 @@ from time import perf_counter, time
 from keyboard import is_pressed
 from tqdm import tqdm
 
-from bib import Crossword
+from libs.crossword_addable import CrosswordAddable
 from visualize import gen_code, render
 
 START_T = 0.2
@@ -22,7 +22,7 @@ ADD_PLUS = True
 PUZZLE_AMOUNT = 3
 
 
-def goal(cross: Crossword) -> float:
+def goal(cross: CrosswordAddable) -> float:
     if cross is None:
         return 0
     letters = len(cross.letters)
@@ -32,7 +32,7 @@ def goal(cross: Crossword) -> float:
     return len(cross.crossings)*letters/size
 
 
-def find_best(tpl: tuple[Crossword, float, list[Crossword]]):
+def find_best(tpl: tuple[CrosswordAddable, float, list[CrosswordAddable]]):
     cross, T, others = tpl
 
     golval = goal(cross)
@@ -49,7 +49,7 @@ def find_best(tpl: tuple[Crossword, float, list[Crossword]]):
             future = prod
     return future
 
-def find_remove(tpl: tuple[Crossword, list[str]]):
+def find_remove(tpl: tuple[CrosswordAddable, list[str]]):
     cross, words = tpl
     if len(words) == 0:
         return None
@@ -85,8 +85,8 @@ if __name__ == "__main__":
 
         timer_main = perf_counter()
         while True:
-            c = list(Crossword.create(START_AM//2, ADD_PLUS))
-            cr = [i.rotate() for i in Crossword.create(START_AM//2, ADD_PLUS)]
+            c = list(CrosswordAddable.create(START_AM//2, ADD_PLUS))
+            cr = [i.rotate() for i in CrosswordAddable.create(START_AM//2, ADD_PLUS)]
 
             s = list(c[1:])+list(cr[1:])
             shuffle(s)

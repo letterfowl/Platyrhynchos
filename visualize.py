@@ -1,7 +1,6 @@
 import os
-from bib import Crossword
+from libs.crossword_addable import CrosswordAddable
 from string import ascii_letters
-from re import sub
 
 HEADER = r"""
 \documentclass[11pt]{article}
@@ -41,7 +40,7 @@ def cleanhint(s: str) -> str:
         s = s.replace(i,j)
     return s
  
-def gen_table(cross: Crossword):
+def gen_table(cross: CrosswordAddable):
     SYMBOLS = ascii_letters+EMPTY+"ąęóśłżźćń"
 
     hintnum = 0
@@ -62,24 +61,24 @@ def gen_table(cross: Crossword):
 
 
             # Obsługa podpowiedzi
-            new_clueH = cross.clueH.get((i, j))
-            new_clueV = cross.clueV.get((i, j))
+            new_clues_horizontal = cross.clues_horizontal.get((i, j))
+            new_clues_vertical = cross.clues_vertical.get((i, j))
 
-            if new_clueH or new_clueV:
+            if new_clues_horizontal or new_clues_vertical:
                 hintnum += 1
                 hint = f"[{hintnum}]"
             else:
                 hint = ""
 
-            if new_clueH:
-                hintsH.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clueH)))
-            if new_clueV:
-                hintsV.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clueV)))
+            if new_clues_horizontal:
+                hintsH.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clues_horizontal)))
+            if new_clues_vertical:
+                hintsV.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clues_vertical)))
             # Dodawanie strzałek dla +
             if add_symbol == "+":
-                if new_clueH and not new_clueV:
+                if new_clues_horizontal and not new_clues_vertical:
                     add_symbol = r"[S]\rarr"
-                elif not new_clueH and new_clueV:
+                elif not new_clues_horizontal and new_clues_vertical:
                     add_symbol = r"[S]\darr"
                 else:
                     add_symbol = r"[S]\drarr"
@@ -96,7 +95,7 @@ def gen_table(cross: Crossword):
         table.append("|"+"\t|".join(t)+"\t|.")
     return table, hintsH, hintsV 
 
-def _gen_code(cross: Crossword):
+def _gen_code(cross: CrosswordAddable):
     table, hintsH, hintsV = gen_table(cross)
     rtable = r"\noindent\begin{Puzzle}{%d}{%d}%s\end{Puzzle}" % (cross.max[1], cross.max[0], "\n".join(table))
     rhintsH = r"\begin{PuzzleClues}{\textbf{Poziome}\\}%s\end{PuzzleClues}" % ("\n".join(hintsH))
@@ -104,7 +103,7 @@ def _gen_code(cross: Crossword):
     return rtable, rhintsH, rhintsV
 
     
-def gen_code(cross: list[Crossword]) -> str:
+def gen_code(cross: list[CrosswordAddable]) -> str:
     strings = [HEADER+"\n\n"]
     for n, i in enumerate(cross):
         rtable, rhintsH, rhintsV = _gen_code(i)

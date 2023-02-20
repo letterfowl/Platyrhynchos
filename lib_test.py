@@ -1,23 +1,23 @@
 from unittest import TestCase
-from bib import WORDS, Crossword
+from libs.crossword_addable import CrosswordAddable
 
 
 class TestBuild(TestCase):
     def test_build(self):
         self.assertEqual(
-            list(Crossword.createFrom({"1": "abc", "2": "cdef", "3": "abcdefg"})),
+            list(CrosswordAddable.createFrom({"1": "abc", "2": "cdef", "3": "abcdefg"})),
             [
-                Crossword(
+                CrosswordAddable(
                     letters={(0, 0): 'a', (1, 0): 'b', (2, 0): 'c'},
-                    clueH={(0, 0): '1'},
-                    clueV={},
+                    clues_horizontal={(0, 0): '1'},
+                    clues_vertical={},
                 ),
-                Crossword(
+                CrosswordAddable(
                     letters={(0, 0): 'c', (1, 0): 'd', (2, 0): 'e', (3, 0): 'f'},
-                    clueH={(0, 0): '2'},
-                    clueV={},
+                    clues_horizontal={(0, 0): '2'},
+                    clues_vertical={},
                 ),
-                Crossword(
+                CrosswordAddable(
                     letters={
                         (0, 0): 'a',
                         (1, 0): 'b',
@@ -27,8 +27,8 @@ class TestBuild(TestCase):
                         (5, 0): 'f',
                         (6, 0): 'g',
                     },
-                    clueH={(0, 0): '3'},
-                    clueV={},
+                    clues_horizontal={(0, 0): '3'},
+                    clues_vertical={},
                 ),
             ],
         )
@@ -36,7 +36,7 @@ class TestBuild(TestCase):
 
 class TestBasic(TestCase):
     def setUp(self) -> None:
-        self.words = Crossword.createFrom(
+        self.words = CrosswordAddable.createFrom(
             {
                 "Jak się nazywa rezultat odgórnie podjętych decyzji lub negocjacji": "rozstrzygnięcie",
                 "Jak się nazywa nowotwór złośliwy skóry wywodzący się z komórek naskórka": "rak kolczystokomórkowy",
