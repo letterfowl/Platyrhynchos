@@ -109,7 +109,7 @@ class CrosswordAddable(Crossword):
         else:
             return self.combine(other.rotate(), T)
 
-    def combine(self, other: Crossword, T: float = 0) -> Optional[Self]:
+    def combine(self, other: CrosswordAddable, T: float = 0) -> Optional[CrosswordAddable]:
         if self.words.keys() & other.words.keys():
             return None
         if random() > T:
@@ -118,19 +118,21 @@ class CrosswordAddable(Crossword):
         else:
             found = self._check_crossings(other)
         for p1, p2 in found:
+            # TODO: fix
             c1 = self.relative(p1)
             c2 = other.relative(p2)
             if all(c1.letters[i] == c2.letters[i] for i in c1.letters.keys() & c2.letters.keys()):
                 csum = CrosswordAddable(
                     letters=c1.letters | c2.letters,
                     words_horizontal=c1.words_horizontal | c2.words_horizontal,
-                    clues_vertical=c1.clues_vertical | c2.clues_vertical,
+                    clues_vertical=c1.clues_vertical |  c2.clues_vertical,
                     words_vertical=c1.words_vertical | c2.words_vertical,
                     clues_horizontal=c1.clues_horizontal | c2.clues_horizontal,
                     crossings= {i for i in c1.letters.keys() & c2.letters.keys() if c1.letters[i] == c2.letters[i]} | c1.crossings | c2.crossings
                 )
                 return csum.absolute()
 
+    # TODO: add clues to the rotate function
 
     def remove(self, word: str) -> Optional[CrosswordAddable]:
         letter_coords = self.words.get(word, None)
