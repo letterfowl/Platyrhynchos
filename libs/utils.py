@@ -5,6 +5,8 @@ T = TypeVar("T")
 T2 = TypeVar("T2")
 
 Coord = NewType("Coord", tuple[int, int])
+IsColumn = NewType("IsColumn", bool)
+CruciverbalistDecision = NewType("CruciverbalistDecision", tuple[IsColumn, int, str])
 
 class ProxiedDict(dict):
     def __init__(self, source: dict[T, T2],

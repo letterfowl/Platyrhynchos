@@ -5,12 +5,43 @@ from itertools import groupby
 from typing import Iterable, Optional
 import re
 
-from .crossword import Crossword
-from .exceptions import TooLargeException, UninsertableException
-from .utils import Coord, ProxiedDict
+from libs.crossword import Crossword
+from libs.exceptions import TooLargeException, UninsertableException
+from libs.utils import Coord, ProxiedDict, CruciverbalistDecision
 
 
 class CrosswordImprovable(Crossword):
+    
+    @staticmethod
+    def make(word: str, max_h: int, max_v: Optional[int] = None) -> CrosswordImprovable:
+        """
+        Should create a one word crossword. For example:
+        
+        ```
+        >>> print(CrosswordImprovable.make("dupa", 10, 4))
+        dupa::::::
+        ::::::::::
+        ::::::::::
+        ::::::::::
+
+        >>> print(CrosswordImprovable.make("dupa", 4, 1))
+        dupa
+        
+        ```
+
+        Arguments:
+            word -- word to add
+            max_h -- maximum columns
+            max_v -- maximum rows (default: {None})
+        """
+        max_v = max_v or max_h
+        return CrosswordImprovable(
+            letters={Coord((i, 0)): j for i, j in enumerate(word)},
+            max_h=max_h,
+            max_v=max_v,
+            words_horizontal={word:{Coord((0, i)) for i in range(len(word))}},
+        )
+    
     def checkSize(self, x: int, y: int):
         if x >= self.max_h or y >= self.max_v:
             raise TooLargeException(
@@ -38,7 +69,48 @@ class CrosswordImprovable(Crossword):
             crossings,
         )
 
+    def __repr__(self) -> str:
+        size = self.max
+        max_size = self.max_h, self.max_v
+        return "\n".join(
+            "".join(
+                (
+                    self.letters.get(Coord((h, v)), ":")
+                    for h in range(self.max_h)
+                )
+            )
+            for v in range(self.max_v)
+        )# + f"\n[{size=} {max_size=}]"
+
     def rotate(self):
+        """
+        Rotates the crossword, works in place.
+        
+        ```
+        >>> c = CrosswordImprovable.make("dupa", 4, 1)
+        >>> c.rotate()
+        >>> print(c)
+        d
+        u
+        p
+        a
+
+        >>> c.rotate()
+        >>> print(c)
+        dupa
+        
+        ```
+        It will do that by swapping column and row ids and `rows_vertical` with `rows_horizontal` (while also changing the ids in them):
+        ```
+        >>> c = CrosswordImprovable({(0,1):'a'}, 2, 2, words_horizontal={'a':{(0,1)}}, crossings = {(0,1)})
+        >>> c.rotate()
+        >>> c.crossings
+        {(1, 0)}
+        >>> c.words_vertical
+        {'a': {(1, 0)}}
+        >>> c.words_horizontal
+        {}
+        """
         self.letters = {Coord((j, i)): letter for (
             i, j), letter in self.letters.items()}
         self.max_h, self.max_v = self.max_v, self.max_h
@@ -122,7 +194,45 @@ class CrosswordImprovable(Crossword):
                 self.words_horizontal[word].add(pos)
 
     def add_letter(self, coord: Coord, letter: str):
+        """
+        Add a letter to the crossword, unless the crossword already contains it at this coordinate. Then a crossing will be added. For example:
+
+        ```
+        >>> c = CrosswordImprovable.make("dupa", 4, 4)
+        >>> c.add_letter((3,3), 'g')
+        >>> print(c)
+        dupa
+        ::::
+        ::::
+        :::g
+
+        >>> c.add_letter((3,3), 'g')
+        >>> print(c)
+        dupa
+        ::::
+        ::::
+        :::g
+        >>> c.crossings
+        {(3, 3)}
+
+        >>> c.add_letter((0,0), 'g')
+        Traceback (most recent call last):
+            ...
+        libs.exceptions.UninsertableException: This field is already occupied
+        
+        ```
+
+        Arguments:
+            coord -- Coordinates
+            letter -- The letter to add
+        """
         if coord not in self.letters:
             self.letters[coord] = letter
         else:
+            if self.letters[coord] != letter:
+                raise UninsertableException("This field is already occupied")
             self.crossings.add(coord)
+
+    def handle_decision(self, decision: CruciverbalistDecision):
+        is_column, n, word = decision
+        self.add(word, is_column, n)
