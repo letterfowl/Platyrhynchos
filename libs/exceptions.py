@@ -7,3 +7,6 @@ class TooLargeException(CrosswordException):
 
 class UninsertableException(CrosswordException):
     pass
+
+class PartNotFoundException(UninsertableException):
+    pass
