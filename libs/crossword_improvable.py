@@ -134,12 +134,21 @@ class CrosswordImprovable(Crossword):
         )
 
     @staticmethod
-    def _combine_rere(letters, else_str=".?"):
-        return "("+")(".join(
-            re.escape(i)
-            if i is not None else else_str
-            for i in letters
-        )+")"
+    def _combine_rere(letters):
+        pattern = []
+        empty = True
+        for i in letters:
+            if i is None:
+                pattern.append(".?" if empty else ".")
+            else:
+                pattern.append(re.escape(i))
+                empty = False
+                
+        added_optional = []
+        while pattern[-1]==".":
+            pattern.pop(-1)
+            added_optional.append(".?")
+        return "("+")(".join(pattern+added_optional)+")"
 
     def regexes(self, is_column: bool, n: int):
         if is_column:
@@ -167,8 +176,43 @@ class CrosswordImprovable(Crossword):
             if column in set(columns) or row in set(rows):
                 yield word, coords
 
-    def add(self, word: str, is_column: bool, n: int):
-        _, reg2 = self.regexes(is_column, n)
+    def add(self, word: str, is_column: bool, to: int):
+        """
+        Adds a word to the crossword row/column. It requires an intersection.
+
+        Arguments:
+            word -- word to add
+            is_column -- True if n is column ID
+            to -- column/row id
+        
+        ```
+        >>> c = CrosswordImprovable.make("dupa", 4, 4)
+        >>> c.add("peja", True, 2)
+        >>> print(c)
+        dupa
+        ::e:
+        ::j:
+        ::a:
+        
+        >>> c.add("co", True, 3)
+        Traceback (most recent call last):
+            ...
+        libs.exceptions.UninsertableException: word='co'; reg2='(a)(.?)(.?)(.?)'; no match
+        
+        >>> c.add("ej", False, 2)
+        >>> print(c)
+        dupa
+        ::e:
+        :ej:
+        ::a:
+        
+        ```
+
+        Raises:
+            UninsertableException: no match - Regex couldn't find a match
+            UninsertableException: no group found - regex didn't find a group (weird)
+        """
+        _, reg2 = self.regexes(is_column, to)
         matched = re.match(reg2, word)
         if matched is None:
             raise UninsertableException(f"{word=}; {reg2=}; no match")
@@ -185,7 +229,7 @@ class CrosswordImprovable(Crossword):
             self.words_horizontal[word] = set()
 
         for place, letter in enumerate(word, from_zero):
-            pos = Coord((n, place)) if is_column else Coord((place, n))
+            pos = Coord((to, place)) if is_column else Coord((place, to))
             self.add_letter(pos, letter)
 
             if is_column:
@@ -218,7 +262,7 @@ class CrosswordImprovable(Crossword):
         >>> c.add_letter((0,0), 'g')
         Traceback (most recent call last):
             ...
-        libs.exceptions.UninsertableException: This field is already occupied
+        libs.exceptions.UninsertableException: This field is already occupied (coord=(0, 0); new=g; old=d)
         
         ```
 
@@ -230,7 +274,7 @@ class CrosswordImprovable(Crossword):
             self.letters[coord] = letter
         else:
             if self.letters[coord] != letter:
-                raise UninsertableException("This field is already occupied")
+                raise UninsertableException(f"This field is already occupied ({coord=}; new={letter}; old={self.letters[coord]})")
             self.crossings.add(coord)
 
     def handle_decision(self, decision: CruciverbalistDecision):
