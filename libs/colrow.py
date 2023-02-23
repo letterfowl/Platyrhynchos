@@ -141,14 +141,16 @@ class ColRow:
     def pos_of_word(self, word: str) -> int:
         field_vals = self.get()
         part_letters = list(enumerate(word))
-        for i in range(len(field_vals) - len(word) + 1):
-            if all(
-                field_vals[n + i] == letter
-                for n, letter in part_letters
-                if letter in field_vals
-            ):
-                return i
-        raise PartNotFoundException(f"Couldn't locate {word} in {field_vals}")
+        found =  max(
+            (
+                sum(field_vals[n + i] == letter for n, letter in part_letters)
+                for i in range(len(field_vals) - len(word) + 1)
+            ), default=None
+        )
+        if found is None:
+            raise PartNotFoundException(f"Couldn't locate {word} in {field_vals}")
+        else:
+            return found
 
     def cross_words(self) -> Iterator[tuple[str, set[Coord]]]:
         column, row = (self.dim_num, None) if self.is_column else (None, self.dim_num)
