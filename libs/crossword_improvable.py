@@ -1,17 +1,11 @@
 from __future__ import annotations
 
-from functools import cached_property
-from itertools import groupby
-from typing import Iterable, Iterator, Optional
-import re
+from typing import Optional, Iterator
 
+from libs.colrow import ColRow
 from libs.crossword import Crossword
-from libs.exceptions import (
-    PartNotFoundException,
-    TooLargeException,
-    UninsertableException,
-)
-from libs.utils import Coord, ProxiedDict, CruciverbalistDecision, find_sub_list
+from libs.exceptions import TooLargeException, UninsertableException
+from libs.utils import ColRowId, Coord, IsColumn, ProxiedDict
 
 
 class CrosswordImprovable(Crossword):
@@ -123,173 +117,13 @@ class CrosswordImprovable(Crossword):
         self.words_horizontal, self.words_vertical = new_horizontal, new_vertical
         self.crossings = {Coord((j, i)) for (i, j) in self.crossings}
 
-    @staticmethod
-    def _combine_re(letters, else_str=".?"):
-        return "".join(re.escape(i) if i is not None else else_str for i in letters)
+    def get_colrow(self, is_column: IsColumn, colrow: ColRowId):
+        return ColRow(self, is_column, colrow)
+    
+    def iter_colrows(self) -> Iterator[ColRow]:
+        yield from ColRow.iter(self)
 
-    @staticmethod
-    def _combine_rere(letters):
-        pattern = []
-        empty = True
-        for i in letters:
-            if i is None:
-                pattern.append(".?" if empty else ".")
-            else:
-                pattern.append(re.escape(i))
-                empty = False
-
-        added_optional = []
-        while pattern[-1] == ".":
-            pattern.pop(-1)
-            added_optional.append(".?")
-        return "(" + ")(".join(pattern + added_optional) + ")"
-
-    def regexes(self, is_column: bool, n: int):
-        if is_column:
-            letters = [self.letters.get(Coord((n, i))) for i in range(self.max_v)]
-        else:
-            letters = [self.letters.get(Coord((i, n))) for i in range(self.max_h)]
-        return self._combine_re(letters), self._combine_rere(letters)
-
-    @cached_property
-    def columns(self):
-        return dict(groupby(self.letters.keys(), key=lambda x: x[0]))
-
-    @cached_property
-    def rows(self):
-        return dict(groupby(self.letters.keys(), key=lambda x: x[-1]))
-
-    def get_with_empty(self, dim_val: int, is_column: bool) -> list[str | None]:
-        if is_column:
-            return [self.letters.get(Coord((dim_val, i))) for i in range(self.max_v)]
-        else:
-            return [self.letters.get(Coord((i, dim_val))) for i in range(self.max_h)]
-
-    def yield_regexes(self, dim_val: int, is_column: bool) -> Iterator[str]:
-        """
-        >>> c = CrosswordImprovable({(0,1):'a', (2,1):'b', (4,1):'s', (1,1):'g'}, 10, 10, words_horizontal={'a':{(0,1)}}, crossings = {(0,1)})
-        >>> list(c.yield_regexes(0, True))
-        ['^.{0,1}a.{0,8}$', '^.{0,8}$', '^.{0,1}$']
-
-        >>> list(c.yield_regexes(1, False))
-        ['^agb.{1}s.{0,5}$', '^.{0,5}$', '^agb.{0,1}$', '^.{0,1}s.{0,5}$']
-        """
-        letters = self.get_with_empty(dim_val, is_column)
-        found = set()
-        for i in self._letters_subparts(letters):
-            regex = self._regex_of_part(i)
-            if regex not in found:
-                found.add(regex)
-                yield regex
-
-    @staticmethod
-    def _find_empties(column_row: list[str | None]) -> list[slice]:
-        begin = None
-        slices = []
-        for ith, i in enumerate(column_row):
-            if i is not None:
-                if begin is not None:
-                    slices.append(slice(begin, ith))
-                begin = None
-            elif begin is None:
-                begin = ith
-
-        if begin is not None:
-            slices.append(slice(begin, len(column_row)))
-        return slices
-
-    @classmethod
-    def _letters_subparts(
-        cls,
-        column_row: list[str | None],
-        old_left_nones: int = 0,
-        old_right_nones: int = 0,
-    ):
-        slices = cls._find_empties(column_row)
-        if len(slices) == 0:
-            return
-        biggest = max(slices, key=lambda x: x.stop - x.start)
-
-        yield old_left_nones * [None] + column_row[: biggest.start] + column_row[
-            biggest
-        ]
-        yield column_row[biggest] + column_row[biggest.stop :] + old_right_nones * [
-            None
-        ]
-        yield from cls._letters_subparts(
-            column_row[: biggest.start], old_left_nones, biggest.stop - biggest.start
-        )
-        yield from cls._letters_subparts(
-            column_row[biggest.stop :], biggest.stop - biggest.start, old_right_nones
-        )
-        return
-
-    @staticmethod
-    def _regex_of_part(
-        part: list[str | None], letters_before: int = 0, letters_after: int = 0
-    ) -> str:
-        """
-        Generates the regex of a row/column part. For example:
-
-        TODO: Add tests
-
-        Arguments:
-            part -- Part of get_with_empty result (or full result)
-            letters_before -- number of letters allowed before the part (defaults to 0)
-            letters_after -- number of letters allowed after the part (defaults to 0)
-
-        Returns:
-            Regex string
-        """
-        reg_list = []
-        none_series = 0
-        for i in part:
-            if i is None:
-                none_series += 1
-            else:
-                # reset Nones
-                if not reg_list:
-                    letters_before += none_series
-                elif none_series > 0:
-                    reg_list.append(".{%s}" % none_series)
-                none_series = 0
-
-                # add current
-                reg_list.append(re.escape(i))
-        letters_after += none_series
-
-        reg_list = [
-            "^",
-            ".{0,%s}" % letters_before,
-            *reg_list,
-            ".{0,%s}" % letters_after,
-            "$",
-        ]
-        reg_list = [i for i in reg_list if i not in {".{0}", ".{0,0}"}]
-        return "".join(reg_list)
-
-    def _pos_of_word(self, word: str, dim_val: int, is_column: bool) -> int:
-        column_row = self.get_with_empty(dim_val, is_column)
-        part_letters = list(enumerate(word))
-        for i in range(len(column_row) - len(word) + 1):
-            if all(
-                column_row[n + i] == letter
-                for n, letter in part_letters
-                if letter in column_row
-            ):
-                return i
-        raise PartNotFoundException(f"Couldn't locate {word} in {column_row}")
-
-    def cross_words(
-        self, dim_val: int, is_column: bool
-    ) -> Iterable[tuple[str, set[Coord]]]:
-        column, row = (dim_val, None) if is_column else (None, dim_val)
-        for word, coords in self.words.items():
-            columns, rows = tuple(zip(*coords))
-            if column in set(columns) or row in set(rows):
-                yield word, coords
-
-    def add(self, word: str, is_column: bool, dim_val: int):
+    def add(self, word: str, colrow: ColRow | tuple[IsColumn, ColRowId]):
         """
         Adds a word to the crossword row/column. It requires an intersection.
 
@@ -301,21 +135,21 @@ class CrosswordImprovable(Crossword):
 
         ```
         >>> c = CrosswordImprovable.make("dupa", 4, 4)
-        >>> c.add("peja", True, 2)
+        >>> c.add("peja", (True, 2))
         >>> print(c)
         dupa
         ::e:
         ::j:
         ::a:
 
-        >>> c.add("ej", False, 2)
+        >>> c.add("ej", (False, 2))
         >>> print(c)
         dupa
         ::e:
         :ej:
         ::a:
 
-        >>> c.add("co", False, 3)
+        >>> c.add("co", (False, 3))
         >>> print(c)
         dupa
         ::e:
@@ -324,17 +158,23 @@ class CrosswordImprovable(Crossword):
 
         ```
         """
-        start_index = self._pos_of_word(word, dim_val, is_column)
-        if is_column:
+        if not isinstance(colrow, ColRow):
+            colrow = self.get_colrow(colrow[0], colrow[-1])
+        start_index = colrow.pos_of_word(word)
+        if colrow.is_column:
             self.words_vertical[word] = set()
         else:
             self.words_horizontal[word] = set()
 
         for place, letter in enumerate(word, start_index):
-            pos = Coord((dim_val, place)) if is_column else Coord((place, dim_val))
+            pos = (
+                Coord((colrow.dim_num, place))
+                if colrow.is_column
+                else Coord((place, colrow.dim_num))
+            )
             self.add_letter(pos, letter)
 
-            if is_column:
+            if colrow.is_column:
                 self.words_vertical[word].add(pos)
             else:
                 self.words_horizontal[word].add(pos)
@@ -380,7 +220,3 @@ class CrosswordImprovable(Crossword):
             raise UninsertableException(
                 f"This field is already occupied ({coord=}; new={letter}; old={self.letters[coord]})"
             )
-
-    # def handle_decision(self, decision: CruciverbalistDecision):
-    #     is_column, n, word = decision
-    #     self.add(word, is_column, n)
