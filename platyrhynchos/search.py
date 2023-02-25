@@ -6,8 +6,8 @@ from time import perf_counter, time
 from keyboard import is_pressed
 from tqdm import tqdm
 
-from libs.crossword_addable import CrosswordAddable
-from visualize import gen_code, render
+from .libs.crossword_addable import CrosswordAddable
+from .visualize import gen_code, render
 
 START_T = 1
 SPEED = 1-0.015

@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from libs.colrow import ColRow
-from libs.crossword_improvable import CrosswordImprovable
-from libs.utils import IsColumn
+from ..colrow import ColRow
+from ..crossword_improvable import CrosswordImprovable
 
 class Cruciverbalist(ABC):
 

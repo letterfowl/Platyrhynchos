@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from functools import cached_property
-from libs.utils import Coord
+from .utils import Coord
 from typing import TypeVar
 
 CrosswordT = TypeVar("CrosswordT", bound="Crossword")

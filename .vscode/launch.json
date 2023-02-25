@@ -13,20 +13,13 @@
             "justMyCode": false
         },
         {
-            "name": "Python: Current File (base cwd)",
+            "name": "Python: Tests",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/examples/__init__.py",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "justMyCode": false
-        },
-        {
-            "name": "Python: Search",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/search.py",
-            "console": "integratedTerminal"
         }
     ]
 }

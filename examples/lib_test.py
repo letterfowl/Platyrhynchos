@@ -1,5 +1,5 @@
 from unittest import TestCase
-from libs.crossword_addable import CrosswordAddable
+from platyrhynchos..crossword_addable import CrosswordAddable
 
 
 class TestBuild(TestCase):

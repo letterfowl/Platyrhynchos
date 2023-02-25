@@ -4,10 +4,10 @@ import re
 from dataclasses import dataclass
 from typing import Iterator
 
-from libs.crossword import Crossword
+from .crossword import Crossword
 
-from libs.exceptions import PartNotFoundException
-from libs.utils import Coord
+from .exceptions import PartNotFoundException
+from .utils import Coord
 
 
 @dataclass(init=True, repr=True)

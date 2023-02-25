@@ -2,29 +2,17 @@ from __future__ import annotations
 
 from typing import Optional, Iterator
 
-from libs.colrow import ColRow
-from libs.crossword import Crossword
-from libs.exceptions import TooLargeException, UninsertableException
-from libs.utils import ColRowId, Coord, IsColumn, ProxiedDict
+from .colrow import ColRow
+from .crossword import Crossword
+from .exceptions import TooLargeException, UninsertableException
+from .utils import ColRowId, Coord, IsColumn, ProxiedDict
 
 
 class CrosswordImprovable(Crossword):
     @staticmethod
     def make(word: str, max_h: int, max_v: Optional[int] = None) -> CrosswordImprovable:
         """
-        Should create a one word crossword. For example:
-
-        ```
-        >>> print(CrosswordImprovable.make("dupa", 10, 4))
-        dupa::::::
-        ::::::::::
-        ::::::::::
-        ::::::::::
-
-        >>> print(CrosswordImprovable.make("dupa", 4, 1))
-        dupa
-
-        ```
+        Should create a one word crossword.
 
         Arguments:
             word -- word to add

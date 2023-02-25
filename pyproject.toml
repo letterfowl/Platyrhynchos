@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "platyrhynchos"
+version = "0.1.1"
+description = """We propose a word-centric crossword generation method. This can be viewed as an alternative to the method proposed by Bonomo, Lauf and Yampolskiy or Bulitko and Botea, who focus on generating matrices filled with letters and mutating them in order to make them into actual crosswords. The first method uses a combination of first improvement and best improvement local search methods to concatenate together crosswords. The choice on which one to use is made using the temperature calculated for a given turn. Second algorithm is a simulated annealing algorithm which uses best improvement search and word removal operation. The crosswords are evaluated using a goal function that includes the amount of intersections in a crossword and the density of letters in the crossword."""
+authors = [
+    "Jakub Dakowski <jakubdakowski@gmail.com>",
+    "Piotr Jaworski",
+    "Jan Pielesiak",
+    "Waldemar Wojna"
+]
+license = "CC BY-NC-SA 4.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10.10"
+keyboard = "^0.13.5"
+tqdm = "^4.64.1"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
