@@ -16,19 +16,26 @@ class ColRow:
     is_column: bool
     dim_num: int
 
-    def get(self) -> list[str | None]:
+    def get_coords(self) -> list[Coord]:
         if self.is_column:
             max_v = getattr(self.crossword, "max_v", self.crossword.max[1])
             return [
-                self.crossword.letters.get(Coord((self.dim_num, i)))
+                Coord((self.dim_num, i))
                 for i in range(max_v)
             ]
         else:
             max_h = getattr(self.crossword, "max_h", self.crossword.max[0])
             return [
-                self.crossword.letters.get(Coord((i, self.dim_num)))
+                Coord((i, self.dim_num))
                 for i in range(max_h)
             ]
+
+    def get(self) -> list[str | None]:
+        return [self.crossword.letters.get(i) for i in self.get_coords()]
+
+    def __repr__(self) -> str:
+        vals = "".join(i or ":" for i in self.get())
+        return f"{'Col' if self.is_column else 'Row'}({self.dim_num}, {vals})"
 
     @staticmethod
     def _empty_slices(field_vals: list[str | None]) -> list[slice]:

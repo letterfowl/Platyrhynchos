@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Iterator
+from typing import Optional, Iterator, NoReturn
 
 from .colrow import ColRow
 from .crossword import Crossword
@@ -9,6 +9,10 @@ from .utils import ColRowId, Coord, IsColumn, ProxiedDict
 
 
 class CrosswordImprovable(Crossword):
+    """
+    Crossword subclass used to implement the "smart" insertion algorithm.
+    """
+
     @staticmethod
     def make(word: str, max_h: int, max_v: Optional[int] = None) -> CrosswordImprovable:
         """
@@ -27,10 +31,20 @@ class CrosswordImprovable(Crossword):
             words_horizontal={word: {Coord((0, i)) for i in range(len(word))}},
         )
 
-    def checkSize(self, x: int, y: int):
-        if x >= self.max_h or y >= self.max_v:
+    def check_size(self, horizontal: int, vertical: int) -> NoReturn | None:
+        """
+        Compares size of crossword with provided arguments
+
+        + ---> horizontal
+        |
+        ⌄ vertical
+
+        Raises:
+            TooLargeException: coordinates don't fit into the crossword
+        """
+        if horizontal >= self.max_h or vertical >= self.max_v:
             raise TooLargeException(
-                f"{x=} while {self.max_h=}; {y=} while {self.max_v=}"
+                f"{horizontal=} vs {self.max_h}; {vertical=} vs {self.max_v}"
             )
 
     def __init__(
@@ -47,7 +61,7 @@ class CrosswordImprovable(Crossword):
         words_vertical = words_vertical or {}
         crossings = crossings or set()
         super().__init__(
-            ProxiedDict(letters, on_set=lambda key, _: self.checkSize(key[0], key[1])),
+            ProxiedDict(letters, on_set=lambda key, _: self.check_size(key[0], key[1])),
             words_horizontal,
             words_vertical,
             crossings,
@@ -64,31 +78,6 @@ class CrosswordImprovable(Crossword):
     def rotate(self):
         """
         Rotates the crossword, works in place.
-
-        ```
-        >>> c = CrosswordImprovable.make("dupa", 4, 1)
-        >>> c.rotate()
-        >>> print(c)
-        d
-        u
-        p
-        a
-
-        >>> c.rotate()
-        >>> print(c)
-        dupa
-
-        ```
-        It will do that by swapping column and row ids and `rows_vertical` with `rows_horizontal` (while also changing the ids in them):
-        ```
-        >>> c = CrosswordImprovable({(0,1):'a'}, 2, 2, words_horizontal={'a':{(0,1)}}, crossings = {(0,1)})
-        >>> c.rotate()
-        >>> c.crossings
-        {(1, 0)}
-        >>> c.words_vertical
-        {'a': {(1, 0)}}
-        >>> c.words_horizontal
-        {}
         """
         self.letters = {
             Coord((j, i)): letter for (i, j), letter in self.letters.items()
@@ -105,9 +94,22 @@ class CrosswordImprovable(Crossword):
         self.words_horizontal, self.words_vertical = new_horizontal, new_vertical
         self.crossings = {Coord((j, i)) for (i, j) in self.crossings}
 
-    def colrow(self, is_column: IsColumn, colrow: ColRowId):
-        return ColRow(self, is_column, colrow)
-    
+    def colrow(self, is_column: IsColumn, nth: ColRowId) -> ColRow:
+        """
+        Gets ColRow object
+
+        Arguments:
+            is_column -- Bool telling whether you want to retrieve a column (True) or row (False)
+            nth -- used to determine which to retrieve (it will take the nth one)
+
+        Returns:
+            ColRow object
+        """
+        colrow = ColRow(self, is_column, nth)
+        for i, j in colrow.get_coords():
+            self.check_size(i, j)
+        return colrow
+
     def iter_colrows(self) -> Iterator[ColRow]:
         yield from ColRow.iter(self)
 

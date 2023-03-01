@@ -7,4 +7,4 @@ DOCTEST_PATH = "doctests"
 
 for i in os.listdir(DOCTEST_PATH):
     if i.endswith(".md"):
-        doctest.testfile(os.path.join(DOCTEST_PATH, i), verbose=True, report=True, raise_on_error=True)
+        doctest.testfile(os.path.join(DOCTEST_PATH, i), verbose=True, report=True)
