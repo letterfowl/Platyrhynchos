@@ -1,0 +1,3 @@
+[submodule "doctests"]
+	path = doctests
+	url = https://github.com/letterfowl/Platyrhynchos.wiki.git
