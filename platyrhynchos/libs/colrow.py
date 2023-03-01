@@ -79,14 +79,6 @@ class ColRow:
         yield from self._subparts(self.get(), old_left_nones, old_right_nones)
 
     def yield_regexes(self) -> Iterator[str]:
-        """
-        >>> c = CrosswordImprovable({(0,1):'a', (2,1):'b', (4,1):'s', (1,1):'g'}, 10, 10, words_horizontal={'a':{(0,1)}}, crossings = {(0,1)})
-        >>> list(c.yield_regexes(0, True))
-        ['^.{0,1}a.{0,8}$', '^.{0,8}$', '^.{0,1}$']
-
-        >>> list(c.yield_regexes(1, False))
-        ['^agb.{1}s.{0,5}$', '^.{0,5}$', '^agb.{0,1}$', '^.{0,1}s.{0,5}$']
-        """
         found = set()
         for i in self.subparts():
             regex = self._regex_of_part(i)

@@ -16,7 +16,7 @@
             "name": "Python: Tests",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/examples/__init__.py",
+            "program": "${workspaceFolder}/tests.py",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "justMyCode": false

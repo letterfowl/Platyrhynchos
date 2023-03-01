@@ -54,8 +54,8 @@ class CrosswordImprovable(Crossword):
         )
 
     def __repr__(self) -> str:
-        size = self.max
-        max_size = self.max_h, self.max_v
+        # size = self.max
+        # max_size = self.max_h, self.max_v
         return "\n".join(
             "".join((self.letters.get(Coord((h, v)), ":") for h in range(self.max_h)))
             for v in range(self.max_v)
@@ -105,7 +105,7 @@ class CrosswordImprovable(Crossword):
         self.words_horizontal, self.words_vertical = new_horizontal, new_vertical
         self.crossings = {Coord((j, i)) for (i, j) in self.crossings}
 
-    def get_colrow(self, is_column: IsColumn, colrow: ColRowId):
+    def colrow(self, is_column: IsColumn, colrow: ColRowId):
         return ColRow(self, is_column, colrow)
     
     def iter_colrows(self) -> Iterator[ColRow]:
@@ -147,7 +147,7 @@ class CrosswordImprovable(Crossword):
         ```
         """
         if not isinstance(colrow, ColRow):
-            colrow = self.get_colrow(colrow[0], colrow[-1])
+            colrow = self.colrow(colrow[0], colrow[-1])
         start_index = colrow.pos_of_word(word)
         if colrow.is_column:
             self.words_vertical[word] = set()
