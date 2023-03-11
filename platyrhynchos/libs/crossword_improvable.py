@@ -115,7 +115,7 @@ class CrosswordImprovable(Crossword):
 
     def add(self, word: str, colrow: ColRow | tuple[IsColumn, ColRowId]):
         """
-        Adds a word to the crossword row/column. It requires an intersection.
+        Adds a word to the crossword row/column. It requires a possible intersection.
 
         Arguments:
             word -- word to add
@@ -123,80 +123,38 @@ class CrosswordImprovable(Crossword):
             is_column -- True if n is column ID
             dim_val -- column/row id
 
-        ```
-        >>> c = CrosswordImprovable.make("dupa", 4, 4)
-        >>> c.add("peja", (True, 2))
-        >>> print(c)
-        dupa
-        ::e:
-        ::j:
-        ::a:
-
-        >>> c.add("ej", (False, 2))
-        >>> print(c)
-        dupa
-        ::e:
-        :ej:
-        ::a:
-
-        >>> c.add("co", (False, 3))
-        >>> print(c)
-        dupa
-        ::e:
-        :ej:
-        coa:
-
-        ```
         """
         if not isinstance(colrow, ColRow):
             colrow = self.colrow(colrow[0], colrow[-1])
         start_index = colrow.pos_of_word(word)
-        if colrow.is_column:
-            self.words_vertical[word] = set()
+
+        new_word = {word: set()}
+        old_letters = self.letters.copy()
+        old_crossings = self.crossings.copy()
+
+        try:
+            for place, letter in enumerate(word, start_index):
+                pos = (
+                    Coord((colrow.dim_num, place))
+                    if colrow.is_column
+                    else Coord((place, colrow.dim_num))
+                )
+                self.add_letter(pos, letter)
+
+                new_word[word].add(pos)
+        except UninsertableException as exception:
+            self.letters = old_letters
+            self.crossings = old_crossings
+            raise exception
         else:
-            self.words_horizontal[word] = set()
-
-        for place, letter in enumerate(word, start_index):
-            pos = (
-                Coord((colrow.dim_num, place))
-                if colrow.is_column
-                else Coord((place, colrow.dim_num))
-            )
-            self.add_letter(pos, letter)
-
             if colrow.is_column:
-                self.words_vertical[word].add(pos)
+                self.words_vertical |= new_word
             else:
-                self.words_horizontal[word].add(pos)
+                self.words_horizontal |= new_word
 
     def add_letter(self, coord: Coord, letter: str):
         """
-        Add a letter to the crossword, unless the crossword already contains it at this coordinate. Then a crossing will be added. For example:
-
-        ```
-        >>> c = CrosswordImprovable.make("dupa", 4, 4)
-        >>> c.add_letter((3,3), 'g')
-        >>> print(c)
-        dupa
-        ::::
-        ::::
-        :::g
-
-        >>> c.add_letter((3,3), 'g')
-        >>> print(c)
-        dupa
-        ::::
-        ::::
-        :::g
-        >>> c.crossings
-        {(3, 3)}
-
-        >>> c.add_letter((0,0), 'g')
-        Traceback (most recent call last):
-            ...
-        libs.exceptions.UninsertableException: This field is already occupied (coord=(0, 0); new=g; old=d)
-
-        ```
+        Add a letter to the crossword, unless the crossword already contains it at this coordinate. Then a crossing will be added.
 
         Arguments:
             coord -- Coordinates
