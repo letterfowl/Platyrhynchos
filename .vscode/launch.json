@@ -11,15 +11,6 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false
-        },
-        {
-            "name": "Python: Tests",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/tests.py",
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "justMyCode": false
         }
     ]
 }

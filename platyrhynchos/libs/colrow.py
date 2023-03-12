@@ -140,11 +140,12 @@ class ColRow:
     def pos_of_word(self, word: str) -> int:
         field_vals = self.get()
         part_letters = list(enumerate(word))
-        found =  max(
-            (
-                sum(field_vals[n + i] == letter for n, letter in part_letters)
-                for i in range(len(field_vals) - len(word) + 1)
-            ), default=None
+        found = max(
+            range(len(field_vals) - len(word) + 1),
+            key=lambda i: sum(
+                field_vals[n + i] == letter for n, letter in part_letters
+            ),
+            default=None,
         )
         if found is None:
             raise PartNotFoundException(f"Couldn't locate {word} in {field_vals}")
