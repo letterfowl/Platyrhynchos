@@ -7,7 +7,7 @@ CRUCIVERBALIST = EnglishSimpleCruciverbalist()
 
 @pytest.fixture
 def crossword1():
-    return CrosswordImprovable({(0,1):'e', (1,1):'x'}, 10, 10, words_horizontal={}, crossings = {(0,1)})
+    return CrosswordImprovable({(0,1):'e', (1,1):'x', (1,2):'t', (3,3):'a', (2,3):'b', (7,3):' '}, 10, 10, words_horizontal={}, crossings = {(0,1)})
 
 
 class TestDB:
@@ -37,4 +37,10 @@ class TestDB:
         assert set(no_regex) == set(regex)
 
 def test_findword_1st_column(crossword1):
-    CRUCIVERBALIST.find_word(crossword1.colrow(1, False))
+    assert CRUCIVERBALIST.find_word(crossword1.colrow(True, 1))[1:3] == "XT"
+    
+def test_findword_1st_row(crossword1):
+    assert CRUCIVERBALIST.find_word(crossword1.colrow(False, 1))[:2] == "EX"
+    
+def test_findword_1st_weird_row(crossword1):
+    assert len(CRUCIVERBALIST.find_word(crossword1.colrow(False, 3)))<=7
