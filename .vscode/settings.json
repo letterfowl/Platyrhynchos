@@ -1,3 +1,7 @@
 {
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "logViewer.logLevel": "trace",
+    "logViewer.watch": [
+        "tmp/user_log_dir/*.log"
+    ],
 }

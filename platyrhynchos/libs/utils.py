@@ -1,26 +1,44 @@
-from __future__ import annotations
-from typing import TypeVar, Callable, Any, NewType
+"""
+This library contains all functions and classes that do not implement the logic of the program.
+Rather they are a set of technical tools
+"""
+from os import makedirs
+from typing import Literal
+from os.path import join as join_path
 
-T = TypeVar("T")
-T2 = TypeVar("T2")
+from platformdirs import PlatformDirs as _PlatformDirs
 
-Coord = NewType("Coord", tuple[int, int])
-IsColumn = NewType("IsColumn", bool)
-ColRowId = NewType("ColRowId", int)
+DEBUG = True
 
-class ProxiedDict(dict):
-    def __init__(self, source: dict[T, T2],
-                 on_set: Callable[[T, T2], None] = lambda x, y: None,
-                 on_get: Callable[[T, T2], None] = lambda x, y: None):
-        self.on_set = on_set
-        self.on_get = on_get
-        super().__init__(((i, j) for i,j in source.items() if on_set(i, j) or True))
+_APP_DIRS = _PlatformDirs(appname="platyrhynchos")
 
-    def __setitem__(self, __key: Any, __value: Any) -> None:
-        self.on_set(__key, __value)
-        return super().__setitem__(__key, __value)
 
-    def __getitem__(self, __key: Any) -> Any:
-        val = super().__getitem__(__key)
-        self.on_get(__key, val)
-        return val
+def app_dir(
+        name: Literal[
+            "user_data_dir",
+            "user_config_dir",
+            "user_cache_dir",
+            "user_state_dir",
+            "user_log_dir",
+            "user_documents_dir",
+            "user_runtime_dir",
+            "site_data_dir",
+            "site_config_dir",
+            "site_cache_dir",
+            "user_data_path",
+            "user_config_path",
+            "user_cache_path",
+            "user_state_path",
+            "user_log_path",
+            "user_documents_path",
+            "user_runtime_path",
+            "site_data_path",
+            "site_config_path",
+            "site_cache_path",
+        ],
+        file_name: str = ""
+    ):
+    path = f'./tmp/{name}/' if DEBUG else getattr(_APP_DIRS, name)
+    if isinstance(path, str):
+        makedirs(path, exist_ok=True)
+    return join_path(path, file_name)
