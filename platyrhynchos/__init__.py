@@ -1,2 +1,3 @@
-from .libs.colrow import ColRow
-from .libs.crossword_improvable import CrosswordImprovable
+from .crossword.colrow import ColRow
+from .crossword.improvable import CrosswordImprovable
+from .logger import logger

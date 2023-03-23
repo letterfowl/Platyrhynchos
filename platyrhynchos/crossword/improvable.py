@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import Optional, Iterator, NoReturn
 
 from .colrow import ColRow
-from .crossword import Crossword
-from .exceptions import TooLargeException, UninsertableException
-from .utils import ColRowId, Coord, IsColumn, ProxiedDict
+from .base import Crossword
+from ..exceptions import TooLargeException, UninsertableException
+from ..commons import ColRowId, Coord, IsColumn, ProxiedDict
 
 
 class CrosswordImprovable(Crossword):
