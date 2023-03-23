@@ -1,7 +1,7 @@
 import pytest
 
 from platyrhynchos import CrosswordImprovable
-from platyrhynchos.libs.cruciverbalists.en_simple import EnglishSimpleCruciverbalist, DB_CURSOR
+from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist, DB_CURSOR
 
 CRUCIVERBALIST = EnglishSimpleCruciverbalist()
 

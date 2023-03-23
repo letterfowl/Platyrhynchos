@@ -2,13 +2,12 @@ from os.path import isfile
 from os import remove as remove_file
 import sqlite3 as sql
 import sqlite_regex
-import re
 
 import requests
 from tqdm_loggable.auto import tqdm
 
 from ..logger import logger
-from ..colrow import ColRow
+from ..crossword.colrow import ColRow
 from . import Cruciverbalist
 from ..utils import app_dir
 

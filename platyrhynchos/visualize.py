@@ -1,5 +1,5 @@
 import os
-from .libs.crossword_addable import CrosswordAddable
+from .crossword.addable import CrosswordAddable
 from string import ascii_letters
 
 HEADER = r"""
