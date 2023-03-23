@@ -4,7 +4,7 @@ from random import sample, random, shuffle
 from typing import Callable, Iterable, Optional, TypeVar
 from dataclasses import dataclass, field
 from .crossword import Crossword
-from .utils import Coord
+from .commons import Coord
 
 CrosswordAddableT = TypeVar("CrosswordAddableT", bound="CrosswordAddable")
 

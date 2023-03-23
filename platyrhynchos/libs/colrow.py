@@ -7,7 +7,7 @@ from typing import Iterator
 from .crossword import Crossword
 
 from .exceptions import PartNotFoundException
-from .utils import Coord
+from .commons import Coord
 
 
 @dataclass(init=True, repr=True)
