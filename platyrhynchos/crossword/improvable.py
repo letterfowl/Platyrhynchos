@@ -4,8 +4,8 @@ from typing import Optional, Iterator, NoReturn
 
 from .colrow import ColRow
 from .base import Crossword
-from ..exceptions import TooLargeException, UninsertableException
-from ..commons import ColRowId, Coord, IsColumn, ProxiedDict
+from ..commons.exceptions import TooLargeException, UninsertableException
+from ..commons.misc import ColRowId, Coord, IsColumn, ProxiedDict
 
 
 class CrosswordImprovable(Crossword):

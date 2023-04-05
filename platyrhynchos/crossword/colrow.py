@@ -6,8 +6,8 @@ from typing import Iterator
 
 from .base import Crossword
 
-from ..exceptions import PartNotFoundException
-from ..commons import Coord
+from ..commons.exceptions import PartNotFoundException
+from ..commons.misc import Coord
 
 
 @dataclass(init=True, repr=True)
@@ -99,8 +99,6 @@ class ColRow:
     ) -> str:
         """
         Generates the regex of a row/column part. For example:
-
-        TODO: Add tests
 
         Arguments:
             part -- Part of get_with_empty result (or full result)

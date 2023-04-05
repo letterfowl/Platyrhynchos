@@ -5,12 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Platrynhynchos direct generator",
+            "type": "python",
+            "request": "launch",
+            "module": "platyrhynchos.runners.direct",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": false
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

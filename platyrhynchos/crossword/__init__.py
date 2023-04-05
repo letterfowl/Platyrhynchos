@@ -1,0 +1,1 @@
+from .improvable import CrosswordImprovable
