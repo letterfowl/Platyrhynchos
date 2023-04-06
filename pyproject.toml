@@ -12,7 +12,8 @@ license = "CC BY-NC-SA 4.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10.10"
+python = ">=3.10.10,<3.12"
+# ^This is because of functiontrace
 keyboard = "^0.13.5"
 platformdirs = "^3.1.1"
 loguru = "^0.6.0"
@@ -25,7 +26,7 @@ duckdb = "^0.7.1"
 black = "^23.1.0"
 pytest = "^7.2.2"
 ipykernel = "^6.21.3"
-yappi = "^1.4.0"
+functiontrace = "^0.3.7"
 
 [tool.poetry.scripts]
 en-simple-prep = "platyrhynchos.scripts:en_simple_prep"

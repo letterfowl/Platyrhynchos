@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Platrynhynchos direct generator",
+            "name": "Direct search",
             "type": "python",
             "request": "launch",
             "module": "platyrhynchos.runners.direct",
