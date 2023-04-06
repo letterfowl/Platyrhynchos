@@ -1,4 +1,3 @@
-from os import remove as remove_file
 from os.path import isfile
 from tempfile import _TemporaryFileWrapper, NamedTemporaryFile
 
@@ -6,7 +5,7 @@ import duckdb
 import requests
 from tqdm_loggable.auto import tqdm
 
-from ..commons.alphabit import MAX_ALPHABIT, to_alphabit
+from ..commons.exceptions import DatabaseException
 from ..commons.logger import logger
 from ..commons.utils import app_dir
 from ..crossword.colrow import ColRow
@@ -31,14 +30,16 @@ def download_db(cursor):
     total_size = (
         int(head.headers.get('content-length', 0)) if head.ok else 200_000_000
     )
-    with tqdm.wrapattr(NamedTemporaryFile("wb", suffix='.csv'), "write", total=total_size) as fd:
-        fd: _TemporaryFileWrapper
-        with requests.get(URL, stream=True) as r:
-            for chunk in r.iter_content(chunk_size=128):
-                fd.write(chunk)
-        fd.flush()
+    with tqdm.wrapattr(
+            NamedTemporaryFile("wb", suffix='.csv'), "write", total=total_size
+        ) as temp_file:
+        temp_file: _TemporaryFileWrapper
+        with requests.get(URL, stream=True) as csv_stream:
+            for chunk in csv_stream.iter_content(chunk_size=128):
+                temp_file.write(chunk)
+        temp_file.flush()
         logger.info("Finished download, converting")
-        cursor.execute(f"CREATE TABLE clues AS SELECT * FROM '{fd.name}';")
+        cursor.execute(f"CREATE TABLE clues AS SELECT * FROM '{temp_file.name}';")
     logger.info("Finished converting, opening the database")
 
     #     logger.info("Generating the alpha-bit filter")
@@ -50,7 +51,7 @@ def download_db(cursor):
 
 class EnglishSimpleCruciverbalist(Cruciverbalist):
     STATEMENTS = {
-        "get_by_regex": f"""
+        "get_by_regex": """
         select answer from clues where answer IS NOT NULL and regexp_matches(answer, '%s')
         """,
         "get_random": """
@@ -74,4 +75,6 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
     def start_word(self) -> str:
         _, cursor = prepare_database()
         v = cursor.sql(self.STATEMENTS['get_random']).fetchone()
+        if v is None:
+            raise DatabaseException("Couldn't find any words.")
         return v[0]

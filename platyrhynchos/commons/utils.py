@@ -2,8 +2,7 @@
 This library contains all functions and classes that do not implement the logic of the program.
 Rather they are a set of technical tools
 """
-import sys
-from os import makedirs, getenv
+from os import makedirs
 from typing import Literal
 from os.path import join as join_path
 
