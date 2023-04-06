@@ -138,8 +138,15 @@ class ColRow:
     def pos_of_word(self, word: str) -> int:
         field_vals = self.get()
         part_letters = list(enumerate(word))
+        offsets = [
+            i for i in range(len(field_vals) - len(word) + 1) 
+            if all(
+                field_vals[n + i] is None or field_vals[n + i] == letter
+                for n, letter in part_letters
+            )
+        ]
         found = max(
-            range(len(field_vals) - len(word) + 1),
+            offsets,
             key=lambda i: sum(
                 field_vals[n + i] == letter for n, letter in part_letters
             ),

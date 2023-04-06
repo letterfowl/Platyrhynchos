@@ -5,6 +5,7 @@ Rather they are a set of technical tools
 from os import makedirs
 from typing import Literal
 from os.path import join as join_path
+from random import Random
 
 from platformdirs import PlatformDirs as _PlatformDirs
 
@@ -42,3 +43,5 @@ def app_dir(
     if isinstance(path, str):
         makedirs(path, exist_ok=True)
     return join_path(path, file_name)
+
+random = Random('jebać falubaz')

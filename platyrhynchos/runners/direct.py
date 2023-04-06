@@ -2,6 +2,7 @@ from contextlib import suppress
 
 from ..cruciverbalists import EnglishSimpleCruciverbalist
 from ..crossword import CrosswordImprovable
+from ..commons.logger import logger
 
 with suppress(ModuleNotFoundError):
     import functiontrace
@@ -16,6 +17,7 @@ for _ in range(10):
     if to_add[0] is None:
         break
     crossword.add(*to_add) # type: ignore
+    logger.info("Next word")
 
 print(crossword)
 print()

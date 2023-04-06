@@ -1,9 +1,15 @@
 from abc import ABC, abstractmethod
+from itertools import cycle
 from typing import Iterator, Iterable
+
 from ..crossword.colrow import ColRow
 from ..crossword.improvable import CrosswordImprovable
+from ..commons.utils import random
+from ..commons.logger import logger
+
 
 class Cruciverbalist(ABC):
+    SAMPLE_SIZE = 0.9
 
     @abstractmethod
     def eval_colrow(self, colrow: ColRow) -> int:
@@ -25,13 +31,25 @@ class Cruciverbalist(ABC):
     def start_word(self) -> str:
         return
 
+    def _eval_word(self, word: str, colrow: ColRow) -> tuple[str, int]:
+        return word, self.eval_word(word, colrow)
+
     def find_words(self, colrows: Iterable[ColRow]) -> Iterator[tuple[str, ColRow]]:
         for colrow in colrows:
             words = self.select_by_regex(list(colrow.yield_regexes()))
             if words is None:
                 continue
-            words_sorted = sorted(words, key=lambda word: self.eval_word(word, colrow), reverse=True)
-            yield from ((i, colrow) for i in words_sorted)
+            if self.SAMPLE_SIZE != 1:
+                words_size = int(len(words)**self.SAMPLE_SIZE)
+                words = random.sample(words, words_size)
+
+            words_len = set(map(self._eval_word, words, [colrow for _ in words]))
+
+            while words_len:
+                word, val = max(words_len, key=lambda x: x[1])
+                words_len.remove((word, val))
+                logger.debug("Found: {}", word)
+                yield word, colrow
 
     def find_word(self, colrows: ColRow|Iterable[ColRow]) -> tuple[str|None, ColRow|None]:
         if isinstance(colrows, ColRow):

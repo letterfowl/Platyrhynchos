@@ -24,7 +24,7 @@ def prepare_database():
     return connection, cursor
 
 
-def download_db(cursor):
+def download_db(cursor: duckdb.DuckDBPyConnection):
     logger.info("Database image not found, downloading")
     head = requests.get(URL, stream=True)
     total_size = (
@@ -40,7 +40,7 @@ def download_db(cursor):
         temp_file.flush()
         logger.info("Finished download, converting")
         cursor.execute(f"CREATE TABLE clues AS SELECT * FROM '{temp_file.name}';")
-    logger.info("Finished converting, opening the database")
+    logger.info("Finished converting, preprocessing")
 
     #     logger.info("Generating the alpha-bit filter")
     #     cursor.execute('ALTER TABLE clues ADD alphabit BLOB;')
@@ -59,22 +59,27 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
         """
     }
 
+    def __init__(self) -> None:
+        super().__init__()
+        _, self.cursor = prepare_database()
+
+    def _sql_regex(self, regex):
+        self.cursor.execute(self.STATEMENTS["get_by_regex"] % (regex))
+        return found if (found := [j[0] for j in self.cursor.fetchall()]) else None
+
     def eval_colrow(self, colrow: ColRow) -> int:
         return -len(list(colrow.cross_words()))
 
     def select_by_regex(self, regexes: list[str]) -> list[str] | None:
-        _, cursor = prepare_database()
         for i in [i.upper() for i in regexes]:
-            cursor.execute(self.STATEMENTS["get_by_regex"] % (i))
-            if found := [j[0] for j in cursor.fetchall()]:
-                return found
+            if ret := self._sql_regex(i):
+                return ret
 
     def eval_word(self, word: str, colrow: ColRow) -> int:
         return len(word)
 
     def start_word(self) -> str:
-        _, cursor = prepare_database()
-        v = cursor.sql(self.STATEMENTS['get_random']).fetchone()
+        v = self.cursor.sql(self.STATEMENTS['get_random']).fetchone()
         if v is None:
             raise DatabaseException("Couldn't find any words.")
         return v[0]
