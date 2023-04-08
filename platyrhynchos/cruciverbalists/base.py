@@ -9,7 +9,8 @@ from ..commons.logger import logger
 
 
 class Cruciverbalist(ABC):
-    SAMPLE_SIZE = 0.9
+    # SAMPLE_SIZE = 0.9
+    SAMPLE_SIZE = 1
 
     @abstractmethod
     def eval_colrow(self, colrow: ColRow) -> int:

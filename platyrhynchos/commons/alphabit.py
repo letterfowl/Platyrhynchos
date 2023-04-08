@@ -1,20 +1,25 @@
+from typing import Optional
 from bitarray import bitarray
 from string import ascii_uppercase
 
-MIN_ALPHABIT = bitarray(len(ascii_uppercase))
-MIN_ALPHABIT.setall(0)
-
-def to_alphabit(word: str) -> bitarray:
-    letters_in_word = set(word.upper())
-    return bitarray((letter in letters_in_word for letter in ascii_uppercase[::-1]))
-
-def adapt_alphabit(p: bitarray) -> bytes:
-    """Maps a bitarray into a blob"""
-    return p.tobytes()
-
-def convert_alphabit(p: bytes) -> bitarray:
-    array = bitarray(len(ascii_uppercase))
-    array.frombytes(p)
-    return array
+class Alphabit:
+    LETTER_ORDER = ascii_uppercase[::-1]
+    
+    def __init__(self, initializer: str = "", bits: Optional[bitarray] = None) -> None:
+        if bits is not None:
+            self.bittarray=bits
+        else:
+            letters_in_word = set(initializer.upper())
+            self.bittarray=bitarray((letter in letters_in_word for letter in self.LETTER_ORDER))
         
-MAX_ALPHABIT = to_alphabit(ascii_uppercase)
+    def to_db(self) -> str:
+        return self.bittarray.to01()
+    
+    def neg(self):
+        return Alphabit(bits=~self.bittarray)
+    
+    def to_query(self) -> str:
+        return f"'{(~self.bittarray).to01()}'::BIT"
+
+MIN_ALPHABIT = Alphabit("")
+MAX_ALPHABIT = Alphabit(ascii_uppercase)
