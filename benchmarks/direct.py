@@ -1,8 +1,8 @@
 from contextlib import suppress
 
-from ..cruciverbalists import EnglishSimpleCruciverbalist
-from ..crossword import CrosswordImprovable
-from ..commons.logger import logger
+from platyrhynchos.cruciverbalists import EnglishSimpleCruciverbalist
+from platyrhynchos.crossword import CrosswordImprovable
+from platyrhynchos.commons.logger import logger
 
 with suppress(ModuleNotFoundError):
     import functiontrace

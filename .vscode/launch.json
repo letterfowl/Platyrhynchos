@@ -8,7 +8,8 @@
             "name": "Direct search",
             "type": "python",
             "request": "launch",
-            "module": "platyrhynchos.runners.direct",
+            "program": "${workspaceFolder}/benchmarks/direct.py",
+            "console": "integratedTerminal",
             "justMyCode": true,
             "envFile": "${workspaceFolder}/.env"
         },

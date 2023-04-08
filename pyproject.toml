@@ -29,7 +29,7 @@ ipykernel = "^6.21.3"
 functiontrace = "^0.3.7"
 
 [tool.poetry.scripts]
-en-simple-prep = "platyrhynchos.scripts:en_simple_prep"
+en-download = "platyrhynchos.scripts:en_simple_prep"
 
 [tool.pytest.ini_options]
 minversion = "7.2"
