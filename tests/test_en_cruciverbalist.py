@@ -5,11 +5,9 @@ from os import remove as remove_file
 import pytest
 
 from platyrhynchos import CrosswordImprovable
-from platyrhynchos.commons.alphabit import to_alphabit, MAX_ALPHABIT
-from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist, prepare_database
+from platyrhynchos.commons.alphabit import Alphabit, MAX_ALPHABIT
+from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist, prepare_database, download_db
 from platyrhynchos.commons.utils import app_dir
-
-CRUCIVERBALIST = EnglishSimpleCruciverbalist()
 
 @pytest.fixture
 def crossword1():
@@ -22,13 +20,16 @@ def runner():
         return c.sql(command).fetchall()
     return _runner
 
+@pytest.fixture
+def cruciverbalist():
+    return EnglishSimpleCruciverbalist()
+
 class TestDB:
 
-    def test_download(self):
-        with suppress(FileNotFoundError):
-            remove_file(app_dir("user_cache_dir", "en_simple.db"))
-        a, _ = prepare_database()
-        assert a is not None
+    def test_download(self, runner):
+        assert len(runner(
+            "select alphabit from clues limit 10"
+        )) == 10
 
     def test_select_words(self, runner):
         assert len(runner(
@@ -48,30 +49,35 @@ class TestDB:
 class TestAlphabit:
 
     def test_single_z(self):
-        assert to_alphabit('z').to01() == '1'+"0"*(len(ascii_uppercase)-1)
+        assert Alphabit('z').bittarray.to01() == '1'+"0"*(len(ascii_uppercase)-1)
 
     def test_xyz(self):
-        assert to_alphabit('xyz').to01() == '111'+"0"*(len(ascii_uppercase)-3)
+        assert Alphabit('xyz').bittarray.to01() == '111'+"0"*(len(ascii_uppercase)-3)
 
     def test_xz(self):
-        assert to_alphabit('xz').to01()  == '101'+"0"*(len(ascii_uppercase)-3)
+        assert Alphabit('xz').bittarray.to01()  == '101'+"0"*(len(ascii_uppercase)-3)
 
     def test_max(self):
-        assert to_alphabit(ascii_uppercase).to01() == '1'*len(ascii_uppercase)
+        assert Alphabit(ascii_uppercase).bittarray.to01() == '1'*len(ascii_uppercase)
 
     def test_imp_use(self):
-        word = to_alphabit('xyz')
-        query = to_alphabit('y')
-        assert (~query | word) == MAX_ALPHABIT
+        word = Alphabit('xyz').bittarray
+        query = Alphabit('y').bittarray
+        assert (~query | word) == MAX_ALPHABIT.bittarray
 
-def test_findword_1st_column(crossword1: CrosswordImprovable):
-    t, _ = CRUCIVERBALIST.find_word(crossword1.colrow(True, 1))
-    assert t[1:3] == "XT"
+    def test_empty(self, runner):
+        word = Alphabit('').to_query()
+        assert len(runner(f"select answer from clues where bit_count({word} | alphabit)!=length(alphabit)")) == 0
 
-def test_findword_1st_row(crossword1: CrosswordImprovable):
-    t, _ = CRUCIVERBALIST.find_word(crossword1.colrow(False, 1))
-    assert t[:2] == "EX"
+class TestFindWord:
+    def test_1st_column(self, crossword1: CrosswordImprovable, cruciverbalist: EnglishSimpleCruciverbalist):
+        t, _ = cruciverbalist.find_word(crossword1.colrow(True, 1))
+        assert t[1:3] == "XT"
 
-def test_findword_1st_weird_row(crossword1: CrosswordImprovable):
-    t, _ = CRUCIVERBALIST.find_word(crossword1.colrow(False, 3))
-    assert len(t)<=7
+    def test_1st_row(self, crossword1: CrosswordImprovable, cruciverbalist: EnglishSimpleCruciverbalist):
+        t, _ = cruciverbalist.find_word(crossword1.colrow(False, 1))
+        assert t[:2] == "EX"
+
+    def test_1st_weird_row(self, crossword1: CrosswordImprovable, cruciverbalist: EnglishSimpleCruciverbalist):
+        t, _ = cruciverbalist.find_word(crossword1.colrow(False, 3))
+        assert len(t)<=7
