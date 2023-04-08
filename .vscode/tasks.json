@@ -1,0 +1,22 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Clear cache",
+            "type": "shell",
+            "command": "rm -r ${workspaceFolder}/tmp/user_cache_dir"
+        },
+        {
+            "label": "Clear log",
+            "type": "shell",
+            "command": "rm ${workspaceFolder}/tmp/user_log_dir/out.log"
+        },
+        {
+            "label": "Clear functiontrace",
+            "type": "shell",
+            "command": "find ${workspaceFolder} -type f -name \"functiontrace.*\" -exec rm -f {} \\;"
+        }
+    ]
+}P

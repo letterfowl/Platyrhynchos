@@ -1,7 +1,21 @@
 {
     "python.analysis.typeCheckingMode": "basic",
-    "logViewer.logLevel": "trace",
-    "logViewer.watch": [
-        "tmp/user_log_dir/*.log"
-    ],
+    "terminal.integrated.profiles.osx": {
+        "bash": {
+            "path": "bash",
+            "args": [
+                "-l"
+            ],
+            "icon": "terminal-bash"
+        },
+        "duckdb": {
+            "path": "bash",
+            "overrideName": true,
+            "args": [
+                "--init-file",
+                "./.vscode/prepare_duck.sh"
+            ],
+            "icon": "database"
+        },
+    }
 }

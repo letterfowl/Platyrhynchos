@@ -269,6 +269,7 @@ rsconnect/
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
+!.vscode/*.sh
 
 # Local History for Visual Studio Code
 .history/
