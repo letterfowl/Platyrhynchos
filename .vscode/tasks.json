@@ -19,4 +19,4 @@
             "command": "find ${workspaceFolder} -type f -name \"functiontrace.*\" -exec rm -f {} \\;"
         }
     ]
-}P
+}
