@@ -16,6 +16,7 @@ from .base import Cruciverbalist
 URL = "https://cryptics.georgeho.org/data/clues.csv?_stream=on&_size=max"
 RUN_WITH_ALPHABIT = True
 
+
 def prepare_database():
     db_path = app_dir("user_cache_dir", "en_simple.db")
     is_fresh = not isfile(db_path)
@@ -30,11 +31,11 @@ def download_db(cursor: duckdb.DuckDBPyConnection):
     logger.info("Database image not found, downloading")
     head = requests.get(URL, stream=True)
     total_size = (
-        int(head.headers.get('content-length', 120_000_000)) if head.ok else 120_000_000
+        int(head.headers.get("content-length", 120_000_000)) if head.ok else 120_000_000
     )
     with tqdm.wrapattr(
-            NamedTemporaryFile("wb", suffix='.csv'), "write", total=total_size
-        ) as temp_file:
+        NamedTemporaryFile("wb", suffix=".csv"), "write", total=total_size
+    ) as temp_file:
         temp_file: _TemporaryFileWrapper
         with requests.get(URL, stream=True) as csv_stream:
             for chunk in csv_stream.iter_content(chunk_size=128):
@@ -44,27 +45,34 @@ def download_db(cursor: duckdb.DuckDBPyConnection):
         cursor.execute(f"CREATE TABLE clues AS SELECT * FROM '{temp_file.name}';")
     logger.info("Finished converting, preprocessing")
 
-    cursor.execute("""
+    cursor.execute(
+        """
         DELETE FROM clues WHERE answer IS NULL;
         ALTER TABLE clues ADD alphabit BIT
-    """)
+    """
+    )
     answers = cursor.sql("SELECT rowid, answer FROM clues").fetchall()
-    with NamedTemporaryFile('w', suffix='.csv') as alphabit_cache:
-        alphabit_cache.writelines(tqdm(
+    with NamedTemporaryFile("w", suffix=".csv") as alphabit_cache:
+        alphabit_cache.writelines(
+            tqdm(
                 (f"{rowid},{Alphabit(answer).to_db()}\n" for rowid, answer in answers),
-                total=len(answers)
-        ))
-        cursor.execute("""
+                total=len(answers),
+            )
+        )
+        cursor.execute(
+            """
         UPDATE clues
         SET alphabit = (
             SELECT alphabit
             FROM read_csv($file, columns={row:int, alphabit:bit}) as new
             WHERE clues.rowid = new.row
         );
-        """, {'file':alphabit_cache.name}
+        """,
+            {"file": alphabit_cache.name},
         )
 
     logger.info("Finished preparing the database")
+
 
 class EnglishSimpleCruciverbalist(Cruciverbalist):
     STATEMENTS = {
@@ -76,7 +84,7 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
         """,
         "get_random": """
         select answer from clues limit 1
-        """
+        """,
     }
 
     def __init__(self) -> None:
@@ -106,7 +114,7 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
         return len(word) + len(list(colrow.cross_words()))
 
     def start_word(self) -> str:
-        v = self.cursor.sql(self.STATEMENTS['get_random']).fetchone()
+        v = self.cursor.sql(self.STATEMENTS["get_random"]).fetchone()
         if v is None:
             raise DatabaseException("Couldn't find any words.")
         return v[0]

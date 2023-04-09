@@ -5,6 +5,7 @@ from typing import TypeVar
 
 CrosswordT = TypeVar("CrosswordT", bound="Crossword")
 
+
 @dataclass(init=True, repr=True)
 class Crossword:
     letters: dict[Coord, str]

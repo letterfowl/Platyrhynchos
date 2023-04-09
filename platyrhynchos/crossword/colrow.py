@@ -19,16 +19,10 @@ class ColRow:
     def get_coords(self) -> list[Coord]:
         if self.is_column:
             max_v = getattr(self.crossword, "max_v", self.crossword.max[1])
-            return [
-                Coord((self.dim_num, i))
-                for i in range(max_v)
-            ]
+            return [Coord((self.dim_num, i)) for i in range(max_v)]
         else:
             max_h = getattr(self.crossword, "max_h", self.crossword.max[0])
-            return [
-                Coord((i, self.dim_num))
-                for i in range(max_h)
-            ]
+            return [Coord((i, self.dim_num)) for i in range(max_h)]
 
     def get(self) -> list[str | None]:
         return [self.crossword.letters.get(i) for i in self.get_coords()]
@@ -139,7 +133,8 @@ class ColRow:
         field_vals = self.get()
         part_letters = list(enumerate(word))
         offsets = [
-            i for i in range(len(field_vals) - len(word) + 1) 
+            i
+            for i in range(len(field_vals) - len(word) + 1)
             if all(
                 field_vals[n + i] is None or field_vals[n + i] == letter
                 for n, letter in part_letters

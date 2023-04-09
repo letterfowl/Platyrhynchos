@@ -41,7 +41,7 @@ class Cruciverbalist(ABC):
             if words is None:
                 continue
             if self.SAMPLE_SIZE != 1:
-                words_size = int(len(words)**self.SAMPLE_SIZE)
+                words_size = int(len(words) ** self.SAMPLE_SIZE)
                 words = random.sample(words, words_size)
 
             words_len = set(map(self._eval_word, words, [colrow for _ in words]))
@@ -52,11 +52,15 @@ class Cruciverbalist(ABC):
                 logger.debug("Found: {}", word)
                 yield word, colrow
 
-    def find_word(self, colrows: ColRow|Iterable[ColRow]) -> tuple[str|None, ColRow|None]:
+    def find_word(
+        self, colrows: ColRow | Iterable[ColRow]
+    ) -> tuple[str | None, ColRow | None]:
         if isinstance(colrows, ColRow):
             colrows = [colrows]
         return next(self.find_words(colrows), (None, None))
 
-    def choose_and_fill(self, crossword:CrosswordImprovable) -> tuple[str|None, ColRow|None]:
+    def choose_and_fill(
+        self, crossword: CrosswordImprovable
+    ) -> tuple[str | None, ColRow | None]:
         colrows = self.choose_colrows(crossword)
         return self.find_word(colrows)
