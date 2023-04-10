@@ -1,6 +1,6 @@
 <br/>
 <p align="center">
-  <h3 align="center">🦆 Platyrhynchos 🦆</h3>
+  <h1 align="center">🦆 Platyrhynchos 🦆</h1>
 
   <p align="center">
     Automatic crossword generator!
@@ -13,10 +13,13 @@
 </p>
 
 ![Repo size](https://img.shields.io/github/repo-size/letterfowl/Platyrhynchos)
-![Issues](https://img.shields.io/github/issues/letterfowl/Platyrhynchos)
+[![OSSAR](https://github.com/letterfowl/Platyrhynchos/actions/workflows/ossar.yml/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/ossar.yml)
+[![CodeQL](https://github.com/letterfowl/Platyrhynchos/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/github-code-scanning/codeql)
+[![autoflake, isort, black](https://github.com/letterfowl/Platyrhynchos/actions/workflows/format.yml/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/format.yml)
+[![.github/workflows/pytest.yml](https://github.com/letterfowl/Platyrhynchos/actions/workflows/pytest.yml/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/pytest.yml)
 ![pytest-reporter-badge](https://img.shields.io/static/v1?label=pytest-reporter&message=50.68%&color=yellow)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-
+![Issues](https://img.shields.io/github/issues/letterfowl/Platyrhynchos)
 
 ## Table Of Contents
 
