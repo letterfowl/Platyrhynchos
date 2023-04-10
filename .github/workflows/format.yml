@@ -1,0 +1,29 @@
+name: PyLi
+
+on:
+  push:
+    branches:
+    - master
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+
+    - name: Python Linter
+      uses: jiwidi/python-lint-action@main
+      
+    - name: linting
+      uses: programmingwithalex/pylinter@main
+      with:
+        python-root: '.'
+        flake8-flags: '--count --show-source --statistics'
+        mypy-flags: '--ignore-missing-imports'
+        fail-on-isort: false
+
+    - name: Git Commit and Push
+      uses: github-actions-x/commit@v2.9
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
