@@ -10,7 +10,7 @@ from bib import Crossword
 from visualize import gen_code, render
 
 START_T = 0.2
-SPEED = 1-0.015
+SPEED = 1 - 0.015
 
 SAMPLE_SIZE = 40
 NOT_WORKING_LIMIT = 20
@@ -29,7 +29,7 @@ def goal(cross: Crossword) -> float:
     words = len(cross.words)
     size = cross.size
 
-    return len(cross.crossings)*letters/size
+    return len(cross.crossings) * letters / size
 
 
 def find_best(tpl: tuple[Crossword, float, list[Crossword]]):
@@ -49,49 +49,50 @@ def find_best(tpl: tuple[Crossword, float, list[Crossword]]):
             future = prod
     return future
 
+
 def find_remove(tpl: tuple[Crossword, list[str]]):
     cross, words = tpl
     if len(words) == 0:
         return None
     return max((cross.remove(word) for word in words), key=goal)
 
-def getfiles():  # sourcery skip: extract-duplicate-method
-    if not os.path.isdir('data'):
-        os.mkdir('data')
-    if not os.path.isdir('data/finish'):
-        os.mkdir('data/finish')
-    if not os.path.isdir('data/process'):
-        os.mkdir('data/process')
 
-    process_file = open(f'data/process/{int(time())}.csv', 'w')
-    process_file.write(
-        "puzzle;turn;currtemperature;turntime;currgoalval;currsize;currratio;currcrossings;currlen\n")
+def getfiles():  # sourcery skip: extract-duplicate-method
+    if not os.path.isdir("data"):
+        os.mkdir("data")
+    if not os.path.isdir("data/finish"):
+        os.mkdir("data/finish")
+    if not os.path.isdir("data/process"):
+        os.mkdir("data/process")
+
+    process_file = open(f"data/process/{int(time())}.csv", "w")
+    process_file.write("puzzle;turn;currtemperature;turntime;currgoalval;currsize;currratio;currcrossings;currlen\n")
     process_file.flush()
-    finish_file = open(f'data/finish/{int(time())}.csv', 'w')
+    finish_file = open(f"data/finish/{int(time())}.csv", "w")
     finish_file.write(
-        "puzzle;turn_amount;sizeX;sizeY;finaltemperature;gentime;finalgoalval;finalsize;finalratio;finalcrossings;finallen\n")
+        "puzzle;turn_amount;sizeX;sizeY;finaltemperature;gentime;finalgoalval;finalsize;finalratio;finalcrossings;finallen\n"
+    )
     finish_file.flush()
     return process_file, finish_file
 
 
 if __name__ == "__main__":
-    CPUS = cpu_count()-2
+    CPUS = cpu_count() - 2
     pool = Pool(CPUS)
 
     process_file, finish_file = getfiles()
 
     crosses = []
     for puzzle in tqdm(range(PUZZLE_AMOUNT)):
-
         timer_main = perf_counter()
         while True:
-            c = list(Crossword.create(START_AM//2, ADD_PLUS))
-            cr = [i.rotate() for i in Crossword.create(START_AM//2, ADD_PLUS)]
+            c = list(Crossword.create(START_AM // 2, ADD_PLUS))
+            cr = [i.rotate() for i in Crossword.create(START_AM // 2, ADD_PLUS)]
 
-            s = list(c[1:])+list(cr[1:])
+            s = list(c[1:]) + list(cr[1:])
             shuffle(s)
             try:
-                cross = sum(s, c[0]+cr[0])
+                cross = sum(s, c[0] + cr[0])
             except TypeError:
                 continue
             else:
@@ -102,7 +103,7 @@ if __name__ == "__main__":
         turn = 1
         golval = goal(cross)
         not_working = 0
-        while True: #len(cross.letters)/cross.size < 0.8:
+        while True:  # len(cross.letters)/cross.size < 0.8:
             timer_small = perf_counter()
 
             future = None
@@ -110,12 +111,10 @@ if __name__ == "__main__":
                 new = tuple(cross.createFor(SAMPLE_SIZE, ADD_PLUS))
                 assigned = [(cross, T, new[i::CPUS]) for i in range(CPUS)]
 
-                calculated = [i for i in pool.map(
-                    find_best, assigned) if i is not None]
+                calculated = [i for i in pool.map(find_best, assigned) if i is not None]
             else:
                 assigned = [(cross, tuple(cross.words.keys())[i::CPUS]) for i in range(CPUS)]
-                calculated = [i for i in pool.map(
-                    find_remove, assigned) if i is not None]
+                calculated = [i for i in pool.map(find_remove, assigned) if i is not None]
             try:
                 future = max(calculated, key=goal)
             except ValueError:
@@ -131,40 +130,48 @@ if __name__ == "__main__":
                     break
                 T /= SPEED
 
-            print(puzzle, turn,
-                  "%.4f" % round(T, 4),
-                  "%.4f" % round(perf_counter()-timer_small, 4),
-                  "%.4f" % round(golval, 4),
-                  "%.4f" % round(cross.size**0.5, 4),
-                  "%.4f" % round(len(cross.letters)/cross.size, 4),
-                  len(cross.crossings),
-                  len(cross.words),
-                  sep=";", file=process_file)
+            print(
+                puzzle,
+                turn,
+                "%.4f" % round(T, 4),
+                "%.4f" % round(perf_counter() - timer_small, 4),
+                "%.4f" % round(golval, 4),
+                "%.4f" % round(cross.size**0.5, 4),
+                "%.4f" % round(len(cross.letters) / cross.size, 4),
+                len(cross.crossings),
+                len(cross.words),
+                sep=";",
+                file=process_file,
+            )
 
             T *= SPEED
             turn += 1
 
-            if is_pressed('ctrl+shift+space'):
+            if is_pressed("ctrl+shift+space"):
                 break
 
         end = perf_counter()
 
         crosses.append(cross)
-        print(puzzle,
-              turn,
-              cross.max[0], cross.max[1],
-              "%.4f" % round(T, 4),
-              end-timer_main,
-              "%.4f" % round(golval, 4),
-              "%.4f" % round(cross.size**0.5, 4),
-              "%.4f" % round(len(cross.letters)/cross.size, 4),
-              len(cross.crossings),
-              len(cross.words),
-              sep=";", file=finish_file)
+        print(
+            puzzle,
+            turn,
+            cross.max[0],
+            cross.max[1],
+            "%.4f" % round(T, 4),
+            end - timer_main,
+            "%.4f" % round(golval, 4),
+            "%.4f" % round(cross.size**0.5, 4),
+            "%.4f" % round(len(cross.letters) / cross.size, 4),
+            len(cross.crossings),
+            len(cross.words),
+            sep=";",
+            file=finish_file,
+        )
         finish_file.flush()
         process_file.flush()
 
-        if is_pressed('ctrl+shift+enter'):
+        if is_pressed("ctrl+shift+enter"):
             break
 
     finish_file.close()
