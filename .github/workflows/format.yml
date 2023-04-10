@@ -19,7 +19,7 @@ jobs:
       uses: jiwidi/python-lint-action@main
       with:
         autoflake-options: "--expand-star-imports --remove-all-unused-imports  --ignore-init-module-imports --remove-unused-variables --ignore-pass-after-docstring --in-place --verbose"
-        black-options: "--verbose --line-length 120 -target-version --py310"
+        black-options: "--verbose --line-length 120 --target-version py310"
         isort-options: "--profile black --line-length 120 --py 310 --remove-redundant-aliases --star-first"
 
     - name: Git Commit and Push
