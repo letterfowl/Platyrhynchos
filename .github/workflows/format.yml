@@ -9,8 +9,11 @@ on:
 
     
 jobs:
-  build:
+  code-format:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
     - name: checkout
       uses: actions/checkout@v2
@@ -22,7 +25,4 @@ jobs:
         black-options: "--verbose --line-length 120 --target-version py310"
         isort-options: "--profile black --line-length 120 --py 310 --remove-redundant-aliases --star-first"
 
-    - name: Git Commit and Push
-      uses: github-actions-x/commit@v2.9
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: stefanzweifel/git-auto-commit-action@v4
