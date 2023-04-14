@@ -1,3 +1,4 @@
+"""Redundant code used to implement addable crosswords"""
 from __future__ import annotations
 from json import load
 from random import sample, random, shuffle

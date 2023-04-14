@@ -17,5 +17,6 @@
             ],
             "icon": "database"
         },
-    }
+    },
+    "pylint.args": ["--max-line-length=120"]
 }

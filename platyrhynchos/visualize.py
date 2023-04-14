@@ -1,3 +1,4 @@
+"""Old LaTeX rendering library"""
 import os
 from .crossword.addable import CrosswordAddable
 from string import ascii_letters

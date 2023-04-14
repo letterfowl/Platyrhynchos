@@ -1,3 +1,6 @@
+"""
+Implements logging using the loguru library. It also intercepts all other loggers and writes their output to out.log
+"""
 from loguru import logger
 import logging
 import sys

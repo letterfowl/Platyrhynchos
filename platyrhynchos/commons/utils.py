@@ -1,6 +1,6 @@
 """
 This library contains all functions and classes that do not implement the logic of the program.
-Rather they are a set of technical tools
+Rather they are technical tools
 """
 from os import makedirs
 from typing import Literal

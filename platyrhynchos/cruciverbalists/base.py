@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from itertools import cycle
 from typing import Iterator, Iterable
 
 from ..crossword.colrow import ColRow

@@ -1,3 +1,4 @@
+"""Implements simple scripts as functions"""
 from os import remove as remove_file
 from .commons.utils import app_dir
 from contextlib import suppress

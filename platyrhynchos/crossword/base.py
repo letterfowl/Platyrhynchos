@@ -1,3 +1,4 @@
+"""Base crossword class"""
 from dataclasses import dataclass, field
 from functools import cached_property
 from ..commons.misc import Coord

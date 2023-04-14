@@ -1,3 +1,4 @@
+"""Implements the improvable crossword class"""
 from __future__ import annotations
 
 from typing import Optional, Iterator, NoReturn
@@ -9,14 +10,12 @@ from ..commons.misc import ColRowId, Coord, IsColumn, ProxiedDict
 
 
 class CrosswordImprovable(Crossword):
-    """
-    Crossword subclass used to implement the "smart" insertion algorithm.
-    """
+    """Crossword subclass used to implement the "smart" insertion algorithm."""
 
     @staticmethod
     def make(word: str, max_h: int, max_v: Optional[int] = None) -> CrosswordImprovable:
         """
-        Should create a one word crossword.
+        Creates a one word crossword.
 
         Arguments:
             word -- word to add
@@ -56,6 +55,19 @@ class CrosswordImprovable(Crossword):
         words_vertical: Optional[dict[str, set[Coord]]] = None,
         crossings: Optional[set[Coord]] = None,
     ):
+        """
+        Creates a crossword while ensuring all letters can be contained in the max sizes
+
+        Arguments:
+            letters -- mapping from coords to letters
+            max_h -- Max horizontal
+            max_v -- Max vertical
+            words_horizontal -- mapping of words to sets of coordinates in the horizontal axis
+
+        Keyword Arguments:
+            words_vertical -- mapping of words to sets of coordinates in the vertical axis (default: {None})
+            crossings -- Set of all crossings in the crossword (default: {None})
+        """
         self.max_h = max_h
         self.max_v = max_v
         words_vertical = words_vertical or {}
@@ -76,9 +88,7 @@ class CrosswordImprovable(Crossword):
         )  # + f"\n[{size=} {max_size=}]"
 
     def rotate(self):
-        """
-        Rotates the crossword, works in place.
-        """
+        """Rotates the crossword, works in place."""
         self.letters = {
             Coord((j, i)): letter for (i, j), letter in self.letters.items()
         }
@@ -111,11 +121,12 @@ class CrosswordImprovable(Crossword):
         return colrow
 
     def iter_colrows(self) -> Iterator[ColRow]:
+        """Iterate over all colrows in the crossword."""
         yield from ColRow.iter(self)
 
     def add(self, word: str, colrow: ColRow | tuple[IsColumn, ColRowId]):
         """
-        Adds a word to the crossword row/column. It requires a possible intersection.
+        Adds a word to the crossword row/column. It requires a possible intersection. Works in place.
 
         Arguments:
             word -- word to add
@@ -154,7 +165,8 @@ class CrosswordImprovable(Crossword):
 
     def add_letter(self, coord: Coord, letter: str):
         """
-        Add a letter to the crossword, unless the crossword already contains it at this coordinate. Then a crossing will be added.
+        Add a letter to the crossword, unless the crossword already contains it at this coordinate.
+        Then a crossing will be added. Works in place.
 
         Arguments:
             coord -- Coordinates

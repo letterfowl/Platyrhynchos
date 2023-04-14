@@ -1,3 +1,4 @@
+"""Defines ColRow class -- a reference to the given crossword column or row"""
 from __future__ import annotations
 
 import re
@@ -17,6 +18,7 @@ class ColRow:
     dim_num: int
 
     def get_coords(self) -> list[Coord]:
+        """Returns `Coord` object in the given ColRow"""
         if self.is_column:
             max_v = getattr(self.crossword, "max_v", self.crossword.max[1])
             return [Coord((self.dim_num, i)) for i in range(max_v)]
@@ -25,6 +27,7 @@ class ColRow:
             return [Coord((i, self.dim_num)) for i in range(max_h)]
 
     def get(self) -> list[str | None]:
+        """Returns list of letters in the given ColRow, Nones are inserted where no letter was found"""
         return [self.crossword.letters.get(i) for i in self.get_coords()]
 
     def __repr__(self) -> str:
@@ -33,6 +36,7 @@ class ColRow:
 
     @staticmethod
     def _empty_slices(field_vals: list[str | None]) -> list[slice]:
+        """Searches for big chunks of Nones in `field_vals` and returns their slices"""
         begin = None
         slices = []
         for ith, i in enumerate(field_vals):
@@ -48,38 +52,64 @@ class ColRow:
         return slices
 
     def empty_slices(self) -> list[slice]:
+        """Searches for big chunks of empty fields and returns their slices"""
         return self._empty_slices(self.get())
 
     @classmethod
     def _subparts(
         cls,
-        column_row: list[str | None],
+        fields: list[str | None],
         old_left_nones: int,
         old_right_nones: int,
     ):
-        slices = cls._empty_slices(column_row)
+        """
+        Recursion that finds chunks of letters that can be used as queries, adds sorrounding Nones
+        and yields the possible results. First the biggest chunks are yielded.
+
+        Arguments:
+            fields -- list of letters in fields (empty fields are represented using Nones)
+            old_left_nones -- Number of nones that were to the left of the `fields` in the parent
+            old_right_nones -- Number of nones that were to the right of the `fields` in the parent
+        """
+        slices = cls._empty_slices(fields)
         if len(slices) == 0:
             return
         biggest = max(slices, key=lambda x: x.stop - x.start)
 
-        yield old_left_nones * [None] + column_row[: biggest.start] + column_row[
+        yield old_left_nones * [None] + fields[: biggest.start] + fields[
             biggest
         ]
-        yield column_row[biggest] + column_row[biggest.stop :] + old_right_nones * [
+        yield fields[biggest] + fields[biggest.stop :] + old_right_nones * [
             None
         ]
         yield from cls._subparts(
-            column_row[: biggest.start], old_left_nones, biggest.stop - biggest.start
+            fields[: biggest.start], old_left_nones, biggest.stop - biggest.start
         )
         yield from cls._subparts(
-            column_row[biggest.stop :], biggest.stop - biggest.start, old_right_nones
+            fields[biggest.stop :], biggest.stop - biggest.start, old_right_nones
         )
         return
 
-    def subparts(self, old_left_nones: int = 0, old_right_nones: int = 0):
-        yield from self._subparts(self.get(), old_left_nones, old_right_nones)
+    def subparts(self):
+        """
+        Finds chunks of letters with sorrounding Nones, they can be used as queries.
+        With every couple of yields, the chunks are separated by the biggest None group.
+
+        ## Example
+
+        Input: p _ _ k _ x _
+
+        1. Yield: p _ _ k _ x _
+        2. Find biggest gap between letters: p >_ _< k _ x _
+        3. Divide and add the gap.
+        4. Yield: p _ _
+        5. Yield: _ _ k _ x _
+        6. Repeat until slice length is 0
+        """
+        yield from self._subparts(self.get(), 0, 0)
 
     def yield_regexes(self) -> Iterator[str]:
+        """Finds chunks of letters that can be used as queries and transforms them into regex"""
         found = set()
         for i in self.subparts():
             regex = self._regex_of_part(i)
@@ -130,6 +160,7 @@ class ColRow:
         return "".join(reg_list)
 
     def pos_of_word(self, word: str) -> int:
+        """Finds best offset of a given word in ColRow."""
         field_vals = self.get()
         part_letters = list(enumerate(word))
         offsets = [
@@ -153,6 +184,7 @@ class ColRow:
             return found
 
     def cross_words(self) -> Iterator[tuple[str, set[Coord]]]:
+        """Yields words that colide with ColRow with their coordinate sets"""
         column, row = (self.dim_num, None) if self.is_column else (None, self.dim_num)
         for word, coords in self.crossword.words.items():
             columns, rows = tuple(zip(*coords))
@@ -161,6 +193,7 @@ class ColRow:
 
     @staticmethod
     def iter(crossword: Crossword) -> Iterator[ColRow]:
+        """Iterates over all ColRows of a crossword"""
         max_v = getattr(crossword, "max_v", crossword.max[1])
         max_h = getattr(crossword, "max_h", crossword.max[0])
         yield from (ColRow(crossword, False, i) for i in range(max_v))
