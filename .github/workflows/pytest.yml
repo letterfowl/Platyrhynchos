@@ -1,0 +1,24 @@
+name: pytest
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    name: Unit tests
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10.10'
+      - name: Poetry export requirements.txt file
+        uses: Divkix/poetry-export-requirements-action@v1.4.0
+      - id: run-tests
+        uses: dima-engineer/pytest-reporter@v2.1.0
+        with:
+          cov-omit-list: tests/*
+          async-tests: true

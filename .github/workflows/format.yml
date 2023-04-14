@@ -1,0 +1,28 @@
+name: autoflake, isort, black
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+    
+jobs:
+  code-format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+
+    - name: Python Linter
+      uses: jiwidi/python-lint-action@main
+      with:
+        autoflake-options: "--expand-star-imports --remove-all-unused-imports  --ignore-init-module-imports --remove-unused-variables --ignore-pass-after-docstring --in-place --verbose"
+        black-options: "--verbose --line-length 120 --target-version py310"
+        isort-options: "--profile black --line-length 120 --py 310 --remove-redundant-aliases --star-first"
+
+    - uses: stefanzweifel/git-auto-commit-action@v4
