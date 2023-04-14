@@ -1,8 +1,9 @@
 """Base crossword class"""
 from dataclasses import dataclass, field
 from functools import cached_property
-from ..commons.misc import Coord
 from typing import TypeVar
+
+from ..commons.misc import Coord
 
 CrosswordT = TypeVar("CrosswordT", bound="Crossword")
 
@@ -39,17 +40,12 @@ class Crossword:
     def relative(self: CrosswordT, rel_to: Coord) -> CrosswordT:
         delta_v, delta_h = rel_to
         return self.__class__(
-            letters={
-                Coord((v - delta_v, h - delta_h)): i
-                for (v, h), i in self.letters.items()
-            },
+            letters={Coord((v - delta_v, h - delta_h)): i for (v, h), i in self.letters.items()},
             words_vertical={
-                word: {Coord((v - delta_v, h - delta_h)) for (v, h) in i}
-                for word, i in self.words_vertical.items()
+                word: {Coord((v - delta_v, h - delta_h)) for (v, h) in i} for word, i in self.words_vertical.items()
             },
             words_horizontal={
-                word: {Coord((v - delta_v, h - delta_h)) for (v, h) in i}
-                for word, i in self.words_horizontal.items()
+                word: {Coord((v - delta_v, h - delta_h)) for (v, h) in i} for word, i in self.words_horizontal.items()
             },
             crossings={Coord((v - delta_v, h - delta_h)) for (v, h) in self.crossings},
         )
@@ -62,13 +58,7 @@ class Crossword:
     def rotate(self: CrosswordT) -> CrosswordT:
         return self.__class__(
             letters={Coord((j, i)): letter for (i, j), letter in self.letters.items()},
-            words_horizontal={
-                word: {Coord((h, v)) for (v, h) in i}
-                for word, i in self.words_vertical.items()
-            },
-            words_vertical={
-                word: {Coord((h, v)) for (v, h) in i}
-                for word, i in self.words_horizontal.items()
-            },
+            words_horizontal={word: {Coord((h, v)) for (v, h) in i} for word, i in self.words_vertical.items()},
+            words_vertical={word: {Coord((h, v)) for (v, h) in i} for word, i in self.words_horizontal.items()},
             crossings={Coord((j, i)) for (i, j) in self.crossings},
         )

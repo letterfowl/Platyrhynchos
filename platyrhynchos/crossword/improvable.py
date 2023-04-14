@@ -1,12 +1,12 @@
 """Implements the improvable crossword class"""
 from __future__ import annotations
 
-from typing import Optional, Iterator, NoReturn
+from typing import Iterator, NoReturn, Optional
 
-from .colrow import ColRow
-from .base import Crossword
 from ..commons.exceptions import TooLargeException, UninsertableException
 from ..commons.misc import ColRowId, Coord, IsColumn, ProxiedDict
+from .base import Crossword
+from .colrow import ColRow
 
 
 class CrosswordImprovable(Crossword):
@@ -42,9 +42,7 @@ class CrosswordImprovable(Crossword):
             TooLargeException: coordinates don't fit into the crossword
         """
         if horizontal >= self.max_h or vertical >= self.max_v:
-            raise TooLargeException(
-                f"{horizontal=} vs {self.max_h}; {vertical=} vs {self.max_v}"
-            )
+            raise TooLargeException(f"{horizontal=} vs {self.max_h}; {vertical=} vs {self.max_v}")
 
     def __init__(
         self,
@@ -83,24 +81,15 @@ class CrosswordImprovable(Crossword):
         # size = self.max
         # max_size = self.max_h, self.max_v
         return "\n".join(
-            "".join((self.letters.get(Coord((h, v)), ":") for h in range(self.max_h)))
-            for v in range(self.max_v)
+            "".join((self.letters.get(Coord((h, v)), ":") for h in range(self.max_h))) for v in range(self.max_v)
         )  # + f"\n[{size=} {max_size=}]"
 
     def rotate(self):
         """Rotates the crossword, works in place."""
-        self.letters = {
-            Coord((j, i)): letter for (i, j), letter in self.letters.items()
-        }
+        self.letters = {Coord((j, i)): letter for (i, j), letter in self.letters.items()}
         self.max_h, self.max_v = self.max_v, self.max_h
-        new_horizontal = {
-            word: {Coord((h, v)) for (v, h) in i}
-            for word, i in self.words_vertical.items()
-        }
-        new_vertical = {
-            word: {Coord((h, v)) for (v, h) in i}
-            for word, i in self.words_horizontal.items()
-        }
+        new_horizontal = {word: {Coord((h, v)) for (v, h) in i} for word, i in self.words_vertical.items()}
+        new_vertical = {word: {Coord((h, v)) for (v, h) in i} for word, i in self.words_horizontal.items()}
         self.words_horizontal, self.words_vertical = new_horizontal, new_vertical
         self.crossings = {Coord((j, i)) for (i, j) in self.crossings}
 
@@ -145,11 +134,7 @@ class CrosswordImprovable(Crossword):
 
         try:
             for place, letter in enumerate(word, start_index):
-                pos = (
-                    Coord((colrow.dim_num, place))
-                    if colrow.is_column
-                    else Coord((place, colrow.dim_num))
-                )
+                pos = Coord((colrow.dim_num, place)) if colrow.is_column else Coord((place, colrow.dim_num))
                 self.add_letter(pos, letter)
 
                 new_word[word].add(pos)

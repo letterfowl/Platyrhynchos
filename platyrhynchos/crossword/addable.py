@@ -1,11 +1,13 @@
 """Redundant code used to implement addable crosswords"""
 from __future__ import annotations
-from json import load
-from random import sample, random, shuffle
-from typing import Callable, Iterable, Optional, TypeVar
+
 from dataclasses import dataclass, field
-from .base import Crossword
+from json import load
+from random import random, sample, shuffle
+from typing import Callable, Iterable, Optional, TypeVar
+
 from ..commons.misc import Coord
+from .base import Crossword
 
 CrosswordAddableT = TypeVar("CrosswordAddableT", bound="CrosswordAddable")
 
@@ -53,9 +55,7 @@ class CrosswordAddable(Crossword):
             # print(word, "<-", hint, "\n")
             yield CrosswordAddable.construct(add * "+" + word + " ", hint)
 
-    def createFor(
-        self, word_amount: int, add: bool = False
-    ) -> Iterable[CrosswordAddable]:
+    def createFor(self, word_amount: int, add: bool = False) -> Iterable[CrosswordAddable]:
         ch = sample(WORDS_ITEMS - self.words.keys(), k=word_amount)
         for hint, word in ch:
             # print(word, "<-", hint, "\n")
@@ -123,9 +123,7 @@ class CrosswordAddable(Crossword):
         else:
             return self.combine(other.rotate(), T)
 
-    def combine(
-        self, other: CrosswordAddable, T: float = 0
-    ) -> Optional[CrosswordAddable]:
+    def combine(self, other: CrosswordAddable, T: float = 0) -> Optional[CrosswordAddable]:
         if self.words.keys() & other.words.keys():
             return None
         if random() > T:
@@ -139,21 +137,14 @@ class CrosswordAddable(Crossword):
             # TODO: fix
             c1 = self.relative(p1)
             c2 = other.relative(p2)
-            if all(
-                c1.letters[i] == c2.letters[i]
-                for i in c1.letters.keys() & c2.letters.keys()
-            ):
+            if all(c1.letters[i] == c2.letters[i] for i in c1.letters.keys() & c2.letters.keys()):
                 csum = CrosswordAddable(
                     letters=c1.letters | c2.letters,
                     words_horizontal=c1.words_horizontal | c2.words_horizontal,
                     clues_vertical=c1.clues_vertical | c2.clues_vertical,
                     words_vertical=c1.words_vertical | c2.words_vertical,
                     clues_horizontal=c1.clues_horizontal | c2.clues_horizontal,
-                    crossings={
-                        i
-                        for i in c1.letters.keys() & c2.letters.keys()
-                        if c1.letters[i] == c2.letters[i]
-                    }
+                    crossings={i for i in c1.letters.keys() & c2.letters.keys() if c1.letters[i] == c2.letters[i]}
                     | c1.crossings
                     | c2.crossings,
                 )
@@ -167,31 +158,17 @@ class CrosswordAddable(Crossword):
             raise KeyError("Nie ma takiego słowa")
         new = CrosswordAddable(
             letters={
-                coord: i
-                for coord, i in self.letters.items()
-                if coord not in letter_coords or coord in self.crossings
+                coord: i for coord, i in self.letters.items() if coord not in letter_coords or coord in self.crossings
             },
             words_vertical={w: i for w, i in self.words_vertical.items() if word != w},
             clues_vertical=self.clues_vertical
             if word in self.words_horizontal
-            else {
-                coord: i
-                for coord, i in self.clues_vertical.items()
-                if coord not in letter_coords
-            },
-            words_horizontal={
-                w: i for w, i in self.words_horizontal.items() if word != w
-            },
+            else {coord: i for coord, i in self.clues_vertical.items() if coord not in letter_coords},
+            words_horizontal={w: i for w, i in self.words_horizontal.items() if word != w},
             clues_horizontal=self.clues_horizontal
             if word in self.words_vertical
-            else {
-                coord: i
-                for coord, i in self.clues_horizontal.items()
-                if coord not in letter_coords
-            },
-            crossings={
-                coords for coords in self.crossings if coords not in letter_coords
-            },
+            else {coord: i for coord, i in self.clues_horizontal.items() if coord not in letter_coords},
+            crossings={coords for coords in self.crossings if coords not in letter_coords},
         )
         if len(new.words) == 0:
             return None

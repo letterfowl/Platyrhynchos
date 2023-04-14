@@ -3,9 +3,9 @@ This library contains all functions and classes that do not implement the logic 
 Rather they are technical tools
 """
 from os import makedirs
-from typing import Literal
 from os.path import join as join_path
 from random import Random
+from typing import Literal
 
 from platformdirs import PlatformDirs as _PlatformDirs
 

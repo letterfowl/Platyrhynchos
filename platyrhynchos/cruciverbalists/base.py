@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Iterator, Iterable
+from typing import Iterable, Iterator
 
+from ..commons.logger import logger
+from ..commons.utils import random
 from ..crossword.colrow import ColRow
 from ..crossword.improvable import CrosswordImprovable
-from ..commons.utils import random
-from ..commons.logger import logger
 
 
 class Cruciverbalist(ABC):
@@ -51,15 +51,11 @@ class Cruciverbalist(ABC):
                 logger.debug("Found: {}", word)
                 yield word, colrow
 
-    def find_word(
-        self, colrows: ColRow | Iterable[ColRow]
-    ) -> tuple[str | None, ColRow | None]:
+    def find_word(self, colrows: ColRow | Iterable[ColRow]) -> tuple[str | None, ColRow | None]:
         if isinstance(colrows, ColRow):
             colrows = [colrows]
         return next(self.find_words(colrows), (None, None))
 
-    def choose_and_fill(
-        self, crossword: CrosswordImprovable
-    ) -> tuple[str | None, ColRow | None]:
+    def choose_and_fill(self, crossword: CrosswordImprovable) -> tuple[str | None, ColRow | None]:
         colrows = self.choose_colrows(crossword)
         return self.find_word(colrows)

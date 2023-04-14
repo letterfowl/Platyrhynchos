@@ -5,10 +5,9 @@ import re
 from dataclasses import dataclass
 from typing import Iterator
 
-from .base import Crossword
-
 from ..commons.exceptions import PartNotFoundException
 from ..commons.misc import Coord
+from .base import Crossword
 
 
 @dataclass(init=True, repr=True)
@@ -76,18 +75,10 @@ class ColRow:
             return
         biggest = max(slices, key=lambda x: x.stop - x.start)
 
-        yield old_left_nones * [None] + fields[: biggest.start] + fields[
-            biggest
-        ]
-        yield fields[biggest] + fields[biggest.stop :] + old_right_nones * [
-            None
-        ]
-        yield from cls._subparts(
-            fields[: biggest.start], old_left_nones, biggest.stop - biggest.start
-        )
-        yield from cls._subparts(
-            fields[biggest.stop :], biggest.stop - biggest.start, old_right_nones
-        )
+        yield old_left_nones * [None] + fields[: biggest.start] + fields[biggest]
+        yield fields[biggest] + fields[biggest.stop :] + old_right_nones * [None]
+        yield from cls._subparts(fields[: biggest.start], old_left_nones, biggest.stop - biggest.start)
+        yield from cls._subparts(fields[biggest.stop :], biggest.stop - biggest.start, old_right_nones)
         return
 
     def subparts(self):
@@ -118,9 +109,7 @@ class ColRow:
                 yield regex
 
     @staticmethod
-    def _regex_of_part(
-        part: list[str | None], letters_before: int = 0, letters_after: int = 0
-    ) -> str:
+    def _regex_of_part(part: list[str | None], letters_before: int = 0, letters_after: int = 0) -> str:
         """
         Generates the regex of a row/column part. For example:
 
@@ -166,16 +155,11 @@ class ColRow:
         offsets = [
             i
             for i in range(len(field_vals) - len(word) + 1)
-            if all(
-                field_vals[n + i] is None or field_vals[n + i] == letter
-                for n, letter in part_letters
-            )
+            if all(field_vals[n + i] is None or field_vals[n + i] == letter for n, letter in part_letters)
         ]
         found = max(
             offsets,
-            key=lambda i: sum(
-                field_vals[n + i] == letter for n, letter in part_letters
-            ),
+            key=lambda i: sum(field_vals[n + i] == letter for n, letter in part_letters),
             default=None,
         )
         if found is None:

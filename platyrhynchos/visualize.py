@@ -1,7 +1,8 @@
 """Old LaTeX rendering library"""
 import os
-from .crossword.addable import CrosswordAddable
 from string import ascii_letters
+
+from .crossword.addable import CrosswordAddable
 
 HEADER = r"""
 \documentclass[11pt]{article}
@@ -73,13 +74,9 @@ def gen_table(cross: CrosswordAddable):
                 hint = ""
 
             if new_clues_horizontal:
-                hintsH.append(
-                    r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clues_horizontal))
-                )
+                hintsH.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clues_horizontal)))
             if new_clues_vertical:
-                hintsV.append(
-                    r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clues_vertical))
-                )
+                hintsV.append(r"\Clue{%d}{}{%s}" % (hintnum, cleanhint(new_clues_vertical)))
             # Dodawanie strzałek dla +
             if add_symbol == "+":
                 if new_clues_horizontal and not new_clues_vertical:
@@ -106,12 +103,8 @@ def _gen_code(cross: CrosswordAddable):
         cross.max[0],
         "\n".join(table),
     )
-    rhintsH = r"\begin{PuzzleClues}{\textbf{Poziome}\\}%s\end{PuzzleClues}" % (
-        "\n".join(hintsH)
-    )
-    rhintsV = r"\begin{PuzzleClues}{\textbf{Pionowe}\\}%s\end{PuzzleClues}" % (
-        "\n".join(hintsV)
-    )
+    rhintsH = r"\begin{PuzzleClues}{\textbf{Poziome}\\}%s\end{PuzzleClues}" % ("\n".join(hintsH))
+    rhintsV = r"\begin{PuzzleClues}{\textbf{Pionowe}\\}%s\end{PuzzleClues}" % ("\n".join(hintsV))
     return rtable, rhintsH, rhintsV
 
 

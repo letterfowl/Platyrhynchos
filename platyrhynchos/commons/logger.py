@@ -1,9 +1,10 @@
 """
 Implements logging using the loguru library. It also intercepts all other loggers and writes their output to out.log
 """
-from loguru import logger
 import logging
 import sys
+
+from loguru import logger
 
 from .utils import app_dir
 
@@ -24,9 +25,7 @@ class InterceptHandler(logging.Handler):
             frame = frame.f_back
             depth += 1
 
-        logger.opt(depth=depth, exception=record.exc_info).log(
-            level, record.getMessage()
-        )
+        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
 
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)

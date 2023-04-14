@@ -1,8 +1,8 @@
 from contextlib import suppress
 
-from platyrhynchos.cruciverbalists import EnglishSimpleCruciverbalist
-from platyrhynchos.crossword import CrosswordImprovable
 from platyrhynchos.commons.logger import logger
+from platyrhynchos.crossword import CrosswordImprovable
+from platyrhynchos.cruciverbalists import EnglishSimpleCruciverbalist
 
 with suppress(ModuleNotFoundError):
     import functiontrace

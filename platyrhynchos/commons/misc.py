@@ -1,6 +1,7 @@
 """Random reusable stuff"""
 from __future__ import annotations
-from typing import TypeVar, Callable, Any, NewType
+
+from typing import Any, Callable, NewType, TypeVar
 
 T = TypeVar("T")
 T2 = TypeVar("T2")
@@ -12,6 +13,7 @@ ColRowId = NewType("ColRowId", int)
 
 class ProxiedDict(dict):
     """A dict that can run a function on every set or get"""
+
     def __init__(
         self,
         source: dict[T, T2],

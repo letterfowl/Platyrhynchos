@@ -1,17 +1,13 @@
 from contextlib import suppress
-from string import ascii_uppercase
 from os import remove as remove_file
+from string import ascii_uppercase
 
 import pytest
 
 from platyrhynchos import CrosswordImprovable
-from platyrhynchos.commons.alphabit import Alphabit, MAX_ALPHABIT
-from platyrhynchos.cruciverbalists.en_simple import (
-    EnglishSimpleCruciverbalist,
-    prepare_database,
-    download_db,
-)
+from platyrhynchos.commons.alphabit import MAX_ALPHABIT, Alphabit
 from platyrhynchos.commons.utils import app_dir
+from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist, download_db, prepare_database
 
 
 @pytest.fixture
@@ -61,14 +57,10 @@ class TestAlphabit:
         assert Alphabit("z").bittarray.to01() == "1" + "0" * (len(ascii_uppercase) - 1)
 
     def test_xyz(self):
-        assert Alphabit("xyz").bittarray.to01() == "111" + "0" * (
-            len(ascii_uppercase) - 3
-        )
+        assert Alphabit("xyz").bittarray.to01() == "111" + "0" * (len(ascii_uppercase) - 3)
 
     def test_xz(self):
-        assert Alphabit("xz").bittarray.to01() == "101" + "0" * (
-            len(ascii_uppercase) - 3
-        )
+        assert Alphabit("xz").bittarray.to01() == "101" + "0" * (len(ascii_uppercase) - 3)
 
     def test_max(self):
         assert Alphabit(ascii_uppercase).bittarray.to01() == "1" * len(ascii_uppercase)
@@ -80,14 +72,7 @@ class TestAlphabit:
 
     def test_empty(self, runner):
         word = Alphabit("").to_query()
-        assert (
-            len(
-                runner(
-                    f"select answer from clues where bit_count({word} | alphabit)!=length(alphabit)"
-                )
-            )
-            == 0
-        )
+        assert len(runner(f"select answer from clues where bit_count({word} | alphabit)!=length(alphabit)")) == 0
 
 
 class TestFindWord:

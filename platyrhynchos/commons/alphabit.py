@@ -8,6 +8,7 @@ from typing import Optional
 
 from bitarray import bitarray
 
+
 class Alphabit:
     """
     A wrapper over `bitarray` object to parse into the database.
@@ -15,6 +16,7 @@ class Alphabit:
     `LETTER_ORDER` stores the order of letters in the `bitarray`.
     By default it's the reverse of the alphabet. It shouldn't have any effect on speed.
     """
+
     LETTER_ORDER = ascii_uppercase[::-1]
 
     def __init__(self, initializer: str = "", bits: Optional[bitarray] = None) -> None:
@@ -30,9 +32,7 @@ class Alphabit:
             self.bittarray = bits
         else:
             letters_in_word = set(initializer.upper())
-            self.bittarray = bitarray(
-                (letter in letters_in_word for letter in self.LETTER_ORDER)
-            )
+            self.bittarray = bitarray((letter in letters_in_word for letter in self.LETTER_ORDER))
 
     def to_db(self) -> str:
         """Generates a database Alphabit value of a word"""

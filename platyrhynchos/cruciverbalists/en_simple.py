@@ -1,17 +1,16 @@
 from os.path import isfile
-from tempfile import _TemporaryFileWrapper, NamedTemporaryFile
+from tempfile import NamedTemporaryFile, _TemporaryFileWrapper
 
 import duckdb
 import requests
 from tqdm_loggable.auto import tqdm
 
+from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
 from ..commons.logger import logger
 from ..commons.utils import app_dir
-from ..commons.alphabit import Alphabit
 from ..crossword.colrow import ColRow
 from .base import Cruciverbalist
-
 
 URL = "https://cryptics.georgeho.org/data/clues.csv?_stream=on&_size=max"
 RUN_WITH_ALPHABIT = True
@@ -30,12 +29,8 @@ def prepare_database():
 def download_db(cursor: duckdb.DuckDBPyConnection):
     logger.info("Database image not found, downloading")
     head = requests.get(URL, stream=True)
-    total_size = (
-        int(head.headers.get("content-length", 120_000_000)) if head.ok else 120_000_000
-    )
-    with tqdm.wrapattr(
-        NamedTemporaryFile("wb", suffix=".csv"), "write", total=total_size
-    ) as temp_file:
+    total_size = int(head.headers.get("content-length", 120_000_000)) if head.ok else 120_000_000
+    with tqdm.wrapattr(NamedTemporaryFile("wb", suffix=".csv"), "write", total=total_size) as temp_file:
         temp_file: _TemporaryFileWrapper
         with requests.get(URL, stream=True) as csv_stream:
             for chunk in csv_stream.iter_content(chunk_size=128):
