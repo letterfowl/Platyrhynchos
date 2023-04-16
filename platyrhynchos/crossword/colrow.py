@@ -13,6 +13,7 @@ from .base import Crossword
 @dataclass(init=True, repr=True)
 class ColRow:
     """A reference to the given crossword column or row, compatible with CrosswordImprovable"""
+
     crossword: Crossword
     is_column: bool
     dim_num: int
