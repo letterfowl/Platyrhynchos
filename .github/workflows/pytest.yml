@@ -17,8 +17,15 @@ jobs:
           python-version: '3.10.10'
       - name: Poetry export requirements.txt file
         uses: Divkix/poetry-export-requirements-action@v1.4.0
-      - id: run-tests
-        uses: dima-engineer/pytest-reporter@v2.1.0
+      - name: Pip Installer
+        uses: BSFishy/pip-action@v1
+      - name: Generate coverage report
+        run: |
+          pip install pytest
+          pip install pytest-cov
+          pytest --cov --cov-report=xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          cov-omit-list: tests/*
-          async-tests: true
+          name: platyrhynchos-action
+          verbose: true
