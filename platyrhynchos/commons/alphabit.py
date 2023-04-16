@@ -39,10 +39,7 @@ class Alphabit:
         return self.bittarray.to01()
 
     def to_query(self) -> str:
-        """
-        Generates an Alphabit query to be used in SQL, ex:
-        ``
-        """
+        """Generates an Alphabit query to be used in SQL"""
         return f"'{(~self.bittarray).to01()}'::BIT"
 
 

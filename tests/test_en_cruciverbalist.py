@@ -1,13 +1,10 @@
-from contextlib import suppress
-from os import remove as remove_file
 from string import ascii_uppercase
 
 import pytest
 
 from platyrhynchos import CrosswordImprovable
 from platyrhynchos.commons.alphabit import MAX_ALPHABIT, Alphabit
-from platyrhynchos.commons.utils import app_dir
-from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist, download_db, prepare_database
+from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist, prepare_database
 
 
 @pytest.fixture
