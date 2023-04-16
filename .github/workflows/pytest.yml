@@ -19,6 +19,8 @@ jobs:
         uses: Divkix/poetry-export-requirements-action@v1.4.0
       - name: Pip Installer
         uses: BSFishy/pip-action@v1
+        with:
+          requirements: requirements.txt
       - name: Generate coverage report
         run: |
           pip install pytest
