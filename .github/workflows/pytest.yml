@@ -17,15 +17,8 @@ jobs:
           python-version: '3.10.10'
       - name: Poetry export requirements.txt file
         uses: Divkix/poetry-export-requirements-action@v1.4.0
-      - name: Pip Installer
-        uses: BSFishy/pip-action@v1
-        with:
-          requirements: requirements.txt
-      - name: Generate coverage report
-        run: |
-          pip install pytest
-          pip install pytest-cov
-          pytest --cov --cov-report=xml
+      - name: Install libs and run Pytest
+        uses: lpenz/ghaction-pytest-cov@v1
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
