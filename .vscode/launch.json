@@ -5,19 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Direct search",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/benchmarks/direct.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Python: Search",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/search.py",
-            "console": "integratedTerminal"
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

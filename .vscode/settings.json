@@ -1,0 +1,22 @@
+{
+    "python.analysis.typeCheckingMode": "basic",
+    "terminal.integrated.profiles.osx": {
+        "bash": {
+            "path": "bash",
+            "args": [
+                "-l"
+            ],
+            "icon": "terminal-bash"
+        },
+        "duckdb": {
+            "path": "bash",
+            "overrideName": true,
+            "args": [
+                "--init-file",
+                "./.vscode/prepare_duck.sh"
+            ],
+            "icon": "database"
+        },
+    },
+    "pylint.args": ["--max-line-length=120"]
+}
