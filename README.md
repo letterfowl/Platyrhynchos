@@ -17,7 +17,7 @@
 [![CodeQL](https://github.com/letterfowl/Platyrhynchos/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/github-code-scanning/codeql)
 [![autoflake, isort, black](https://github.com/letterfowl/Platyrhynchos/actions/workflows/format.yml/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/format.yml)
 [![.github/workflows/pytest.yml](https://github.com/letterfowl/Platyrhynchos/actions/workflows/pytest.yml/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/pytest.yml)
-![pytest-reporter-badge](https://img.shields.io/static/v1?label=pytest-reporter&message=50.68%&color=yellow)
+[![codecov](https://codecov.io/gh/letterfowl/Platyrhynchos/branch/main/graph/badge.svg?token=5HNARDOWC6)](https://codecov.io/gh/letterfowl/Platyrhynchos)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 ## Table Of Contents
