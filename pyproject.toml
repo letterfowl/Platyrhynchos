@@ -40,6 +40,13 @@ testpaths = [
     "tests"
 ]
 
+[tool.coverage.run]
+omit = [
+    "tests/*",
+    "analysis/*",
+    "benchmarks/*"
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
