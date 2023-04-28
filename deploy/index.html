@@ -4,10 +4,15 @@
       <script src="https://cdn.jsdelivr.net/pyodide/v0.23.1/full/pyodide.js"></script>
   </head>
   <body>
-    <script type="text/javascript">
+    <h1>test</h1>
+    <script type="text/javascript" defer>
       async function main(){
         let pyodide = await loadPyodide();
+        await pyodide.loadPackage("micropip");
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install('http://localhost:5500/dist/platyrhynchos-0.1.1-py3-none-any.whl');
         console.log(pyodide.runPython("1 + 2"));
+        console.log(pyodide);
       }
       main();
     </script>

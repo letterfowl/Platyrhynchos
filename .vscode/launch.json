@@ -21,6 +21,26 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "envFile": "${workspaceFolder}/.env"
-        }
+        },
+        {
+            "name": "Launch Firefox",
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "url": "http://localhost:5500/deploy/index.html",
+            "tabFilter": "http://localhost:5500/*",
+            "webRoot": "${workspaceFolder}",
+            "reloadOnChange": {
+                "watch": "${workspaceFolder}/**/*",
+                "ignore": "**/node_modules/**"
+            }
+        },
+        {
+            "name": "Launch Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "urlFilter": "http://localhost:5500/*",
+            "webRoot": "${workspaceFolder}"
+        },
     ]
 }
