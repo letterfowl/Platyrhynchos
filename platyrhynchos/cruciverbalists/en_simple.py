@@ -127,6 +127,7 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
                     return ret
             elif ret := self._sql_regex(regex=i):
                 return ret
+        return None
 
     def eval_word(self, word: str, colrow: ColRow) -> int:
         """Evaluate the word as an insertion into a ColRow."""
