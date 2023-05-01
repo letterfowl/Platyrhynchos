@@ -22,6 +22,16 @@
             "label": "Format",
             "type": "shell",
             "command": "poetry run autoflake --expand-star-imports --remove-all-unused-imports  --ignore-init-module-imports --remove-unused-variables --ignore-pass-after-docstring --in-place --verbose ${workspaceFolder}/platyrhynchos/*.py && poetry run black ${workspaceFolder}"
+        },
+        {
+            "label": "Poetry build",
+            "type": "shell",
+            "command": "poetry build",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
