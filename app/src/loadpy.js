@@ -6,5 +6,5 @@ export async function initPy(){
     const micropip = pyodide.pyimport("micropip");
     await micropip.install('http://localhost:8080/platyrhynchos-0.1.1-py3-none-any.whl');
     console.log("Loaded pyodide");
-    return [pyodide, micropip]
+    return pyodide;
 }

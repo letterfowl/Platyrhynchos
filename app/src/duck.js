@@ -1,4 +1,5 @@
 import * as duckdb from '@duckdb/duckdb-wasm';
+
 export async function initDatabase({
     log = false
   } = {}) {
@@ -20,3 +21,13 @@ export async function initDatabase({
   
     return db;
   }
+
+export async function connect() {
+  const db = await initDatabase({log: true})
+  return await db.connect();
+}
+
+export async function testDB() {
+  const db = await connect();
+  return await db.query("SELECT 1+1")
+}
