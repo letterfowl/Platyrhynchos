@@ -20,6 +20,9 @@ const config = {
   devServer: {
     open: true,
     host: "localhost",
+    headers: {
+        "Access-Control-Allow-Origin": "*",
+    },
   },
   plugins: [
     new HtmlWebpackPlugin({
