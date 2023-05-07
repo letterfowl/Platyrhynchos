@@ -1,40 +1,21 @@
-from os.path import isfile
 from tempfile import NamedTemporaryFile, _TemporaryFileWrapper
 
-import duckdb
 import requests
 from tqdm_loggable.auto import tqdm
 
 from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
 from ..commons.logger import logger
-from ..commons.utils import app_dir
 from ..crossword.colrow import ColRow
 from .base import Cruciverbalist
+from ..exclusive import cursor_execute
+
 
 URL = "https://cryptics.georgeho.org/data/clues.csv?_stream=on&_size=max"
 RUN_WITH_ALPHABIT = True
 
 
-def prepare_database():
-    """
-    A helper function to open the database and download it if needed
-
-    Returns:
-    A tuple of connection and cursor
-    """
-    db_path = app_dir("user_cache_dir", "en_simple.db")
-    is_fresh = not isfile(db_path)
-    connection = duckdb.connect(database=db_path)
-    cursor = connection.cursor()
-    # Downloads the database if it is fresh.
-    if is_fresh:
-        logger.info("Database image not found, downloading")
-        download_db(cursor)
-    return connection, cursor
-
-
-def download_db(cursor: duckdb.DuckDBPyConnection):
+def download_db():
     """Download and preprocess the database. Generates temporary files."""
     # Download the CSV to temp file.
     head = requests.get(URL, stream=True, timeout=60)
@@ -46,17 +27,17 @@ def download_db(cursor: duckdb.DuckDBPyConnection):
                 temp_file.write(chunk)
         temp_file.flush()
         logger.info("Finished download, converting")
-        cursor.execute(f"CREATE TABLE clues AS SELECT * FROM '{temp_file.name}';")
+        cursor_execute(f"CREATE TABLE clues AS SELECT * FROM '{temp_file.name}';")
     logger.info("Finished converting, preprocessing")
 
     # Preprocess the database
-    cursor.execute(
+    cursor_execute(
         """
         DELETE FROM clues WHERE answer IS NULL;
         ALTER TABLE clues ADD alphabit BIT
     """
     )
-    answers = cursor.sql("SELECT rowid, answer FROM clues").fetchall()
+    answers = cursor_execute("SELECT rowid, answer FROM clues").fetchall()
     with NamedTemporaryFile("w", suffix=".csv") as alphabit_cache:
         alphabit_cache.writelines(
             tqdm(
@@ -64,7 +45,7 @@ def download_db(cursor: duckdb.DuckDBPyConnection):
                 total=len(answers),
             )
         )
-        cursor.execute(
+        cursor_execute(
             """
         UPDATE clues
         SET alphabit = (
@@ -73,7 +54,7 @@ def download_db(cursor: duckdb.DuckDBPyConnection):
             WHERE clues.rowid = new.row
         );
         """,
-            {"file": alphabit_cache.name},
+            file=alphabit_cache.name
         )
 
     logger.info("Finished preparing the database")
@@ -94,8 +75,8 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
 
     def __init__(self) -> None:
         """Prepares the database"""
+        download_db()
         super().__init__()
-        _, self.cursor = prepare_database()
 
     def _sql_regex(self, **kwargs):
         """
@@ -103,10 +84,10 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
         Keyword arguments are parsed to the query for string interpolation.
         """
         if RUN_WITH_ALPHABIT:
-            self.cursor.execute(self.STATEMENTS["get_regex_w_alphabit"] % kwargs)
+            found = cursor_execute(self.STATEMENTS["get_regex_w_alphabit"] % kwargs)
         else:
-            self.cursor.execute(self.STATEMENTS["get_regex"] % kwargs)
-        return found if (found := [j[0] for j in self.cursor.fetchall()]) else None
+            found = cursor_execute(self.STATEMENTS["get_regex"] % kwargs)
+        return found if (found := [j[0] for j in found.fetchall()]) else None
 
     def eval_colrow(self, colrow: ColRow) -> int:
         """
@@ -135,7 +116,7 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
 
     def start_word(self) -> str:
         """Get a random word from the database. This is useful for testing the crossword."""
-        found_words = self.cursor.sql(self.STATEMENTS["get_random"]).fetchone()
+        found_words = cursor_execute(self.STATEMENTS["get_random"]).fetchone()
         # If there are any words in the database raise a DatabaseException.
         if found_words is None:
             raise DatabaseException("Couldn't find any words.")
