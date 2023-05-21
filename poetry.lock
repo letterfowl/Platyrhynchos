@@ -31,6 +31,18 @@ six = "*"
 test = ["astroid", "pytest"]
 
 [[package]]
+name = "async-to-sync"
+version = "0.2.3"
+description = "Convert async coroutines to normal python functions"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "async_to_sync-0.2.3-py2.py3-none-any.whl", hash = "sha256:af509c8c849e00eff33c4d913b0c96ee93b755fa47d707615970615f41f08470"},
+    {file = "async_to_sync-0.2.3.tar.gz", hash = "sha256:592b07f1644bae56202f13efa6a7b1f048ed9b24eb7c9e927e4064535273fcaa"},
+]
+
+[[package]]
 name = "autoflake"
 version = "2.1.1"
 description = "Removes unused imports and unused variables"
@@ -4191,4 +4203,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.10,<3.12"
-content-hash = "af1a6c92883771d230e4a4e572183b5ab7293cbd3bfcb8ba8f699ed8dcafe271"
+content-hash = "116f034ae1d57c44bfbe5f836c927c3e58469f39fc626381dc079e16a10ec689"

@@ -1,6 +1,5 @@
 from tempfile import NamedTemporaryFile, _TemporaryFileWrapper
 
-import requests
 from tqdm_loggable.auto import tqdm
 
 from ..commons.alphabit import Alphabit
@@ -8,7 +7,7 @@ from ..commons.exceptions import DatabaseException
 from ..commons.logger import logger
 from ..crossword.colrow import ColRow
 from .base import Cruciverbalist
-from ..exclusive import cursor_execute
+from ..exclusive import cursor_execute, download_db_file
 
 
 URL = "https://cryptics.georgeho.org/data/clues.csv?_stream=on&_size=max"
@@ -17,18 +16,9 @@ RUN_WITH_ALPHABIT = True
 
 def download_db():
     """Download and preprocess the database. Generates temporary files."""
-    # Download the CSV to temp file.
-    head = requests.get(URL, stream=True, timeout=60)
-    total_size = int(head.headers.get("content-length", 120_000_000)) if head.ok else 120_000_000
-    with tqdm.wrapattr(NamedTemporaryFile("wb", suffix=".csv"), "write", total=total_size) as temp_file:
-        temp_file: _TemporaryFileWrapper
-        with requests.get(URL, stream=True, timeout=60) as csv_stream:
-            for chunk in csv_stream.iter_content(chunk_size=128):
-                temp_file.write(chunk)
-        temp_file.flush()
-        logger.info("Finished download, converting")
-        cursor_execute(f"CREATE TABLE clues AS SELECT * FROM '{temp_file.name}';")
-    logger.info("Finished converting, preprocessing")
+    logger.info("Downloading the database")
+    download_db_file(URL)
+    logger.info("Finished downloading the database")
 
     # Preprocess the database
     cursor_execute(
