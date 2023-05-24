@@ -7,65 +7,16 @@ from ..commons.exceptions import DatabaseException
 from ..commons.logger import logger
 from ..crossword.colrow import ColRow
 from .base import Cruciverbalist
-from ..exclusive import cursor_execute, download_db_file
-
+from ..exclusive import download_db, get_regex_w_alphabit, get_random, get_regex
 
 URL = "https://cryptics.georgeho.org/data/clues.csv?_stream=on&_size=max"
 RUN_WITH_ALPHABIT = True
 
-
-def download_db():
-    """Download and preprocess the database. Generates temporary files."""
-    logger.info("Downloading the database")
-    download_db_file(URL)
-    logger.info("Finished downloading the database")
-
-    # Preprocess the database
-    cursor_execute(
-        """
-        DELETE FROM clues WHERE answer IS NULL;
-        ALTER TABLE clues ADD alphabit BIT
-    """
-    )
-    answers = cursor_execute("SELECT rowid, answer FROM clues").fetchall()
-    with NamedTemporaryFile("w", suffix=".csv") as alphabit_cache:
-        alphabit_cache.writelines(
-            tqdm(
-                (f"{rowid},{Alphabit(answer).to_db()}\n" for rowid, answer in answers),
-                total=len(answers),
-            )
-        )
-        cursor_execute(
-            """
-        UPDATE clues
-        SET alphabit = (
-            SELECT alphabit
-            FROM read_csv($file, columns={row:int, alphabit:bit}) as new
-            WHERE clues.rowid = new.row
-        );
-        """,
-            file=alphabit_cache.name
-        )
-
-    logger.info("Finished preparing the database")
-
-
 class EnglishSimpleCruciverbalist(Cruciverbalist):
-    STATEMENTS = {
-        "get_regex_w_alphabit": """
-        select answer from clues where bit_count(%(alphabit)s | alphabit)=length(alphabit) and regexp_matches(answer, '%(regex)s')
-        """,
-        "get_regex": """
-        select answer from clues where regexp_matches(answer, '%(regex)s')
-        """,
-        "get_random": """
-        select answer from clues limit 1
-        """,
-    }
 
     def __init__(self) -> None:
         """Prepares the database"""
-        download_db()
+        download_db(URL)
         super().__init__()
 
     def _sql_regex(self, **kwargs):
@@ -74,9 +25,9 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
         Keyword arguments are parsed to the query for string interpolation.
         """
         if RUN_WITH_ALPHABIT:
-            found = cursor_execute(self.STATEMENTS["get_regex_w_alphabit"] % kwargs)
+            found = get_regex_w_alphabit(**kwargs)
         else:
-            found = cursor_execute(self.STATEMENTS["get_regex"] % kwargs)
+            found = get_regex(**kwargs)
         return found if (found := [j[0] for j in found.fetchall()]) else None
 
     def eval_colrow(self, colrow: ColRow) -> int:
@@ -106,7 +57,7 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
 
     def start_word(self) -> str:
         """Get a random word from the database. This is useful for testing the crossword."""
-        found_words = cursor_execute(self.STATEMENTS["get_random"]).fetchone()
+        found_words = get_random()
         # If there are any words in the database raise a DatabaseException.
         if found_words is None:
             raise DatabaseException("Couldn't find any words.")
