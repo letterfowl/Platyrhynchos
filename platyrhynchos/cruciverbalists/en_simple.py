@@ -6,14 +6,14 @@ from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
 from ..commons.logger import logger
 from ..crossword.colrow import ColRow
+from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
 from .base import Cruciverbalist
-from ..exclusive import download_db, get_regex_w_alphabit, get_random, get_regex
 
 URL = "https://cryptics.georgeho.org/data/clues.csv?_stream=on&_size=max"
 RUN_WITH_ALPHABIT = True
 
-class EnglishSimpleCruciverbalist(Cruciverbalist):
 
+class EnglishSimpleCruciverbalist(Cruciverbalist):
     def __init__(self) -> None:
         """Prepares the database"""
         download_db(URL)

@@ -4,16 +4,18 @@ import duckdb
 import requests
 from tqdm_loggable.auto import tqdm
 
-from ..commons.utils import app_dir
 from ..commons.alphabit import Alphabit
 from ..commons.logger import logger
+from ..commons.utils import app_dir
 
 _db_path = app_dir("user_cache_dir", "en_simple.db")
 _connection = duckdb.connect(database=_db_path)
 
+
 def cursor_execute(sql, **kwargs):
     cursor = _connection.cursor()
     return cursor.execute(sql, kwargs)
+
 
 def download_db(url: str):
     logger.info("Downloading the database")
@@ -54,15 +56,20 @@ def download_db(url: str):
             WHERE clues.rowid = new.row
         );
         """,
-            file=alphabit_cache.name
+            file=alphabit_cache.name,
         )
     logger.info("Finished preparing the database")
 
+
 def get_regex_w_alphabit(regex: str, alphabit: int):
-    return cursor_execute(f"select answer from clues where bit_count({alphabit} | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}')").fetch_all()
+    return cursor_execute(
+        f"select answer from clues where bit_count({alphabit} | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}')"
+    ).fetch_all()
+
 
 def get_regex(regex: str):
     return cursor_execute(f"select answer from clues where regexp_matches(answer, '{regex}')").fetch_all()
+
 
 def get_random():
     return cursor_execute("select answer from clues limit 1").fetch_one()

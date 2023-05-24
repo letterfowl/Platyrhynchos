@@ -1,4 +1,5 @@
 from sys import platform
+
 from ..commons.logger import logger
 
 if platform == "emscripten":
