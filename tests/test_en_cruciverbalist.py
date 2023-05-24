@@ -4,7 +4,8 @@ import pytest
 
 from platyrhynchos import CrosswordImprovable
 from platyrhynchos.commons.alphabit import MAX_ALPHABIT, Alphabit
-from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist, prepare_database
+from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist, download_db
+from platyrhynchos.exclusive.cpython import cursor_execute
 
 
 @pytest.fixture
@@ -20,10 +21,8 @@ def crossword1():
 
 @pytest.fixture
 def runner():
-    _, c = prepare_database()
-
     def _runner(command: str):
-        return c.sql(command).fetchall()
+        return cursor_execute(command).fetchall()
 
     return _runner
 
@@ -35,6 +34,7 @@ def cruciverbalist():
 
 class TestDB:
     def test_download(self, runner):
+        EnglishSimpleCruciverbalist()
         assert len(runner("select alphabit from clues limit 10")) == 10
 
     def test_select_words(self, runner):
