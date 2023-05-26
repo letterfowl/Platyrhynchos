@@ -8,9 +8,18 @@ from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist,
 from platyrhynchos.exclusive.cpython import cursor_execute
 
 SAMPLE_WORDS = [
-    "PRECIPICE", "AFFABLE", "TIDAL", "EXTINCT", "KAPUT", 
-    "CAMERA", "HUMID", "A BULL IN A CHINA SHOP", "FUNCTIONARY", "RESORT"
+    "PRECIPICE",
+    "AFFABLE",
+    "TIDAL",
+    "EXTINCT",
+    "KAPUT",
+    "CAMERA",
+    "HUMID",
+    "A BULL IN A CHINA SHOP",
+    "FUNCTIONARY",
+    "RESORT",
 ]
+
 
 @pytest.fixture
 def crossword1():
@@ -27,7 +36,9 @@ def crossword1():
 def runner():
     def _runner(command: str):
         return cursor_execute(command).fetchall()
+
     return _runner
+
 
 @pytest.fixture
 def cruciverbalist():
@@ -41,12 +52,7 @@ class TestDB:
     def test_download_works(self, runner):
         alphabit = runner("select alphabit, typeof(alphabit) from clues limit 10")
         assert len(alphabit) == 10
-        assert all(
-            i[0] is not None and
-            len(i[0]) == 26 and
-            i[1].lower() == 'bit'
-            for i in alphabit
-        )
+        assert all(i[0] is not None and len(i[0]) == 26 and i[1].lower() == "bit" for i in alphabit)
 
     def test_select_words(self, runner):
         assert len(runner("select answer from clues limit 10")) == 10
