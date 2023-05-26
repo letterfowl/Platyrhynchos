@@ -7,9 +7,9 @@ import requests
 from tqdm_loggable.auto import tqdm
 
 from ..commons.alphabit import Alphabit
+from ..commons.exceptions import DatabaseException
 from ..commons.logger import logger
 from ..commons.utils import app_dir
-from ..commons.exceptions import DatabaseException
 
 _db_path = app_dir("user_cache_dir", "en_simple.db")
 _connection = duckdb.connect(database=_db_path)
