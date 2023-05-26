@@ -9,6 +9,7 @@ from tqdm_loggable.auto import tqdm
 from ..commons.alphabit import Alphabit
 from ..commons.logger import logger
 from ..commons.utils import app_dir
+from ..commons.exceptions import DatabaseException
 
 _db_path = app_dir("user_cache_dir", "en_simple.db")
 _connection = duckdb.connect(database=_db_path)
@@ -30,13 +31,13 @@ def download_db(url: str):
     if not isfile(_db_path):
         log_mess = f"Database does not exist. Please run the GetGerghoWords pipeline with `--duckdb_path={_db_path}` to fix this."
         logger.error(log_mess)
-        raise DatabaseError(log_mess)
+        raise DatabaseException(log_mess)
     try:
         cursor_execute("SELECT answer, alphabit FROM clues LIMIT 1")
     except duckdb.CatalogException:
         log_mess = f"Database in {_db_path} exists, but does not have a valid clues table. Please run the GetGerghoWords pipeline with `--duckdb_path={_db_path}` to fix this."
         logger.error(log_mess)
-        raise DatabaseError(log_mess)
+        raise DatabaseException(log_mess)
     else:
         logger.info("Database found and checked")
         return
