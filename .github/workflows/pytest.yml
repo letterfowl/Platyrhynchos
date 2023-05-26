@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: download DB image
-        run: mkdir tmp && mkdir user_cache_dir && wget -O /tmp/user_cache_dir {{ secrets.S3_DB_IMAGE_URL }} 
+        run: mkdir tmp && mkdir user_cache_dir && wget -O /tmp/user_cache_dir ${{ secrets.S3_DB_IMAGE_URL }} 
       - uses: actions/setup-python@v2
         with:
           python-version: '3.10.10'
