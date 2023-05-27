@@ -7,11 +7,11 @@ from ..commons.exceptions import DatabaseException
 from ..crossword.colrow import ColRow
 from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
 from .base import Cruciverbalist
-
+from ..commons.settings import settings
 
 class EnglishSimpleCruciverbalist(Cruciverbalist):
-    URL = "https://cryptics.georgeho.org/data/clues.csv?_stream=on&_size=max"
-    RUN_WITH_ALPHABIT = True
+    URL = settings.en_simple.db_url
+    RUN_WITH_ALPHABIT = settings.en_simple['use_alphabit']
 
     def __init__(self) -> None:
         """Prepares the database"""

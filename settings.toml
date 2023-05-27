@@ -1,0 +1,32 @@
+[default]
+
+    debug = false
+
+    [default.components]
+        cruciverbalist = 'en_simple'
+        runner = ''
+        overwrite_platform = ''
+
+    [default.logs]
+        Level = "INFO"
+        diagnose = false
+        colorize = false
+
+    [default.en_simple]
+        db_url = "https://cryptics.georgeho.org/data/clues.csv?_stream=on&_size=max"
+        use_alphabit = true
+
+[production]
+
+[development]
+
+    debug = true
+    
+    [development.logs]
+        level = "DEBUG"
+        diagnose = true
+        colorize = true
+
+[testing]
+
+    debug = true

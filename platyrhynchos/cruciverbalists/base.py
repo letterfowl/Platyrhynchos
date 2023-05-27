@@ -8,7 +8,6 @@ from ..crossword.improvable import CrosswordImprovable
 
 
 class Cruciverbalist(ABC):
-    # SAMPLE_SIZE = 0.9
     SAMPLE_SIZE = 1
 
     @abstractmethod
