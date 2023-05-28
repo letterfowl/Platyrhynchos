@@ -5,6 +5,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
+        
 
 jobs:
   tests:
@@ -12,8 +14,9 @@ jobs:
     name: Unit tests
     steps:
       - uses: actions/checkout@v2
-      - name: download DB image
-        run: mkdir tmp && mkdir user_cache_dir && wget -O /tmp/user_cache_dir ${{ secrets.S3_DB_IMAGE_URL }} 
+      - name: Set up secrets file
+        run: |
+          echo {{ secrets.S3_SECRETS_FILE }} >> .env
       - uses: actions/setup-python@v2
         with:
           python-version: '3.10.10'
