@@ -13,8 +13,13 @@
         colorize = false
 
     [default.en_simple]
-        db_url = "https://cryptics.georgeho.org/data/clues.csv?_stream=on&_size=max"
+        db_file = "en_simple.db"
         use_alphabit = true
+
+    [default.s3]
+        region = 'fr-par'
+        endpoint = 'https://s3.fr-par.scw.cloud'
+        bucket = 'letterfowl-test'
 
 [production]
 

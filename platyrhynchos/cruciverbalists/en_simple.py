@@ -10,12 +10,12 @@ from .base import Cruciverbalist
 from ..commons.settings import settings
 
 class EnglishSimpleCruciverbalist(Cruciverbalist):
-    URL = settings.en_simple.db_url
+    DB_FILE = settings.en_simple.db_file
     RUN_WITH_ALPHABIT = settings.en_simple['use_alphabit']
 
     def __init__(self) -> None:
         """Prepares the database"""
-        download_db(self.URL)
+        download_db(self.DB_FILE)
         super().__init__()
 
     def eval_colrow(self, colrow: ColRow) -> int:

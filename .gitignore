@@ -425,4 +425,4 @@ rsconnect/
 tmp
 functiontrace*.json.gz
 !.vscode/*.sh
-.settings.toml
+.secrets.*

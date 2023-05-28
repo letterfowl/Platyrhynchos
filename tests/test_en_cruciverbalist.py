@@ -4,7 +4,7 @@ import pytest
 
 from platyrhynchos import CrosswordImprovable
 from platyrhynchos.commons.alphabit import MAX_ALPHABIT, Alphabit
-from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist, download_db
+from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist
 from platyrhynchos.exclusive.cpython import cursor_execute
 
 SAMPLE_WORDS = [
@@ -32,12 +32,6 @@ def crossword1():
     )
 
 
-@pytest.fixture
-def runner():
-    def _runner(command: str):
-        return cursor_execute(command).fetchall()
-
-    return _runner
 
 
 @pytest.fixture
@@ -46,23 +40,23 @@ def cruciverbalist():
 
 
 class TestDB:
-    def test_start_db(self, runner):
-        assert runner("select 1+1")[0][0] == 2
+    def test_start_db(self):
+        assert cursor_execute("select 1+1")[0][0] == 2
 
-    def test_download_works(self, runner):
-        alphabit = runner("select alphabit, typeof(alphabit) from clues limit 10")
+    def test_download_works(self, cruciverbalist):
+        alphabit = cursor_execute("select alphabit, typeof(alphabit) from clues limit 10")
         assert len(alphabit) == 10
         assert all(i[0] is not None and len(i[0]) == 26 and i[1].lower() == "bit" for i in alphabit)
 
-    def test_select_words(self, runner):
-        assert len(runner("select answer from clues limit 10")) == 10
+    def test_select_words(self, cruciverbalist):
+        assert len(cursor_execute("select answer from clues limit 10")) == 10
 
-    def test_regex(self, runner):
-        assert runner("select 'c' ~ '[abc]'") == [(1,)]
+    def test_regex(self):
+        assert cursor_execute("select 'c' ~ '[abc]'") == [(1,)]
 
-    def test_select_by_regex(self, runner):
-        no_regex = runner("select answer from clues where answer^@'A'")
-        regex = runner(r"select answer from clues where regexp_matches(answer, '^A')")
+    def test_select_by_regex(self, cruciverbalist):
+        no_regex = cursor_execute("select answer from clues where answer^@'A'")
+        regex = cursor_execute(r"select answer from clues where regexp_matches(answer, '^A')")
         assert set(no_regex) == set(regex)
 
 
@@ -84,14 +78,14 @@ class TestAlphabit:
         query = Alphabit("y").bittarray
         assert (~query | word) == MAX_ALPHABIT.bittarray
 
-    def test_empty(self, runner):
+    def test_empty(self, cruciverbalist):
         word = Alphabit("").to_query()
-        assert len(runner(f"select answer from clues where bit_count({word} | alphabit)!=length(alphabit)")) == 0
+        assert len(cursor_execute(f"select answer from clues where bit_count({word} | alphabit)!=length(alphabit)")) == 0
 
     @pytest.mark.parametrize("word", SAMPLE_WORDS)
-    def test_words(self, word, runner):
+    def test_words(self, word):
         alp = Alphabit(word).to_query()
-        result = runner(f"select answer from clues where bit_count({alp} | alphabit)=length(alphabit)")
+        result = cursor_execute(f"select answer from clues where bit_count({alp} | alphabit)=length(alphabit)")
         assert (word,) in result
 
 
