@@ -1,3 +1,4 @@
+from contextlib import suppress
 from os import remove
 from os.path import isfile
 from tempfile import NamedTemporaryFile, _TemporaryFileWrapper
@@ -42,7 +43,8 @@ def download_db(file):
             logger.error(log_mess)
             raise DatabaseException(log_mess)
         else:
-            remove(_db_path)
+            with suppress(FileNotFoundError):
+                remove(_db_path)
             _get_from_s3(file)
     else:
         logger.info("Database found and checked")
