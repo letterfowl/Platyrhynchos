@@ -23,8 +23,8 @@ jobs:
           python -m pip install .
       - name: Run tests
         env:
-          S3_KEY_ID: ${{ secrets.S3_KEY_ID }}
-          S3_KEY_SECRET: ${{ secrets.S3_KEY_SECRET }}
+          DYNACONF_S3_KEY_ID: ${{ secrets.S3_KEY_ID }}
+          DYNACONF_S3_KEY_SECRET: ${{ secrets.S3_KEY_SECRET }}
         run: |
           pytest --cov
       - name: Upload coverage to Codecov
