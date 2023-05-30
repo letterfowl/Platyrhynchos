@@ -32,4 +32,6 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           name: platyrhynchos-action
+          fail_ci_if_error: true
+          files: coverage.xml
           verbose: true
