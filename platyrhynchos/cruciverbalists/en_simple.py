@@ -26,12 +26,13 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
         """
         return -len(list(colrow.cross_words()))
 
-    def select_by_regex(self, regexes: list[str]) -> list[str] | None:
+    def select_by_regex(self, regexes: list[str], use_alphabit = None) -> list[str] | None:
         """
         Select compatible words using regex. It accepts a list of regular expressions and checks all one by one.
         """
+        use_alphabit = use_alphabit or self.RUN_WITH_ALPHABIT
         for i in [i.upper() for i in regexes]:
-            if self.RUN_WITH_ALPHABIT:
+            if use_alphabit:
                 # Returns an alphabit query
                 alp = Alphabit(i).to_query()
                 if ret := get_regex_w_alphabit(regex=i, alphabit=alp):

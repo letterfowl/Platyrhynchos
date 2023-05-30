@@ -11,12 +11,6 @@ from .base import Crossword
 
 CrosswordAddableT = TypeVar("CrosswordAddableT", bound="CrosswordAddable")
 
-with open("words.json", "r", encoding="utf8") as f:
-    WORDS = load(f)
-
-WORDS_ITEMS = set(WORDS.items())
-
-
 @dataclass(init=True, repr=True)
 class CrosswordAddable(Crossword):
     clues_horizontal: dict[tuple[int, int], str] = field(default_factory=dict)
@@ -48,18 +42,18 @@ class CrosswordAddable(Crossword):
         for hint, word in hint_word.items():
             yield CrosswordAddable.construct(word, hint)
 
-    @staticmethod
-    def create(am: int, add: bool = False) -> Iterable[CrosswordAddable]:
-        ch = sample(WORDS_ITEMS, k=am)
-        for hint, word in ch:
-            # print(word, "<-", hint, "\n")
-            yield CrosswordAddable.construct(add * "+" + word + " ", hint)
+    # @staticmethod
+    # def create(am: int, add: bool = False) -> Iterable[CrosswordAddable]:
+    #     ch = sample(WORDS_ITEMS, k=am)
+    #     for hint, word in ch:
+    #         # print(word, "<-", hint, "\n")
+    #         yield CrosswordAddable.construct(add * "+" + word + " ", hint)
 
-    def createFor(self, word_amount: int, add: bool = False) -> Iterable[CrosswordAddable]:
-        ch = sample(WORDS_ITEMS - self.words.keys(), k=word_amount)
-        for hint, word in ch:
-            # print(word, "<-", hint, "\n")
-            yield CrosswordAddable.construct(add * "+" + word + " ", hint)
+    # def createFor(self, word_amount: int, add: bool = False) -> Iterable[CrosswordAddable]:
+    #     ch = sample(WORDS_ITEMS - self.words.keys(), k=word_amount)
+    #     for hint, word in ch:
+    #         # print(word, "<-", hint, "\n")
+    #         yield CrosswordAddable.construct(add * "+" + word + " ", hint)
 
     # Magic methods
 
@@ -189,54 +183,3 @@ class CrosswordAddable(Crossword):
                 for v2, h2, code2 in other._get_crossable(i):
                     if self._code_verify(code1, code2):
                         yield (v1, h1), (v2, h2)
-
-
-def main():
-    # from search import goal
-
-    am = 5
-
-    c = list(CrosswordAddable.create(am, True))
-    cr = [i.rotate() for i in CrosswordAddable.create(am, True)]
-
-    s = [i for i in list(c[1:]) + list(cr[1:]) if i is not None]
-    shuffle(s)
-    if (starter := c[0] + cr[0]) is None:
-        return
-    d = sum(s, starter)
-    print(d)
-    print(d.max)
-
-    a = d
-    for i in d.words:
-        print(i)
-        a_ = a.remove(i)
-        if a_ is not None:
-            a = a_
-    # print(goal(d))
-
-    # sims = 500
-    # for am in range(5, 101, 5):
-    #     failed = 0
-    #     bigs = 0
-    #     bigt = 0
-    #     for i in range(sims):
-    #         size = None
-    #         start = time.time()
-    #         try:
-    #             c = [i for i in Crossword.create(am, True)]
-    #             cr = [i.rotate() for i in Crossword.create(am, True)]
-
-    #             s = list(c[1:])+list(cr[1:])
-    #             shuffle(s)
-    #             cros = sum(s, c[0]+cr[0])
-    #             size = cros.max[0]-cros.min[0], cros.max[1]-cros.min[1]
-    #         except TypeError:
-    #             failed+=1
-    #         bigt += time.time()-start
-    #         bigs += size[0]*size[1] if size else 0
-    #     print(am, failed/sims, bigt/sims, (bigs/(sims-failed))**0.5)
-
-
-if __name__ == "__main__":
-    main()
