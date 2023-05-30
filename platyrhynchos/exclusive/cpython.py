@@ -53,6 +53,8 @@ def download_db(file):
 
 def _get_from_s3(file):
     logger.info("Downloading database")
+    assert settings.s3.region and settings.s3.endpoint and settings.s3.bucket, "S3 settings not set"
+    assert settings.s3_key_id and settings.s3_key_secret, "S3 credentials not set"
     s3_client = boto3.client(
         "s3",
         region_name=settings.s3.region,
