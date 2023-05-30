@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install poetry pytest pytest-cov
-          python -m pip install .
+          python -m pip install -e .
           cp template.secrets.toml .secrets.toml
       - name: Run tests
         run: |
