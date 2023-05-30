@@ -4,14 +4,15 @@ from tqdm_loggable.auto import tqdm
 
 from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
+from ..commons.settings import settings
 from ..crossword.colrow import ColRow
 from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
 from .base import Cruciverbalist
-from ..commons.settings import settings
+
 
 class EnglishSimpleCruciverbalist(Cruciverbalist):
     DB_FILE = settings.en_simple.db_file
-    RUN_WITH_ALPHABIT = settings.en_simple['use_alphabit']
+    RUN_WITH_ALPHABIT = settings.en_simple["use_alphabit"]
 
     def __init__(self) -> None:
         """Prepares the database"""

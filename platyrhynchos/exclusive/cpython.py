@@ -10,8 +10,8 @@ from tqdm_loggable.auto import tqdm
 from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
 from ..commons.logger import logger
-from ..commons.utils import app_dir
 from ..commons.settings import settings
+from ..commons.utils import app_dir
 
 try:
     import boto3
@@ -19,6 +19,7 @@ except ImportError:
     boto3 = None
 
 _db_path = app_dir("user_cache_dir", "words.db")
+
 
 def cursor_execute(sql, **kwargs):
     cursor = duckdb.connect(database=_db_path).cursor()
@@ -62,9 +63,7 @@ def _get_from_s3(file):
         aws_access_key_id=settings.s3_key_id,
         aws_secret_access_key=settings.s3_key_secret,
     )
-    size = s3_client.head_object(Bucket=settings.s3.bucket, Key=file).get(
-        "ContentLength"
-    )
+    size = s3_client.head_object(Bucket=settings.s3.bucket, Key=file).get("ContentLength")
     with tqdm(
         total=size,
         unit="B",
@@ -89,9 +88,7 @@ def get_regex_w_alphabit(regex: str, alphabit: str):
 
 @convert_result_to_list
 def get_regex(regex: str):
-    return cursor_execute(
-        f"select answer from clues where regexp_matches(answer, '{regex}')"
-    )
+    return cursor_execute(f"select answer from clues where regexp_matches(answer, '{regex}')")
 
 
 @convert_result_to_list

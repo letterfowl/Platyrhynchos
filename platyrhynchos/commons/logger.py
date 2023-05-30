@@ -6,16 +6,16 @@ import sys
 
 from loguru import logger
 
-from .utils import app_dir
 from .settings import settings
+from .utils import app_dir
 
-
-logger.add(sys.stderr,
-           level=settings.logs.level,
-           colorize=settings.logs.colorize,
-           diagnose=settings.logs.diagnose,
-           backtrace=True,
-        )
+logger.add(
+    sys.stderr,
+    level=settings.logs.level,
+    colorize=settings.logs.colorize,
+    diagnose=settings.logs.diagnose,
+    backtrace=True,
+)
 
 
 class InterceptHandler(logging.Handler):

@@ -32,8 +32,6 @@ def crossword1():
     )
 
 
-
-
 @pytest.fixture
 def cruciverbalist():
     return EnglishSimpleCruciverbalist()
@@ -80,7 +78,9 @@ class TestAlphabit:
 
     def test_empty(self, cruciverbalist):
         word = Alphabit("").to_query()
-        assert len(cursor_execute(f"select answer from clues where bit_count({word} | alphabit)!=length(alphabit)")) == 0
+        assert (
+            len(cursor_execute(f"select answer from clues where bit_count({word} | alphabit)!=length(alphabit)")) == 0
+        )
 
     @pytest.mark.parametrize("word", SAMPLE_WORDS)
     def test_words(self, word):
