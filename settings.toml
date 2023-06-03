@@ -1,0 +1,37 @@
+[default]
+
+    debug = false
+
+    [default.components]
+        cruciverbalist = 'en_simple'
+        runner = ''
+        overwrite_platform = ''
+
+    [default.logs]
+        Level = "INFO"
+        diagnose = false
+        colorize = false
+
+    [default.en_simple]
+        db_file = "en_simple.db"
+        use_alphabit = true
+
+    [default.s3]
+        region = 'fr-par'
+        endpoint = 'https://s3.fr-par.scw.cloud'
+        bucket = 'letterfowl-test'
+
+[production]
+
+[development]
+
+    debug = true
+    
+    [development.logs]
+        level = "DEBUG"
+        diagnose = true
+        colorize = true
+
+[testing]
+
+    debug = true

@@ -11,7 +11,9 @@
             "program": "${workspaceFolder}/benchmarks/direct.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "envFile": "${workspaceFolder}/.env"
+            "env": {
+                "ENV_FOR_DYNACONF": "development"
+            },
         },
         {
             "name": "Python: Current File",

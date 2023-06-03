@@ -9,7 +9,9 @@ from typing import Literal
 
 from platformdirs import PlatformDirs as _PlatformDirs
 
-DEBUG = True
+from .settings import settings
+
+DEBUG = settings.debug
 
 _APP_DIRS = _PlatformDirs(appname="platyrhynchos")
 

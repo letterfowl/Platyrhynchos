@@ -5,24 +5,33 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
+
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     name: Unit tests
+    env:
+      DYNACONF_S3_KEY_ID: ${{ secrets.S3_KEY_ID }}
+      DYNACONF_S3_KEY_SECRET: ${{ secrets.S3_KEY_SECRET }}
     steps:
       - uses: actions/checkout@v2
-      - name: download DB image
-        run: mkdir tmp && mkdir user_cache_dir && wget -O /tmp/user_cache_dir ${{ secrets.S3_DB_IMAGE_URL }} 
       - uses: actions/setup-python@v2
         with:
           python-version: '3.10.10'
-      - name: Poetry export requirements.txt file
-        uses: Divkix/poetry-export-requirements-action@v1.4.0
-      - name: Install libs and run Pytest
-        uses: lpenz/ghaction-pytest-cov@v1
+      - name: Install dependencies
+        run: |
+          python -m pip install poetry pytest pytest-cov
+          python -m pip install -e .
+          cp template.secrets.toml .secrets.toml
+      - name: Run tests
+        run: |
+          pytest --cov=. --cov-report xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           name: platyrhynchos-action
+          fail_ci_if_error: true
+          files: coverage.xml
           verbose: true

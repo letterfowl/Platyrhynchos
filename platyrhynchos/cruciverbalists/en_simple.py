@@ -4,18 +4,19 @@ from tqdm_loggable.auto import tqdm
 
 from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
+from ..commons.settings import settings
 from ..crossword.colrow import ColRow
 from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
 from .base import Cruciverbalist
 
 
 class EnglishSimpleCruciverbalist(Cruciverbalist):
-    URL = "https://cryptics.georgeho.org/data/clues.csv?_stream=on&_size=max"
-    RUN_WITH_ALPHABIT = True
+    DB_FILE = settings.en_simple.db_file
+    RUN_WITH_ALPHABIT = settings.en_simple["use_alphabit"]
 
     def __init__(self) -> None:
         """Prepares the database"""
-        download_db(self.URL)
+        download_db(self.DB_FILE)
         super().__init__()
 
     def eval_colrow(self, colrow: ColRow) -> int:

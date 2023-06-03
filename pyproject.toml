@@ -21,6 +21,8 @@ requests = {version = "^2.31.0", markers = "sys_platform != 'emscripten'"}
 tqdm-loggable = "^0.1.3"
 bitarray = "^2.7.3"
 duckdb = {version = "^0.8.0", markers = "sys_platform != 'emscripten'"}
+boto3 = {version = "^1.26.142", markers = "sys_platform != 'emscripten'"}
+dynaconf = "^3.1.12"
 
 [tool.poetry.group.dev]
 optional = true
@@ -31,6 +33,7 @@ pytest = "^7.3.1"
 ipykernel = "^6.22.0"
 functiontrace = "^0.3.7"
 autoflake = "^2.1.1"
+pytest-cov = "^4.1.0"
 
 [tool.poetry.scripts]
 en-download = "platyrhynchos.scripts:en_simple_prep"
