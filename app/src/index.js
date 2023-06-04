@@ -7,10 +7,22 @@ const supabase4js = {
     getRegex: getRegex,
     getRegexWithAlphabit: getRegexWithAlphabit,
 }
+const settings = await (await fetch("settings.toml")).text()
+const _stuff = {
+    settings_text: settings,
+}
+
 pyodide.registerJsModule("supabase4js", supabase4js);
 console.log("Registered supabase4js");
+pyodide.registerJsModule("_stuff", _stuff);
+
 console.log(await pyodide.runPythonAsync(`
-    from platyrhynchos.cruciverbalists.en_simple import get_random
-    get_random()
+    from platyrhynchos.director.direct_search import generate_crossword
+
+    crossword = generate_crossword(10, 10, 16)
+    print(crossword)
+    print()
+    print("Word amount:", len(crossword.words))
+    print("Words:", ",".join(crossword.words.keys()))
     `)
 );

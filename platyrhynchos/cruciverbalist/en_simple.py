@@ -4,13 +4,14 @@ from tqdm_loggable.auto import tqdm
 
 from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
+from ..commons.utils import random
 from ..commons.settings import settings
 from ..crossword.colrow import ColRow
 from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
-from .base import Cruciverbalist
+from .base import CruciverbalistBase
 
 
-class EnglishSimpleCruciverbalist(Cruciverbalist):
+class EnglishSimpleCruciverbalist(CruciverbalistBase):
     DB_FILE = settings.en_simple.db_file
     RUN_WITH_ALPHABIT = settings.en_simple["use_alphabit"]
 
@@ -19,14 +20,14 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
         download_db(self.DB_FILE)
         super().__init__()
 
-    def eval_colrow(self, colrow: ColRow) -> int:
+    def eval_colrow(self, colrow: ColRow) -> float:
         """
         Evaluates the ColRow as the next one to add a word to.
-        Returns the number of words colliding with the colrow.
+        Returns the number of words colliding with the colrow with random noise.
         """
-        return -len(list(colrow.cross_words()))
+        return -len(list(colrow.cross_words()))*random.random()
 
-    def select_by_regex(self, regexes: list[str]) -> list[str] | None:
+    def select_by_regex(self, regexes: list[str], previous: list[str]|None = None) -> list[str] | None:
         """
         Select compatible words using regex. It accepts a list of regular expressions and checks all one by one.
         """
@@ -34,9 +35,9 @@ class EnglishSimpleCruciverbalist(Cruciverbalist):
             if self.RUN_WITH_ALPHABIT:
                 # Returns an alphabit query
                 alp = Alphabit(i).to_query()
-                if ret := get_regex_w_alphabit(regex=i, alphabit=alp):
+                if ret := get_regex_w_alphabit(regex=i, alphabit=alp, previous=previous):
                     return ret
-            elif ret := get_regex(regex=i):
+            elif ret := get_regex(regex=i, previous=previous):
                 return ret
         return None
 

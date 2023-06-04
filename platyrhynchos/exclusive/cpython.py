@@ -80,15 +80,21 @@ def _get_from_s3(file):
 
 
 @convert_result_to_list
-def get_regex_w_alphabit(regex: str, alphabit: str):
+def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = None):
+    if previous is None:
+        previous = ["'A'"]
+    else:
+        previous = [f"'{i}'" for i in previous]
     return cursor_execute(
-        f"select answer from clues where bit_count({alphabit} | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}')"
-    )
-
+        f"select answer from clues where bit_count({alphabit} | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)})")
 
 @convert_result_to_list
-def get_regex(regex: str):
-    return cursor_execute(f"select answer from clues where regexp_matches(answer, '{regex}')")
+def get_regex(regex: str,  previous: list[str] = []):
+    if previous is None:
+        previous = ["'A'"]
+    else:
+        previous = [f"'{i}'" for i in previous]
+    return cursor_execute(f"select answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)})")
 
 
 @convert_result_to_list
