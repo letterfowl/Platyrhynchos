@@ -5,7 +5,7 @@
   <p align="center">
     Automatic crossword generator!
     <br/>
-    <a href="https://apnews.com/hub/poland">🏳️‍🌈🇵🇱🇪🇺</a>
+    <a href="https://hfhr.pl/en/news,964166344:323067518" title="Learn about Poland's constitutional crisis and support the fight!">🏳️‍🌈🇵🇱🇪🇺</a>
     <br/>
     <br/>
     <a href="https://github.com/letterfowl/Platyrhynchos/wiki"><strong>Explore the docs »</strong></a>
