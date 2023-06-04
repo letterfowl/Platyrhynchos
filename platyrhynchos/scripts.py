@@ -3,7 +3,7 @@ from contextlib import suppress
 from os import remove as remove_file
 
 from .commons.utils import app_dir
-from .cruciverbalists.en_simple import prepare_database
+from .cruciverbalist.en_simple import prepare_database
 
 
 def en_simple_prep():
