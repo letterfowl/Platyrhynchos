@@ -4,12 +4,12 @@
   "description": "letterfowl test web app",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --mode=production --node-env=production",
     "build:dev": "webpack --mode=development",
     "build:prod": "webpack --mode=production --node-env=production",
     "watch": "webpack --watch",
-    "serve": "webpack serve"
+    "serve": "webpack serve",
+    "pywatch": "nodemon --watch ../platyrhynchos -e py,toml --exec 'cd .. && poetry build'"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +23,7 @@
     "css-loader": "^6.7.3",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.7.2",
+    "nodemon": "^2.0.22",
     "prettier": "^2.8.7",
     "sass": "^1.62.1",
     "sass-loader": "^13.2.0",
