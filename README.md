@@ -5,6 +5,8 @@
   <p align="center">
     Automatic crossword generator!
     <br/>
+    <a href="https://apnews.com/hub/poland">🏳️‍🌈🇵🇱🇪🇺</a>
+    <br/>
     <br/>
     <a href="https://github.com/letterfowl/Platyrhynchos/wiki"><strong>Explore the docs »</strong></a>
     <br/>
