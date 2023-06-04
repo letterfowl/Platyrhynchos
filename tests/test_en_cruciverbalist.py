@@ -4,7 +4,7 @@ import pytest
 
 from platyrhynchos import CrosswordImprovable
 from platyrhynchos.commons.alphabit import MAX_ALPHABIT, Alphabit
-from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist
+from platyrhynchos.cruciverbalist.en_simple import EnglishSimpleCruciverbalist
 from platyrhynchos.exclusive.cpython import cursor_execute
 
 SAMPLE_WORDS = [
