@@ -9,8 +9,7 @@ def download_db(url: str):
 
 def run_in_webloop(func):
     async def wrapper(*args, **kwargs):
-        task = WebLoop().run_until_complete(func(*args, **kwargs))
-        return (await task).result()
+        return await func(*args, **kwargs)
     return wrapper
 
 get_random = run_in_webloop(getRandom)

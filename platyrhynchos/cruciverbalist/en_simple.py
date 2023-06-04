@@ -35,9 +35,9 @@ class EnglishSimpleCruciverbalist(CruciverbalistBase):
             if self.RUN_WITH_ALPHABIT:
                 # Returns an alphabit query
                 alp = Alphabit(i).to_query()
-                if ret := await get_regex_w_alphabit(regex=i, alphabit=alp, previous=previous):
+                if ret := await get_regex_w_alphabit(i, alp, previous):
                     return ret
-            elif ret := await get_regex(regex=i, previous=previous):
+            elif ret := await get_regex(i, previous):
                 return ret
         return None
 
