@@ -7,11 +7,11 @@ from ..crossword.colrow import ColRow
 from ..crossword.improvable import CrosswordImprovable
 
 
-class Cruciverbalist(ABC):
-    SAMPLE_SIZE = 1
+class CruciverbalistBase(ABC):
+    SAMPLE_SIZE = 100
 
     @abstractmethod
-    def eval_colrow(self, colrow: ColRow) -> int:
+    def eval_colrow(self, colrow: ColRow) -> float:
         return
 
     def choose_colrows(self, crossword: CrosswordImprovable) -> Iterator[ColRow]:
@@ -19,7 +19,7 @@ class Cruciverbalist(ABC):
         yield from sorted(col_rows, key=self.eval_colrow, reverse=True)
 
     @abstractmethod
-    def select_by_regex(self, regexes: list[str]) -> list[str]:
+    def select_by_regex(self, regexes: list[str], previous: list[str]|None = None) -> list[str]:
         return
 
     @abstractmethod
@@ -34,13 +34,13 @@ class Cruciverbalist(ABC):
         return word, self.eval_word(word, colrow)
 
     def find_words(self, colrows: Iterable[ColRow]) -> Iterator[tuple[str, ColRow]]:
+        
         for colrow in colrows:
-            words = self.select_by_regex(list(colrow.yield_regexes()))
+            words = self.select_by_regex(list(colrow.yield_regexes()), colrow.crossword.words.keys())
             if words is None:
                 continue
-            if self.SAMPLE_SIZE != 1:
-                words_size = int(len(words) ** self.SAMPLE_SIZE)
-                words = random.sample(words, words_size)
+            if self.SAMPLE_SIZE is not None and self.SAMPLE_SIZE < len(words):
+                words = random.sample(words, self.SAMPLE_SIZE)
 
             words_len = set(map(self._eval_word, words, [colrow for _ in words]))
 

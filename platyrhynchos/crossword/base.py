@@ -17,22 +17,22 @@ class Crossword:
     # clues_vertical: dict[Coord, str] = field(default_factory=dict)
     crossings: set[Coord] = field(default_factory=set)
 
-    @cached_property
+    @property
     def words(self) -> dict[str, set[Coord]]:
         return self.words_horizontal | self.words_vertical
 
-    @cached_property
+    @property
     def max(self) -> Coord:
         max_field_v, max_field_h = zip(*self.letters.keys())
         return Coord((max(max_field_v), max(max_field_h)))
 
-    @cached_property
+    @property
     def size(self) -> int:
         # pylint: disable=unpacking-non-sequence
         size_x, size_y = self.max
         return (size_x + 1) * (size_y + 1)
 
-    @cached_property
+    @property
     def min(self) -> Coord:
         min_field_v, min_field_h = zip(*self.letters.keys())
         return Coord((min(min_field_v), min(min_field_h)))
