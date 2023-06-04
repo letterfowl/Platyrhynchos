@@ -27,7 +27,7 @@ class EnglishSimpleCruciverbalist(CruciverbalistBase):
         """
         return -len(list(colrow.cross_words()))*random.random()
 
-    def select_by_regex(self, regexes: list[str], previous: list[str]|None = None) -> list[str] | None:
+    async def select_by_regex(self, regexes: list[str], previous: list[str]|None = None) -> list[str] | None:
         """
         Select compatible words using regex. It accepts a list of regular expressions and checks all one by one.
         """
@@ -35,9 +35,9 @@ class EnglishSimpleCruciverbalist(CruciverbalistBase):
             if self.RUN_WITH_ALPHABIT:
                 # Returns an alphabit query
                 alp = Alphabit(i).to_query()
-                if ret := get_regex_w_alphabit(regex=i, alphabit=alp, previous=previous):
+                if ret := await get_regex_w_alphabit(regex=i, alphabit=alp, previous=previous):
                     return ret
-            elif ret := get_regex(regex=i, previous=previous):
+            elif ret := await get_regex(regex=i, previous=previous):
                 return ret
         return None
 
@@ -45,9 +45,9 @@ class EnglishSimpleCruciverbalist(CruciverbalistBase):
         """Evaluate the word as an insertion into a ColRow."""
         return len(word) + len(list(colrow.cross_words()))
 
-    def start_word(self) -> str:
+    async def start_word(self) -> str:
         """Get a random word from the database. This is useful for testing the crossword."""
-        found_words = get_random()
+        found_words = await get_random()
         # If there are any words in the database raise a DatabaseException.
         if found_words is None:
             raise DatabaseException("Couldn't find any words.")

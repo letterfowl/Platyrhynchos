@@ -1,5 +1,5 @@
 from contextlib import suppress
-
+import asyncio
 from platyrhynchos.director.direct_search import generate_crossword
 
 with suppress(ModuleNotFoundError):
@@ -7,7 +7,7 @@ with suppress(ModuleNotFoundError):
 
     functiontrace.trace()
 
-crossword = generate_crossword(10, 10, 16)
+crossword = asyncio.run(generate_crossword(10, 10, 16))
 print(crossword)
 print()
 print("Word amount:", len(crossword.words))

@@ -4,15 +4,15 @@ from ..commons.logger import logger
 
 cruciverbalist: CruciverbalistBase = Cruciverbalist()
 
-def generate_crossword(width: int, height: int, word_amount: int) -> str:
+async def generate_crossword(width: int, height: int, word_amount: int) -> str:
     logger.info("I'm starting crossword generation. Requested size is {}x{} with {} words", width, height, word_amount)
-    start_word = cruciverbalist.start_word()
+    start_word = await cruciverbalist.start_word()
     crossword = CrosswordImprovable.make(start_word, width, height)
     logger.debug("Crossword:\n"+str(crossword))
     logger.info("I found a start word: {}", start_word)
 
     while len(crossword.words) < word_amount:
-        to_add = cruciverbalist.choose_and_fill(crossword)
+        to_add = await cruciverbalist.choose_and_fill(crossword)
         if to_add[0] is None:
             logger.error("No more words found, I'm terminating at {} words", len(crossword.words))
             break

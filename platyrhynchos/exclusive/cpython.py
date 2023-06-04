@@ -29,8 +29,8 @@ def cursor_execute(sql, **kwargs):
 
 
 def convert_result_to_list(func):
-    def wrapper(*args, **kwargs):
-        return [i[0] for i in func(*args, **kwargs)]
+    async def wrapper(*args, **kwargs):
+        return [i[0] for i in await func(*args, **kwargs)]
 
     return wrapper
 
@@ -80,7 +80,7 @@ def _get_from_s3(file):
 
 
 @convert_result_to_list
-def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = None):
+async def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = None):
     if previous is None:
         previous = ["'A'"]
     else:
@@ -89,7 +89,7 @@ def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = None):
         f"select answer from clues where bit_count({alphabit} | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)})")
 
 @convert_result_to_list
-def get_regex(regex: str,  previous: list[str] = []):
+async def get_regex(regex: str,  previous: list[str] = []):
     if previous is None:
         previous = ["'A'"]
     else:
@@ -98,5 +98,5 @@ def get_regex(regex: str,  previous: list[str] = []):
 
 
 @convert_result_to_list
-def get_random():
+async def get_random():
     return cursor_execute("select answer from clues limit 1")

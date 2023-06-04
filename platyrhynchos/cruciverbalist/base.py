@@ -19,7 +19,7 @@ class CruciverbalistBase(ABC):
         yield from sorted(col_rows, key=self.eval_colrow, reverse=True)
 
     @abstractmethod
-    def select_by_regex(self, regexes: list[str], previous: list[str]|None = None) -> list[str]:
+    async def select_by_regex(self, regexes: list[str], previous: list[str]|None = None) -> list[str]:
         return
 
     @abstractmethod
@@ -27,16 +27,16 @@ class CruciverbalistBase(ABC):
         return
 
     @abstractmethod
-    def start_word(self) -> str:
+    async def start_word(self) -> str:
         return
 
     def _eval_word(self, word: str, colrow: ColRow) -> tuple[str, int]:
         return word, self.eval_word(word, colrow)
 
-    def find_words(self, colrows: Iterable[ColRow]) -> Iterator[tuple[str, ColRow]]:
+    async def find_words(self, colrows: Iterable[ColRow]) -> Iterator[tuple[str, ColRow]]:
         
         for colrow in colrows:
-            words = self.select_by_regex(list(colrow.yield_regexes()), colrow.crossword.words.keys())
+            words = await self.select_by_regex(list(colrow.yield_regexes()), colrow.crossword.words.keys())
             if words is None:
                 continue
             if self.SAMPLE_SIZE is not None and self.SAMPLE_SIZE < len(words):
@@ -50,11 +50,11 @@ class CruciverbalistBase(ABC):
                 logger.debug("Found: {}", word)
                 yield word, colrow
 
-    def find_word(self, colrows: ColRow | Iterable[ColRow]) -> tuple[str | None, ColRow | None]:
+    async def find_word(self, colrows: ColRow | Iterable[ColRow]) -> tuple[str | None, ColRow | None]:
         if isinstance(colrows, ColRow):
             colrows = [colrows]
-        return next(self.find_words(colrows), (None, None))
+        return await anext(self.find_words(colrows), (None, None))
 
-    def choose_and_fill(self, crossword: CrosswordImprovable) -> tuple[str | None, ColRow | None]:
+    async def choose_and_fill(self, crossword: CrosswordImprovable) -> tuple[str | None, ColRow | None]:
         colrows = self.choose_colrows(crossword)
-        return self.find_word(colrows)
+        return await self.find_word(colrows)
