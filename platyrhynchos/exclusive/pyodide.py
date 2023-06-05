@@ -7,11 +7,13 @@ def download_db(url: str):
     """Doesn't do anything lmao"""
     pass
 
-def run_in_webloop(func):
-    async def wrapper(*args, **kwargs):
-        return await func(*args, **kwargs)
-    return wrapper
+async def get_random():
+    return await getRandom()
 
-get_random = run_in_webloop(getRandom)
-get_regex = run_in_webloop(getRegex)
-get_regex_w_alphabit = run_in_webloop(getRegexWithAlphabit)
+async def get_regex(regex: str,  previous: list[str] = []):
+    previous = ",".join(previous or [])
+    return await getRegex(regex, previous)
+
+async def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = None):
+    previous = ",".join(previous or [])
+    return await getRegexWithAlphabit(regex, alphabit, previous)
