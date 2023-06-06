@@ -35,15 +35,14 @@ class CruciverbalistBase(ABC):
 
     async def find_words(self, colrow: ColRow) -> list[tuple[str, ColRow]]:
         words = await self.select_by_regex(list(colrow.yield_regexes()), colrow.crossword.words.keys())
-        return_words = []
-        
         # if self.SAMPLE_SIZE is not None and self.SAMPLE_SIZE < len(words):
         #     words = random.sample(words, self.SAMPLE_SIZE)
 
         words_len = [self._eval_word(word, colrow) for word in words if word is not None]
 
-        for word, _ in sorted(words_len, key=lambda x: x[1]):
-            return_words.append((word, colrow))
+        return_words = [
+            (word, colrow) for word, _ in sorted(words_len, key=lambda x: x[1])
+        ]
         logger.debug(f"Found {len(return_words)} words for {colrow}")
         return return_words
 
