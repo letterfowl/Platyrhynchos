@@ -2,12 +2,12 @@ import { createClient } from '@supabase/supabase-js'
 
 const DB = createClient("https://tecskhekxfsziaiqpuxj.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlY3NraGVreGZzemlhaXFwdXhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ2NzA1MjEsImV4cCI6MjAwMDI0NjUyMX0.qIZePGL2cSyY4akQgo_hm3Zemnn0YUwxaSaZqF_crUk")
 
-export async function getRandom() {
-    const { data, error } = await DB.from('en_simple').select('answer').limit(1)
+export async function getRandom(max_size) {
+    const { data, error } = await DB.rpc('get_random', {max_size: max_size})
     if (error != null) {
         console.error(error)
     }
-    return data.map(x => x.answer)
+    return [data]
 }
 
 export async function getRegex(regex, previous) {

@@ -7,8 +7,8 @@ def download_db(url: str):
     """Doesn't do anything lmao"""
     pass
 
-async def get_random():
-    return await getRandom()
+async def get_random(max_size: int):
+    return await getRandom(max_size)
 
 async def get_regex(regex: str,  previous: list[str] = []):
     previous = ",".join(previous or [])

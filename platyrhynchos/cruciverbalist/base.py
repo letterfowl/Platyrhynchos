@@ -27,7 +27,7 @@ class CruciverbalistBase(ABC):
         return
 
     @abstractmethod
-    async def start_word(self) -> str:
+    async def start_word(self, max_size: int) -> str:
         return
 
     def _eval_word(self, word: str, colrow: ColRow) -> tuple[str, int]:
@@ -43,8 +43,8 @@ class CruciverbalistBase(ABC):
         words_len = [self._eval_word(word, colrow) for word in words if word is not None]
 
         for word, _ in sorted(words_len, key=lambda x: x[1]):
-            logger.debug("Found: {}", word)
             return_words.append((word, colrow))
+        logger.debug(f"Found {len(return_words)} words for {colrow}")
         return return_words
 
     async def find_word(self, colrows: ColRow | Iterable[ColRow]) -> tuple[str | None, ColRow | None]:
@@ -52,7 +52,9 @@ class CruciverbalistBase(ABC):
             colrows = [colrows]
         for colrow in colrows:
             if words := await self.find_words(colrow):
-                return random.choices(words, weights=list(range(len(words))), k=1)[0]
+                choice = random.choices(words, weights=list(range(len(words))), k=1)[0]
+                logger.debug(f"Choice: {choice}")
+                return choice
         return None, None
             
 

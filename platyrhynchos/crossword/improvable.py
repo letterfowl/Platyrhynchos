@@ -42,7 +42,7 @@ class CrosswordImprovable(Crossword):
             TooLargeException: coordinates don't fit into the crossword
         """
         if horizontal >= self.max_h or vertical >= self.max_v:
-            raise TooLargeException(f"{horizontal=} vs {self.max_h}; {vertical=} vs {self.max_v}")
+            raise TooLargeException(f"h={horizontal} vs max_h={self.max_h}; v={vertical} vs max_v={self.max_v}")
 
     def __init__(
         self,
