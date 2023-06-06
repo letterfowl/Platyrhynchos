@@ -19,7 +19,7 @@ console.log("Registered supabase4js");
 pyodide.registerJsModule("_stuff", _stuff);
 
 await test_connection;
-console.log(await pyodide.runPythonAsync(`
+await pyodide.runPythonAsync(`
     from platyrhynchos.director.direct_search import generate_crossword
     from platyrhynchos.cruciverbalist.en_simple import get_regex_w_alphabit
 
@@ -31,5 +31,4 @@ console.log(await pyodide.runPythonAsync(`
     print()
     print("Word amount:", len(crossword.words))
     print("Words:", ",".join(crossword.words.keys()))
-    `)
-);
+`);

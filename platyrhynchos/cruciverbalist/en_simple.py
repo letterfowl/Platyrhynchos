@@ -5,6 +5,7 @@ from tqdm_loggable.auto import tqdm
 from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
 from ..commons.utils import random
+from ..commons.logger import logger
 from ..commons.settings import settings
 from ..crossword.colrow import ColRow
 from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
@@ -34,8 +35,9 @@ class EnglishSimpleCruciverbalist(CruciverbalistBase):
         for i in [i.upper() for i in regexes]:
             if self.RUN_WITH_ALPHABIT:
                 # Returns an alphabit query
-                alp = Alphabit(i).to_query()
-                if ret := await get_regex_w_alphabit(i, alp, previous):
+                alp = Alphabit(i)
+                logger.debug("Using alphabit: {}; which corresponds to {}", alp.to_query(), alp.as_letters())
+                if ret := await get_regex_w_alphabit(i, alp.to_query(), previous):
                     return ret
             elif ret := await get_regex(i, previous):
                 return ret

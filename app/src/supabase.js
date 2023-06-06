@@ -15,7 +15,7 @@ export async function getRegex(regex, previous) {
     if (error != null) {
         console.error(error)
     }
-    return data.map(x => x.answer)
+    return data
 }
 
 export async function getRegexWithAlphabit(regex, alphabit, previous) {
@@ -23,5 +23,5 @@ export async function getRegexWithAlphabit(regex, alphabit, previous) {
     if (error != null) {
         console.error(error)
     }
-    return data.map(x => x.answer)
+    return data
 }
