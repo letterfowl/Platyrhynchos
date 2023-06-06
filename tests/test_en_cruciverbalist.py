@@ -81,13 +81,13 @@ class TestAlphabit:
     def test_empty(self, cruciverbalist):
         word = Alphabit("").to_query()
         assert (
-            len(cursor_execute(f"select answer from clues where bit_count({word} | alphabit)!=length(alphabit)")) == 0
+            len(cursor_execute(f"select answer from clues where bit_count('{word}'::BIT | alphabit)!=length(alphabit)")) == 0
         )
 
     @pytest.mark.parametrize("word", SAMPLE_WORDS)
     def test_words(self, word):
         alp = Alphabit(word).to_query()
-        result = cursor_execute(f"select answer from clues where bit_count({alp} | alphabit)=length(alphabit)")
+        result = cursor_execute(f"select answer from clues where bit_count('{alp}'::BIT | alphabit)=length(alphabit)")
         assert (word,) in result
 
 
