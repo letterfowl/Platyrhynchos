@@ -7,7 +7,8 @@ from ..commons.exceptions import TooLargeException, UninsertableException
 from ..commons.misc import ColRowId, Coord, IsColumn, ProxiedDict
 from .base import Crossword
 from .colrow import ColRow
-
+from .exolve_template import EXOLVE_TEMPLATE, Template
+EXOLVE_TEMPLATE: Template
 
 class CrosswordImprovable(Crossword):
     """Crossword subclass used to implement the "smart" insertion algorithm."""
@@ -77,12 +78,23 @@ class CrosswordImprovable(Crossword):
             crossings,
         )
 
+    def as_str(self, empty_field: str = ":", sep: str = "\n") -> str:
+        return sep.join(
+            "".join((self.letters.get(Coord((h, v)), empty_field) for h in range(self.max_h))) for v in range(self.max_v)
+        )
+        
+    def as_exolve(self) -> str:
+        size_x, size_y = self.max
+        return EXOLVE_TEMPLATE.substitute(
+            width=size_x + 1,
+            height=size_y + 1,
+            grid=self.as_str(empty_field=".", sep="\n    ")
+        )
+
     def __repr__(self) -> str:
         # size = self.max
         # max_size = self.max_h, self.max_v
-        return "\n".join(
-            "".join((self.letters.get(Coord((h, v)), ":") for h in range(self.max_h))) for v in range(self.max_v)
-        )  # + f"\n[{size=} {max_size=}]"
+        return self.as_str()  # + f"\n[{size=} {max_size=}]"
 
     def rotate(self):
         """Rotates the crossword, works in place."""
