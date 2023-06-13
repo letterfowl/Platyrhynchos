@@ -51,7 +51,8 @@ class CruciverbalistBase(ABC):
             colrows = [colrows]
         for colrow in colrows:
             if words := await self.find_words(colrow):
-                choice = random.choices(words, weights=list(range(1, len(words)+1)), k=1)[0]
+                weights = [i+1 for i in range(len(words))]
+                choice = random.choices(words, weights=weights, k=1)[0]
                 logger.debug(f"Choice: {choice}")
                 return choice
         return None, None
