@@ -34,39 +34,41 @@
 - [Contributing](#contributing)
   - [Creating A Pull Request](#creating-a-pull-request)
 - [License](#license)
-- [Contributors](#contributors)
-- [Acknowledgements](#acknowledgements)
+- [Contributors]
+- [Acknowledgments](#acknowledgements)
 
 ## About The Project
 
-Platyrhynchos is a project centred around creating word-centric crossword generation algorithms. This can be viewed as an alternative to methods that focus on generating matrices filled with letters and mutating them to make them into crosswords.
+Platyrhynchos is a project centered around creating word-centric crossword generation algorithms. This can be viewed as an alternative to methods that focus on generating matrices filled with letters and mutating them to make them into crosswords.
 
-### 0.9 release approaches
-
-The first method combines first improvement and best improvement local search methods to concatenate together crosswords. The choice of which one to use is made using the temperature calculated for a given turn. The second algorithm is a simulated annealing algorithm which uses best improvement search and word removal operation. The crosswords are evaluated using a goal function that includes the number of intersections and the density of letters in the crossword.
-
-### Our new approach
-
-Currently, we are investigating a "smart" word insertion method that finds the worst rows and columns and tries to improve their score.
+Currently, we are investigating a "smart" word insertion method that finds the worst rows and columns and tries to improve their score. Currently, we have implemented a direct search algorithm that works by finding the best word to insert into the row/column and then inserting it. This is repeated until the score of the crossword cannot be improved.
 
 ## Built With
 
-- DuckDB
 - Python
-- PyTest
 - Poetry
-- tqdm
+- Pyodide
+- PyTest
 - functiontrace
-- [A Dataset of Cryptic Crossword Clues](https://cryptics.georgeho.org/)
+- Webpack
+- Supabase
 
 ## Getting Started
+
+### Pyodide-based execution
+
+1. Move to `app` directory
+2. At the same time, run `npm run serve` and `npm run pywatch`. This will start a webpack server and a Pyodide build watcher.
+3. Open `localhost:8080` in your browser (although, it should open itself).
+
+### Running the code locally
 
 1. Make sure to have Python 3.10 and Poetry installed
 2. Run any of the scripts using `poetry run ...`
 
 ## Roadmap
 
-See the [open issues](https://github.com/letterfowl/Platyrhynchos/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/letterfowl/Platyrhynchos/issues) for a list of proposed features (and known issues). We also use the GitHub Projects tab to track the progress of the project.
 
 ## Contributing
 
@@ -80,7 +82,7 @@ Any contributions you make are **greatly appreciated**, but please make sure to 
 
 1. Clone the project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Add tests and make sure they work!
 5. Describe them on our wiki (you can also add doctests there :D)
 6. Push to the Branch (`git push origin feature/AmazingFeature`)
@@ -100,3 +102,5 @@ Distributed under the CC Attribution NonCommercial ShareAlike 4.0 International 
 
 * [ShaanCoding](https://github.com/ShaanCoding/) - *Built ReadME Template*
 * [ImgShields](https://shields.io/)
+* [Exolve](https://github.com/viresh-ratnakar/exolve)
+* [Cryptic Crossword Clues dataset](https://cryptics.georgeho.org/)
