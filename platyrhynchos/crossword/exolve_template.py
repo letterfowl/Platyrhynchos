@@ -32,7 +32,7 @@ exolve-end
 
 def char_for_grid(char: str):
     match char:
-        case "-", "$":
+        case "-" | "$":
             return f"{char}!"
         case " ":
             return "❈!"

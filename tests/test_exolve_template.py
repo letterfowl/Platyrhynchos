@@ -8,6 +8,7 @@ from platyrhynchos.crossword.exolve_template import char_for_grid
     ("A", "A"),
     ("1", "1"),
     ("%", "%"),
+    ("❈", "❈")
 ])
 
 def test_char_for_grid(char, expected):
