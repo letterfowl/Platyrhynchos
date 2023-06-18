@@ -1,4 +1,5 @@
 import pytest
+
 from platyrhynchos.crossword.exolve_template import char_for_grid
 
 @pytest.mark.parametrize("char, expected", [
