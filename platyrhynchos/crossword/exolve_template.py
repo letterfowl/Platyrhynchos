@@ -1,7 +1,7 @@
 from string import Template
 
 EXOLVE_TEMPLATE: Template = Template(
-"""
+    """
 exolve-begin
   exolve-id: exolve-example
   exolve-title: Exolve Example
@@ -13,19 +13,14 @@ exolve-begin
 
   exolve-width: $width
   exolve-height: $height
+  exolve-option: allow-chars:-❈%
 
   exolve-grid:
     $grid
-  exolve-across:
-    1 Running with placement, essentially, for single (3)
-    3 Oddly fluent and entertaining (3)
 
-  exolve-down:
-    1 Retreating thief forgot to hide bananas (3)
-    2 One suffering for a long time (3)
-
-    # Note that you can provide an annotation after the closing parenthesis in
-    # any clue, which will get shown after the solver "Reveal"s the clue.
+  exolve-option: ignore-unclued
+  # Note that you can provide an annotation after the closing parenthesis in
+  # any clue, which will get shown after the solver "Reveal"s the clue.
 
   # The Exolve format has lots of additional features. See details in the
   # documentation at:
@@ -33,3 +28,13 @@ exolve-begin
 exolve-end
 """
 )
+
+
+def char_for_grid(char: str):
+    match char:
+        case "-", "$":
+            return f"{char}!"
+        case " ":
+            return "❈!"
+        case _:
+            return char

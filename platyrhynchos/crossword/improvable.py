@@ -1,14 +1,16 @@
 """Implements the improvable crossword class"""
 from __future__ import annotations
 
-from typing import Iterator, NoReturn, Optional
+from typing import Callable, Iterator, NoReturn, Optional
 
 from ..commons.exceptions import TooLargeException, UninsertableException
 from ..commons.misc import ColRowId, Coord, IsColumn, ProxiedDict
 from .base import Crossword
 from .colrow import ColRow
-from .exolve_template import EXOLVE_TEMPLATE, Template
+from .exolve_template import EXOLVE_TEMPLATE, Template, char_for_grid
+
 EXOLVE_TEMPLATE: Template
+
 
 class CrosswordImprovable(Crossword):
     """Crossword subclass used to implement the "smart" insertion algorithm."""
@@ -43,7 +45,9 @@ class CrosswordImprovable(Crossword):
             TooLargeException: coordinates don't fit into the crossword
         """
         if horizontal >= self.max_h or vertical >= self.max_v:
-            raise TooLargeException(f"h={horizontal} vs max_h={self.max_h}; v={vertical} vs max_v={self.max_v}")
+            raise TooLargeException(
+                f"h={horizontal} vs max_h={self.max_h}; v={vertical} vs max_v={self.max_v}"
+            )
 
     def __init__(
         self,
@@ -78,30 +82,51 @@ class CrosswordImprovable(Crossword):
             crossings,
         )
 
-    def as_str(self, empty_field: str = ":", sep: str = "\n") -> str:
+    def as_exolve_grid(self, empty_field: str = ":", sep: str = "\n", coder: Callable[[str], str] = lambda x: x) -> str:
+        """Returns a grid representation of the crossword"""
+
         return sep.join(
-            "".join((self.letters.get(Coord((h, v)), empty_field) for h in range(self.max_h))) for v in range(self.max_v)
+            "".join(
+                (
+                    coder(self.letters.get(Coord((h, v)), empty_field))
+                    for h in range(self.max_h)
+                )
+            )
+            for v in range(self.max_v)
         )
-        
+
     def as_exolve(self) -> str:
+        """
+        Returns an exolve representation of the crossword. Go to `exolve_template.py` for the template.
+        
+        """
+        # pylint: disable=unpacking-non-sequence
         size_x, size_y = self.max
         return EXOLVE_TEMPLATE.substitute(
             width=size_x + 1,
             height=size_y + 1,
-            grid=self.as_str(empty_field=".", sep="\n    ")
+            grid=self.as_exolve_grid(empty_field=".", sep="\n    ", coder=char_for_grid),
         )
 
     def __repr__(self) -> str:
         # size = self.max
         # max_size = self.max_h, self.max_v
-        return self.as_str()  # + f"\n[{size=} {max_size=}]"
+        return self.as_exolve_grid()  # + f"\n[{size=} {max_size=}]"
 
     def rotate(self):
         """Rotates the crossword, works in place."""
-        self.letters = {Coord((j, i)): letter for (i, j), letter in self.letters.items()}
+        self.letters = {
+            Coord((j, i)): letter for (i, j), letter in self.letters.items()
+        }
         self.max_h, self.max_v = self.max_v, self.max_h
-        new_horizontal = {word: {Coord((h, v)) for (v, h) in i} for word, i in self.words_vertical.items()}
-        new_vertical = {word: {Coord((h, v)) for (v, h) in i} for word, i in self.words_horizontal.items()}
+        new_horizontal = {
+            word: {Coord((h, v)) for (v, h) in i}
+            for word, i in self.words_vertical.items()
+        }
+        new_vertical = {
+            word: {Coord((h, v)) for (v, h) in i}
+            for word, i in self.words_horizontal.items()
+        }
         self.words_horizontal, self.words_vertical = new_horizontal, new_vertical
         self.crossings = {Coord((j, i)) for (i, j) in self.crossings}
 
@@ -146,7 +171,11 @@ class CrosswordImprovable(Crossword):
 
         try:
             for place, letter in enumerate(word, start_index):
-                pos = Coord((colrow.dim_num, place)) if colrow.is_column else Coord((place, colrow.dim_num))
+                pos = (
+                    Coord((colrow.dim_num, place))
+                    if colrow.is_column
+                    else Coord((place, colrow.dim_num))
+                )
                 self.add_letter(pos, letter)
 
                 new_word[word].add(pos)
