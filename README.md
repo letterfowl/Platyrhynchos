@@ -17,6 +17,7 @@
 ![Repo size](https://img.shields.io/github/repo-size/letterfowl/Platyrhynchos)
 [![OSSAR](https://github.com/letterfowl/Platyrhynchos/actions/workflows/ossar.yml/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/ossar.yml)
 [![CodeQL](https://github.com/letterfowl/Platyrhynchos/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/github-code-scanning/codeql)
+[![GuardRails badge](https://api.guardrails.io/v2/badges/185469?token=1ea3826f490818d69186624aaa9d02cdf330f4447d1ad90f54120574dd0ce04b)](https://dashboard.guardrails.io/gh/letterfowl/repos/185469)
 [![autoflake, isort, black](https://github.com/letterfowl/Platyrhynchos/actions/workflows/format.yml/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/format.yml)
 [![.github/workflows/pytest.yml](https://github.com/letterfowl/Platyrhynchos/actions/workflows/pytest.yml/badge.svg)](https://github.com/letterfowl/Platyrhynchos/actions/workflows/pytest.yml)
 [![codecov](https://codecov.io/gh/letterfowl/Platyrhynchos/branch/main/graph/badge.svg?token=5HNARDOWC6)](https://codecov.io/gh/letterfowl/Platyrhynchos)
@@ -34,7 +35,7 @@
 - [Contributing](#contributing)
   - [Creating A Pull Request](#creating-a-pull-request)
 - [License](#license)
-- [Contributors]
+- [Contributors](#contributors)
 - [Acknowledgments](#acknowledgements)
 
 ## About The Project
