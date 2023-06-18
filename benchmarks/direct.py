@@ -1,5 +1,6 @@
-from contextlib import suppress
 import asyncio
+from contextlib import suppress
+
 from platyrhynchos.director.direct_search import generate_crossword
 
 with suppress(ModuleNotFoundError):

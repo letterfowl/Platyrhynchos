@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from typing import Iterator
 
 from ..commons.exceptions import PartNotFoundException
-from ..commons.misc import Coord
 from ..commons.logger import logger
+from ..commons.misc import Coord
 from .base import Crossword
 
 

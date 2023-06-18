@@ -7,7 +7,7 @@ from platyrhynchos.commons.alphabit import MAX_ALPHABIT, Alphabit
 from platyrhynchos.cruciverbalist.en_simple import EnglishSimpleCruciverbalist
 from platyrhynchos.exclusive.cpython import cursor_execute
 
-pytest_plugins = ('pytest_asyncio',)
+pytest_plugins = ("pytest_asyncio",)
 
 SAMPLE_WORDS = [
     "PRECIPICE",
@@ -81,7 +81,8 @@ class TestAlphabit:
     def test_empty(self, cruciverbalist):
         word = Alphabit("").to_query()
         assert (
-            len(cursor_execute(f"select answer from clues where bit_count('{word}'::BIT | alphabit)!=length(alphabit)")) == 0
+            len(cursor_execute(f"select answer from clues where bit_count('{word}'::BIT | alphabit)!=length(alphabit)"))
+            == 0
         )
 
     @pytest.mark.parametrize("word", SAMPLE_WORDS)
@@ -92,7 +93,6 @@ class TestAlphabit:
 
 
 class TestFindWord:
-    
     @pytest.mark.asyncio
     async def test_1st_column(
         self,

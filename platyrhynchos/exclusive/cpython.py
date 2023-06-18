@@ -86,15 +86,19 @@ async def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = 
     else:
         previous = [f"'{i}'" for i in previous]
     return cursor_execute(
-        f"select answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)}) limit 100")
+        f"select answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)}) limit 100"
+    )
+
 
 @convert_result_to_list
-async def get_regex(regex: str,  previous: list[str] = []):
+async def get_regex(regex: str, previous: list[str] = []):
     if previous is None:
         previous = ["'A'"]
     else:
         previous = [f"'{i}'" for i in previous]
-    return cursor_execute(f"select answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous)}) limit 100")
+    return cursor_execute(
+        f"select answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous)}) limit 100"
+    )
 
 
 @convert_result_to_list

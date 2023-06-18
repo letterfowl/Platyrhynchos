@@ -4,9 +4,9 @@ from tqdm_loggable.auto import tqdm
 
 from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
-from ..commons.utils import random
 from ..commons.logger import logger
 from ..commons.settings import settings
+from ..commons.utils import random
 from ..crossword.colrow import ColRow
 from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
 from .base import CruciverbalistBase
@@ -26,9 +26,9 @@ class EnglishSimpleCruciverbalist(CruciverbalistBase):
         Evaluates the ColRow as the next one to add a word to.
         Returns the number of words colliding with the colrow with random noise.
         """
-        return -len(list(colrow.cross_words()))*random.random()
+        return -len(list(colrow.cross_words())) * random.random()
 
-    async def select_by_regex(self, regexes: list[str], previous: list[str]|None = None) -> list[str]:
+    async def select_by_regex(self, regexes: list[str], previous: list[str] | None = None) -> list[str]:
         """
         Select compatible words using regex. It accepts a list of regular expressions and checks all one by one.
         """

@@ -19,7 +19,7 @@ class CruciverbalistBase(ABC):
         yield from sorted(col_rows, key=self.eval_colrow, reverse=True)
 
     @abstractmethod
-    async def select_by_regex(self, regexes: list[str], previous: list[str]|None = None) -> list[str]:
+    async def select_by_regex(self, regexes: list[str], previous: list[str] | None = None) -> list[str]:
         return
 
     @abstractmethod
@@ -40,9 +40,7 @@ class CruciverbalistBase(ABC):
 
         words_len = [self._eval_word(word, colrow) for word in words if word is not None]
 
-        return_words = [
-            (word, colrow) for word, _ in sorted(words_len, key=lambda x: x[1])
-        ]
+        return_words = [(word, colrow) for word, _ in sorted(words_len, key=lambda x: x[1])]
         logger.debug(f"Found {len(return_words)} words for {colrow}")
         return return_words
 
@@ -51,12 +49,11 @@ class CruciverbalistBase(ABC):
             colrows = [colrows]
         for colrow in colrows:
             if words := await self.find_words(colrow):
-                weights = [i+1 for i in range(len(words))]
+                weights = [i + 1 for i in range(len(words))]
                 choice = random.choices(words, weights=weights, k=1)[0]
                 logger.debug(f"Choice: {choice}")
                 return choice
         return None, None
-            
 
     async def choose_and_fill(self, crossword: CrosswordImprovable) -> tuple[str | None, ColRow | None]:
         colrows = self.choose_colrows(crossword)

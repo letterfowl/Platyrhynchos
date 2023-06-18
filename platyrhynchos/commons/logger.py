@@ -10,7 +10,6 @@ from .settings import settings
 from .utils import app_dir
 
 
-
 class InterceptHandler(logging.Handler):
     def emit(self, record):
         # Get corresponding Loguru level if it exists.

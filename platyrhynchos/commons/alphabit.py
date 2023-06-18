@@ -8,6 +8,7 @@ from typing import Optional
 
 from bitarray import bitarray
 
+
 class Alphabit:
     """
     A wrapper over `bitarray` object to parse into the database.
@@ -40,7 +41,7 @@ class Alphabit:
     def to_query(self) -> str:
         """Generates an Alphabit query to be used in SQL"""
         return (~self.bittarray).to01()
-    
+
     def as_letters(self) -> str:
         return "".join(letter for letter, bit in zip(self.LETTER_ORDER, self.bittarray) if bit)
 
