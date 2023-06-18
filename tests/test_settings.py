@@ -1,6 +1,8 @@
 from dynaconf.vendor.tomllib import TOMLDecodeError
 from pytest import raises
+
 from platyrhynchos.commons.settings import load_settings_from_string
+
 
 def test_load_settings_from_string_with_valid_input():
     settings_text = """
@@ -8,7 +10,8 @@ def test_load_settings_from_string_with_valid_input():
     debug = true
     """
     settings = load_settings_from_string(settings_text)
-    assert settings['DEFAULT'].debug == True
+    assert settings["DEFAULT"].debug == True
+
 
 def test_load_settings_from_string_with_invalid_input():
     settings_text = """
@@ -16,6 +19,7 @@ def test_load_settings_from_string_with_invalid_input():
     """
     with raises(TOMLDecodeError):
         load_settings_from_string(settings_text)
+
 
 def test_load_settings_from_string_1():
     settings_text = """
@@ -30,6 +34,7 @@ def test_load_settings_from_string_1():
     assert settings.db_name == "test_db"
     assert settings.db_host == "localhost"
     assert settings.db_port == 5432
+
 
 def test_load_settings_from_string_2():
     settings_text = """
