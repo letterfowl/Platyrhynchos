@@ -1,5 +1,6 @@
 import { getRandom, getRegex, getRegexWithAlphabit } from "./supabase.js"
 import { initPy } from "./loadpy.js"
+import "./spinner.css"
 
 const pyodide = await initPy()
 const supabase4js = {
@@ -33,6 +34,7 @@ const crossword = await pyodide.runPythonAsync(`
     print("Words:", ",".join(crossword.words.keys()))
     crossword.as_exolve()
 `);
+document.getElementById("spinner").remove();
 // const crossword = `
 // exolve-begin
 //   exolve-id: exolve-example
