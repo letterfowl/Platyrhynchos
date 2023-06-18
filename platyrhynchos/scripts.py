@@ -1,12 +1,27 @@
 """Implements simple scripts as functions"""
+import asyncio
 from contextlib import suppress
 from os import remove as remove_file
 
 from .commons.utils import app_dir
-from .cruciverbalists.en_simple import prepare_database
 
 
 def en_simple_prep():
+    from .cruciverbalist.en_simple import EnglishSimpleCruciverbalist
+
     with suppress(FileNotFoundError):
         remove_file(app_dir("user_cache_dir", "en_simple.db"))
-    prepare_database()
+    EnglishSimpleCruciverbalist()
+
+
+async def direct_run_routine():
+    from asyncio import run
+
+    from .director.direct_search import generate_crossword
+
+    crossword = await generate_crossword(10, 10, 12)
+    print(crossword, "\n", "\n".join(crossword.words))
+
+
+def direct_run():
+    asyncio.run(direct_run_routine())

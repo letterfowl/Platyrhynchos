@@ -40,7 +40,10 @@ class Alphabit:
 
     def to_query(self) -> str:
         """Generates an Alphabit query to be used in SQL"""
-        return f"'{(~self.bittarray).to01()}'::BIT"
+        return (~self.bittarray).to01()
+
+    def as_letters(self) -> str:
+        return "".join(letter for letter, bit in zip(self.LETTER_ORDER, self.bittarray) if bit)
 
 
 MIN_ALPHABIT = Alphabit("")

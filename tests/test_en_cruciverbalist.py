@@ -4,8 +4,10 @@ import pytest
 
 from platyrhynchos import CrosswordImprovable
 from platyrhynchos.commons.alphabit import MAX_ALPHABIT, Alphabit
-from platyrhynchos.cruciverbalists.en_simple import EnglishSimpleCruciverbalist
+from platyrhynchos.cruciverbalist.en_simple import EnglishSimpleCruciverbalist
 from platyrhynchos.exclusive.cpython import cursor_execute
+
+pytest_plugins = ("pytest_asyncio",)
 
 SAMPLE_WORDS = [
     "PRECIPICE",
@@ -27,7 +29,7 @@ def crossword1():
         {(0, 1): "e", (1, 1): "x", (1, 2): "t", (3, 3): "a", (2, 3): "b", (7, 3): " "},
         10,
         10,
-        words_horizontal={},
+        words_horizontal={"ext": {(1, 1), (1, 2), (1, 3)}},
         crossings={(0, 1)},
     )
 
@@ -79,37 +81,41 @@ class TestAlphabit:
     def test_empty(self, cruciverbalist):
         word = Alphabit("").to_query()
         assert (
-            len(cursor_execute(f"select answer from clues where bit_count({word} | alphabit)!=length(alphabit)")) == 0
+            len(cursor_execute(f"select answer from clues where bit_count('{word}'::BIT | alphabit)!=length(alphabit)"))
+            == 0
         )
 
     @pytest.mark.parametrize("word", SAMPLE_WORDS)
     def test_words(self, word):
         alp = Alphabit(word).to_query()
-        result = cursor_execute(f"select answer from clues where bit_count({alp} | alphabit)=length(alphabit)")
+        result = cursor_execute(f"select answer from clues where bit_count('{alp}'::BIT | alphabit)=length(alphabit)")
         assert (word,) in result
 
 
 class TestFindWord:
-    def test_1st_column(
+    @pytest.mark.asyncio
+    async def test_1st_column(
         self,
         crossword1: CrosswordImprovable,
         cruciverbalist: EnglishSimpleCruciverbalist,
     ):
-        t, _ = cruciverbalist.find_word(crossword1.colrow(True, 1))
+        t, _ = await cruciverbalist.find_word(crossword1.colrow(True, 1))
         assert t[1:3] == "XT"
 
-    def test_1st_row(
+    @pytest.mark.asyncio
+    async def test_1st_row(
         self,
         crossword1: CrosswordImprovable,
         cruciverbalist: EnglishSimpleCruciverbalist,
     ):
-        t, _ = cruciverbalist.find_word(crossword1.colrow(False, 1))
+        t, _ = await cruciverbalist.find_word(crossword1.colrow(False, 1))
         assert t[:2] == "EX"
 
-    def test_1st_weird_row(
+    @pytest.mark.asyncio
+    async def test_1st_weird_row(
         self,
         crossword1: CrosswordImprovable,
         cruciverbalist: EnglishSimpleCruciverbalist,
     ):
-        t, _ = cruciverbalist.find_word(crossword1.colrow(False, 3))
+        t, _ = await cruciverbalist.find_word(crossword1.colrow(False, 3))
         assert len(t) <= 7

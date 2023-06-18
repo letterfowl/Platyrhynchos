@@ -29,8 +29,8 @@ def cursor_execute(sql, **kwargs):
 
 
 def convert_result_to_list(func):
-    def wrapper(*args, **kwargs):
-        return [i[0] for i in func(*args, **kwargs)]
+    async def wrapper(*args, **kwargs):
+        return [i[0] for i in await func(*args, **kwargs)]
 
     return wrapper
 
@@ -80,17 +80,27 @@ def _get_from_s3(file):
 
 
 @convert_result_to_list
-def get_regex_w_alphabit(regex: str, alphabit: str):
+async def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = None):
+    if previous is None:
+        previous = ["'A'"]
+    else:
+        previous = [f"'{i}'" for i in previous]
     return cursor_execute(
-        f"select answer from clues where bit_count({alphabit} | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}')"
+        f"select answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)}) limit 100"
     )
 
 
 @convert_result_to_list
-def get_regex(regex: str):
-    return cursor_execute(f"select answer from clues where regexp_matches(answer, '{regex}')")
+async def get_regex(regex: str, previous: list[str] = []):
+    if previous is None:
+        previous = ["'A'"]
+    else:
+        previous = [f"'{i}'" for i in previous]
+    return cursor_execute(
+        f"select answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous)}) limit 100"
+    )
 
 
 @convert_result_to_list
-def get_random():
-    return cursor_execute("select answer from clues limit 1")
+async def get_random(max_size: int):
+    return cursor_execute(f"select answer from clues where length(answer) > 1 and length(answer) < {max_size} limit 1")

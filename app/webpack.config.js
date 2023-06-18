@@ -31,6 +31,7 @@ const config = {
     new CopyPlugin({
       patterns: [
         { from: "../dist/*", to: "." },
+        { from: "../settings.toml", to: "." },
       ],
     }),
     // Add your plugins here

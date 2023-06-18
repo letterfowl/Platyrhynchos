@@ -1,12 +1,15 @@
 """Implements the improvable crossword class"""
 from __future__ import annotations
 
-from typing import Iterator, NoReturn, Optional
+from typing import Callable, Iterator, NoReturn, Optional
 
 from ..commons.exceptions import TooLargeException, UninsertableException
 from ..commons.misc import ColRowId, Coord, IsColumn, ProxiedDict
 from .base import Crossword
 from .colrow import ColRow
+from .exolve_template import EXOLVE_TEMPLATE, Template, char_for_grid
+
+EXOLVE_TEMPLATE: Template
 
 
 class CrosswordImprovable(Crossword):
@@ -41,8 +44,8 @@ class CrosswordImprovable(Crossword):
         Raises:
             TooLargeException: coordinates don't fit into the crossword
         """
-        if horizontal >= self.max_h or vertical >= self.max_v:
-            raise TooLargeException(f"{horizontal=} vs {self.max_h}; {vertical=} vs {self.max_v}")
+        if horizontal > self.max_h or vertical > self.max_v:
+            raise TooLargeException(f"h={horizontal} vs max_h={self.max_h}; v={vertical} vs max_v={self.max_v}")
 
     def __init__(
         self,
@@ -77,12 +80,31 @@ class CrosswordImprovable(Crossword):
             crossings,
         )
 
+    def as_exolve_grid(self, empty_field: str = ":", sep: str = "\n", coder: Callable[[str], str] = lambda x: x) -> str:
+        """Returns a grid representation of the crossword"""
+
+        return sep.join(
+            "".join((coder(self.letters.get(Coord((h, v)), empty_field)) for h in range(self.max_h)))
+            for v in range(self.max_v)
+        )
+
+    def as_exolve(self) -> str:
+        """
+        Returns an exolve representation of the crossword. Go to `exolve_template.py` for the template.
+
+        """
+        # pylint: disable=unpacking-non-sequence
+        size_x, size_y = self.max
+        return EXOLVE_TEMPLATE.substitute(
+            width=size_x + 1,
+            height=size_y + 1,
+            grid=self.as_exolve_grid(empty_field=".", sep="\n    ", coder=char_for_grid),
+        )
+
     def __repr__(self) -> str:
         # size = self.max
         # max_size = self.max_h, self.max_v
-        return "\n".join(
-            "".join((self.letters.get(Coord((h, v)), ":") for h in range(self.max_h))) for v in range(self.max_v)
-        )  # + f"\n[{size=} {max_size=}]"
+        return self.as_exolve_grid()  # + f"\n[{size=} {max_size=}]"
 
     def rotate(self):
         """Rotates the crossword, works in place."""

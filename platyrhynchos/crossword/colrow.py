@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Iterator
 
 from ..commons.exceptions import PartNotFoundException
+from ..commons.logger import logger
 from ..commons.misc import Coord
 from .base import Crossword
 
@@ -108,6 +109,7 @@ class ColRow:
             regex = self._regex_of_part(i)
             if regex not in found:
                 found.add(regex)
+                logger.debug("Found regex for {}: {}", self, regex)
                 yield regex
 
     @staticmethod
