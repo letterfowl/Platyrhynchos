@@ -1,11 +1,13 @@
 from platyrhynchos.crossword.improvable import CrosswordImprovable
 
+
 def creation_and_rotation(letters, width, height, words_horizontal):
     result = CrosswordImprovable(letters, height, width, words_horizontal)
     result.rotate()
     assert result.max_h == width
     assert result.max_v == height
     return result
+
 
 def test_rotate_2x2():
     letters = {
@@ -24,6 +26,7 @@ def test_rotate_2x2():
     }
     assert crossword.words_vertical == {"AB": {(0, 0), (1, 0)}, "CD": {(0, 1), (1, 1)}}
     assert crossword.words_horizontal == {}
+
 
 def test_rotate_3x2():
     letters = {
