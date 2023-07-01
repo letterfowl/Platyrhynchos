@@ -18,7 +18,7 @@ keyboard = "^0.13.5"
 platformdirs = "^3.5.1"
 loguru = "^0.7.0"
 requests = {version = "^2.31.0", markers = "sys_platform != 'emscripten'"}
-tqdm-loggable = "^0.1.3"
+tqdm-loggable = "^0.1.4"
 bitarray = "^2.7.3"
 duckdb = {version = "^0.8.0", markers = "sys_platform != 'emscripten'"}
 boto3 = {version = "^1.26.142", markers = "sys_platform != 'emscripten'"}
