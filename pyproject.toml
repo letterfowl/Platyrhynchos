@@ -15,7 +15,7 @@ readme = "README.md"
 python = ">=3.10.10,<3.12"
 # ^This is because of functiontrace
 keyboard = "^0.13.5"
-platformdirs = "^3.5.1"
+platformdirs = "^3.8.0"
 loguru = "^0.7.0"
 requests = {version = "^2.31.0", markers = "sys_platform != 'emscripten'"}
 tqdm-loggable = "^0.1.3"
