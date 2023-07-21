@@ -32,6 +32,7 @@
             "url": "http://localhost:5500/deploy/index.html",
             "tabFilter": "http://localhost:5500/*",
             "webRoot": "${workspaceFolder}",
+            ""
             "reloadOnChange": {
                 "watch": "${workspaceFolder}/**/*",
                 "ignore": "**/node_modules/**"

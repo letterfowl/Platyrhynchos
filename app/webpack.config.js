@@ -18,11 +18,18 @@ const config = {
     path: path.resolve(__dirname, "dist"),
   },
   devServer: {
+    allowedHosts: 'auto',
     open: true,
-    host: "localhost",
     headers: {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "*"
     },
+    proxy: {
+        "/s3": {
+            target: "https://letterfowl-test.s3.fr-par.scw.cloud",
+            changeOrigin: true,
+            pathRewrite: {"^/s3" : ""}
+        }
+    }
   },
   plugins: [
     new HtmlWebpackPlugin({

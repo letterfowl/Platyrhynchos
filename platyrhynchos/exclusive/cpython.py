@@ -53,6 +53,7 @@ def download_db(file):
 
 
 def _get_from_s3(file):
+    """Download `file` from S3. Requires ENV variables to be set."""
     logger.info("Downloading database")
     assert settings.s3.region and settings.s3.endpoint and settings.s3.bucket, "S3 settings not set"
     assert settings.s3_key_id and settings.s3_key_secret, "S3 credentials not set"
@@ -81,10 +82,7 @@ def _get_from_s3(file):
 
 @convert_result_to_list
 async def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = None):
-    if previous is None:
-        previous = ["'A'"]
-    else:
-        previous = [f"'{i}'" for i in previous]
+    previous = ["'A'"] if previous is None else [f"'{i}'" for i in previous]
     return cursor_execute(
         f"select answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)}) limit 100"
     )
@@ -92,6 +90,7 @@ async def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = 
 
 @convert_result_to_list
 async def get_regex(regex: str, previous: list[str] = []):
+    # sourcery skip: assign-if-exp
     if previous is None:
         previous = ["'A'"]
     else:

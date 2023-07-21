@@ -34,6 +34,7 @@
     "workbox-webpack-plugin": "^6.5.4"
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "^1.27.0",
     "@supabase/supabase-js": "^2.22.0"
   }
 }
