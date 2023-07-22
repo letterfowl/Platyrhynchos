@@ -59,7 +59,7 @@ export async function set_up_database() {
 }
 
 export async function prepare_functions() {
-  const db = set_up_database();
+  const db = await set_up_database();
 
   return {
     db: db,
@@ -67,18 +67,18 @@ export async function prepare_functions() {
     get_regex_w_alphabit: async function(regex, alphabit, previous = null) {
       previous = ["'A'"] || previous.map(i => `'${i}'`);
       const sql = `select answer from en_simple where bit_count('${alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '${regex}') and length(answer) > 1 and length(answer) > 1 and answer not in (${previous.join(',')}) limit 100`;
-      return await runSQL(db, sql);
+      return await runSQL(db, sql).then(db => db.map(i => i.answer));
     },
     
     get_regex: async function(regex, previous = []) {
       previous = ["'A'"] || previous.map(i => `'${i}'`);
       const sql = `select answer from en_simple where regexp_matches(answer, '${regex}') and length(answer) > 1 and answer not in (${previous.join(',')}) limit 100`;
-      return await runSQL(db, sql);
+      return await runSQL(db, sql).then(db => db.map(i => i.answer));
     },
     
     get_random: async function(max_size) {
       const sql = `select answer from en_simple where length(answer) > 1 and length(answer) < ${max_size} using sample 1`;
-      return await runSQL(db, sql);
+      return await runSQL(db, sql).then(db => db.map(i => i.answer));
     }
   }
 }

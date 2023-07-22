@@ -51,6 +51,6 @@ class EnglishSimpleCruciverbalist(CruciverbalistBase):
         """Get a random word from the database. This is useful for testing the crossword."""
         found_words = await get_random(max_size)
         # If there are any words in the database raise a DatabaseException.
-        if found_words is None:
+        if not found_words:
             raise DatabaseException("Couldn't find any words.")
         return found_words[0]
