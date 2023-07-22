@@ -4,6 +4,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
+const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const CopyPlugin = require("copy-webpack-plugin");
 
 const isProduction = process.env.NODE_ENV == "production";
@@ -21,17 +22,27 @@ const config = {
     allowedHosts: 'auto',
     open: true,
     headers: {
-        "Access-Control-Allow-Origin": "*"
+      "Access-Control-Allow-Origin": "*"
     },
     proxy: {
-        "/s3": {
-            target: "https://letterfowl-test.s3.fr-par.scw.cloud",
-            changeOrigin: true,
-            pathRewrite: {"^/s3" : ""}
-        }
+      "/s3": {
+        target: "https://letterfowl-test.s3.fr-par.scw.cloud",
+        changeOrigin: true,
+        pathRewrite: { "^/s3": "" }
+      }
     }
   },
   plugins: [
+    new WebpackShellPluginNext({
+      onBuildStart: {
+        scripts: [
+          "cd .. && poetry build && cd app"
+        ],
+        blocking: true,
+        parallel: false
+      },
+      swallowError: true
+    }),
     new HtmlWebpackPlugin({
       template: "index.html",
     }),

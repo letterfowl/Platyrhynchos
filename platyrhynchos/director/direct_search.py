@@ -12,7 +12,7 @@ async def generate_crossword(width: int, height: int, word_amount: int) -> Cross
     logger.info("Found word: {}", start_word)
     crossword = CrosswordImprovable.make(start_word, width, height)
     # logger.debug("Crossword:\n"+str(crossword))
-    logger.info("I found a start word: {}", start_word)
+    logger.info("Starting crossword with {}", start_word)
 
     while len(crossword.words) < word_amount:
         word, colrow = await cruciverbalist.choose_and_fill(crossword)
