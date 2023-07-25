@@ -15,7 +15,7 @@ class CruciverbalistBase(ABC):
         return
 
     def choose_colrows(self, crossword: CrosswordImprovable) -> Iterator[ColRow]:
-        col_rows = crossword.iter_colrows()
+        col_rows = crossword.iter_not_full_colrows()
         yield from sorted(col_rows, key=self.eval_colrow, reverse=True)
 
     @abstractmethod

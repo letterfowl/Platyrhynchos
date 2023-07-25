@@ -31,7 +31,7 @@ async def annealing_run_routine():
 
     from .director.simulated_annealing import generate_crossword
 
-    crossword = await generate_crossword(10, 10, 20)
+    crossword = await generate_crossword(10, 10, 30)
     print(crossword, "\n", "Words:", *list(crossword.words.keys()), sep="\n")
 
 def annealing_run():

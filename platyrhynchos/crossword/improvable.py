@@ -135,6 +135,10 @@ class CrosswordImprovable(Crossword):
         """Iterate over all colrows in the crossword."""
         yield from ColRow.iter(self)
 
+    def iter_not_full_colrows(self) -> Iterator[ColRow]:
+        """Iterate over all colrows in the crossword that are not full."""
+        yield from ColRow.iter_not_full(self)
+
     def add(self, word: str, colrow: ColRow | tuple[IsColumn, ColRowId]):
         """
         Adds a word to the crossword row/column. It requires a possible intersection. Works in place.

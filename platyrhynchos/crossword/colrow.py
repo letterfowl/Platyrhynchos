@@ -32,6 +32,11 @@ class ColRow:
         """Returns list of letters in the given ColRow, Nones are inserted where no letter was found"""
         return [self.crossword.letters.get(i) for i in self.get_coords()]
 
+    @property
+    def is_full(self) -> bool:
+        """Returns True if there is no None in the ColRow"""
+        return None not in self.get()
+
     def __repr__(self) -> str:
         vals = "".join(i or ":" for i in self.get())
         return f"{'Col' if self.is_column else 'Row'}({self.dim_num}, {vals})"
@@ -186,3 +191,10 @@ class ColRow:
         max_h = getattr(crossword, "max_h", crossword.max[0])
         yield from (ColRow(crossword, False, i) for i in range(max_v))
         yield from (ColRow(crossword, True, i) for i in range(max_h))
+
+    @staticmethod
+    def iter_not_full(crossword: Crossword) -> Iterator[ColRow]:
+        """Iterates over all ColRows of a crossword that are not full"""
+        for i in ColRow.iter(crossword):
+            if not i.is_full:
+                yield i
