@@ -187,3 +187,19 @@ class CrosswordImprovable(Crossword):
             raise UninsertableException(
                 f"This field is already occupied ({coord=}; new={letter}; old={self.letters[coord]})"
             )
+
+    def remove(self, word: str) -> Optional[CrosswordImprovable]:
+        letter_coords = self.words.get(word, None)
+        if letter_coords is None:
+            raise ValueError(f"Word {word} not found in {self.words}")
+        new = CrosswordImprovable(
+            letters={
+                coord: i for coord, i in self.letters.items() if coord not in letter_coords or coord in self.crossings
+            },
+            max_h=self.max_h,
+            max_v=self.max_v,
+            words_vertical={w: i for w, i in self.words_vertical.items() if word != w},
+            words_horizontal={w: i for w, i in self.words_horizontal.items() if word != w},
+            crossings={coords for coords in self.crossings if coords not in letter_coords},
+        )
+        return None if len(new.words) == 0 else new

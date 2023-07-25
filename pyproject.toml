@@ -39,6 +39,7 @@ pytest-asyncio = "^0.21.0"
 [tool.poetry.scripts]
 en-download = "platyrhynchos.scripts:en_simple_prep"
 direct = "platyrhynchos.scripts:direct_run"
+san = "platyrhynchos.scripts:simulated_annealing_run"
 
 [tool.pytest.ini_options]
 minversion = "7.2"

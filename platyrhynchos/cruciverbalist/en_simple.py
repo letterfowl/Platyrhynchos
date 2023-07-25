@@ -26,7 +26,7 @@ class EnglishSimpleCruciverbalist(CruciverbalistBase):
         Evaluates the ColRow as the next one to add a word to.
         Returns the number of words colliding with the colrow with random noise.
         """
-        return -len(list(colrow.cross_words())) * random.random()
+        return len(list(colrow.cross_words()))+1
 
     async def select_by_regex(self, regexes: list[str], previous: list[str] | None = None) -> list[str]:
         """

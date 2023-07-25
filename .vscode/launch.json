@@ -16,6 +16,17 @@
             },
         },
         {
+            "name": "Simulated Annealing search",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/benchmarks/simulated_annealing.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "ENV_FOR_DYNACONF": "development"
+            },
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",

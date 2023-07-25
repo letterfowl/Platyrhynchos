@@ -25,3 +25,14 @@ async def direct_run_routine():
 
 def direct_run():
     asyncio.run(direct_run_routine())
+    
+async def annealing_run_routine():
+    from asyncio import run
+
+    from .director.simulated_annealing import generate_crossword
+
+    crossword = await generate_crossword(10, 10, 20)
+    print(crossword, "\n", "Words:", *list(crossword.words.keys()), sep="\n")
+
+def annealing_run():
+    asyncio.run(annealing_run_routine())
