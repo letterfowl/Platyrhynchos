@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import bisect
 from typing import Iterable, Iterator
 
 from ..commons.logger import logger
@@ -58,3 +59,10 @@ class CruciverbalistBase(ABC):
     async def choose_and_fill(self, crossword: CrosswordImprovable) -> tuple[str | None, ColRow | None]:
         colrows = self.choose_colrows(crossword)
         return await self.find_word(colrows)
+
+    async def find_removable_words(self, colrow: ColRow):
+        """Find words that can be removed from a colrow."""
+        results: list[tuple[float, str]] = []
+        for word, intersections in colrow.removables():
+            bisect.insort(results, (len(word)/(intersections+1), word), key=lambda x: x[0])
+        return [(word, colrow) for _, word in results]

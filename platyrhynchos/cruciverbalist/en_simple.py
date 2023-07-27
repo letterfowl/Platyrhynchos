@@ -1,4 +1,5 @@
 from tempfile import NamedTemporaryFile, _TemporaryFileWrapper
+import bisect
 
 from tqdm_loggable.auto import tqdm
 

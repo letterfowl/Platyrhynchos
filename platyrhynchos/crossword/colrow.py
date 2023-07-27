@@ -13,7 +13,7 @@ from .base import Crossword
 
 @dataclass(init=True, repr=True)
 class ColRow:
-    """A reference to the given crossword column or row, compatible with CrosswordImprovable"""
+    """A reference to the given crossword column or row, compatible with Crossword"""
 
     crossword: Crossword
     is_column: bool
@@ -184,6 +184,13 @@ class ColRow:
             if column in set(columns) or row in set(rows):
                 yield word, coords
 
+    def removables(self) -> Iterator[tuple[str, int]]:
+        """Yields words that can be removed from ColRow with their intersection count"""
+        colrow_coords = set(self.get_coords())
+        for word, colrows in self.crossword.words.items():
+            if colrow_coords.issuperset(colrows):
+                yield word, len(self.crossword.crossings.intersection(colrows))
+
     @staticmethod
     def iter(crossword: Crossword) -> Iterator[ColRow]:
         """Iterates over all ColRows of a crossword"""
@@ -198,3 +205,6 @@ class ColRow:
         for i in ColRow.iter(crossword):
             if not i.is_full:
                 yield i
+
+    def __hash__(self) -> int:
+        return hash((id(self.crossword), self.is_column, self.dim_num))

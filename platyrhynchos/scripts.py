@@ -20,7 +20,8 @@ async def direct_run_routine():
     from .director.direct_search import generate_crossword
 
     crossword = await generate_crossword(10, 10, 12)
-    print(crossword, "\n", "\n".join(crossword.words))
+    crossword.print_rich_grid()
+    print("\n", "Words:", *list(crossword.words.keys()), sep="\n")
 
 
 def direct_run():
@@ -32,7 +33,8 @@ async def annealing_run_routine():
     from .director.simulated_annealing import generate_crossword
 
     crossword = await generate_crossword(10, 10, 30)
-    print(crossword, "\n", "Words:", *list(crossword.words.keys()), sep="\n")
+    crossword.print_rich_grid()
+    print("\n", "Words:", *list(crossword.words.keys()), sep="\n")
 
 def annealing_run():
     asyncio.run(annealing_run_routine())

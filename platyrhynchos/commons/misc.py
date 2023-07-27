@@ -32,3 +32,6 @@ class ProxiedDict(dict):
         val = super().__getitem__(__key)
         self.on_get(__key, val)
         return val
+
+    def __hash__(self) -> int:
+        return hash(tuple(self.items()))

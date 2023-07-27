@@ -17,6 +17,13 @@ class Crossword:
     # clues_vertical: dict[Coord, str] = field(default_factory=dict)
     crossings: set[Coord] = field(default_factory=set)
 
+    def __hash__(self) -> int:
+        return hash((
+            tuple(self.letters.items()),
+            tuple(self.words_horizontal.items()),
+            tuple(self.words_vertical.items())
+        ))
+
     @property
     def words(self) -> dict[str, set[Coord]]:
         return self.words_horizontal | self.words_vertical
@@ -62,3 +69,5 @@ class Crossword:
             words_vertical={word: {Coord((h, v)) for (v, h) in i} for word, i in self.words_horizontal.items()},
             crossings={Coord((j, i)) for (i, j) in self.crossings},
         )
+
+    
