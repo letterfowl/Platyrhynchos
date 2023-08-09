@@ -25,11 +25,13 @@ class EnglishSimpleCruciverbalist(CruciverbalistBase):
     def eval_colrow(self, colrow: ColRow) -> float:
         """
         Evaluates the ColRow as the next one to add a word to.
-        Returns the number of words colliding with the colrow with random noise.
+        Returns the inverse of the number of words colliding with the colrow.
         """
-        return len(list(colrow.cross_words()))+1
+        return 1 / (len(list(colrow.cross_words())) + 1)
 
-    async def select_by_regex(self, regexes: list[str], previous: list[str] | None = None) -> list[str]:
+    async def select_by_regex(
+        self, regexes: list[str], previous: list[str] | None = None
+    ) -> list[str]:
         """
         Select compatible words using regex. It accepts a list of regular expressions and checks all one by one.
         """
@@ -37,7 +39,11 @@ class EnglishSimpleCruciverbalist(CruciverbalistBase):
             if self.RUN_WITH_ALPHABIT:
                 # Returns an alphabit query
                 alp = Alphabit(i)
-                logger.debug("Using alphabit: {}; which corresponds to {}", alp.to_query(), alp.as_letters())
+                logger.debug(
+                    "Using alphabit: {}; which corresponds to {}",
+                    alp.to_query(),
+                    alp.as_letters(),
+                )
                 if ret := await get_regex_w_alphabit(i, alp.to_query(), previous):
                     return ret
             elif ret := await get_regex(i, previous):

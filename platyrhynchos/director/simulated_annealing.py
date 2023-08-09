@@ -13,14 +13,14 @@ T = TypeVar("T")
 cruciverbalist: CruciverbalistBase = Cruciverbalist()
 
 
-def goal_function(crossword: CrosswordImprovable) -> float:
-    return 1
+def goal_function(crossword: CrosswordImprovable, turn: int) -> float:
+    return len(crossword.crossings) / crossword.size
 
 
 def qualifies_for_goal(crossword: CrosswordImprovable, turn: int) -> bool:
-    # MINIMUM_QUALIFICATION = 0.5
-    # return goal_function(crossword) > MINIMUM_QUALIFICATION
-    return turn > 100
+    MINIMUM_QUALIFICATION = 0.5
+    return goal_function(crossword, turn) > MINIMUM_QUALIFICATION
+    # return turn > 100
 
 
 class HallOfFame(Generic[T]):
@@ -132,7 +132,7 @@ async def generate_crossword(
             removal_test.remove(removal_word)
             addition_test = crossword
             addition_test.add(addition_word, addition_colrow)
-            if goal_function(removal_test) > goal_function(addition_test):
+            if goal_function(removal_test, turn) > goal_function(addition_test, turn):
                 crossword = removal_test
             else:
                 crossword = addition_test
