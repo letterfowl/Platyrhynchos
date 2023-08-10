@@ -41,6 +41,10 @@ class ColRow:
         vals = "".join(i or ":" for i in self.get())
         return f"{'Col' if self.is_column else 'Row'}({self.dim_num}, {vals})"
 
+    def history_id(self):
+        """Returns a unique id of the ColRow for a crossword generation task (used in history)"""
+        return (self.is_column, self.dim_num)
+
     @staticmethod
     def _empty_slices(field_vals: list[str | None]) -> list[slice]:
         """Searches for big chunks of Nones in `field_vals` and returns their slices"""

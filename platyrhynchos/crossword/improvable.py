@@ -15,8 +15,8 @@ EXOLVE_TEMPLATE: Template
 class CrosswordImprovable(Crossword):
     """Crossword subclass used to implement the "smart" insertion algorithm."""
 
-    @staticmethod
-    def make(word: str, max_h: int, max_v: Optional[int] = None) -> CrosswordImprovable:
+    @classmethod
+    def make(cls, word: str, max_h: int, max_v: Optional[int] = None) -> CrosswordImprovable:
         """
         Creates a one word crossword.
 
@@ -26,7 +26,7 @@ class CrosswordImprovable(Crossword):
             max_v -- maximum rows (default: {None})
         """
         max_v = max_v or max_h
-        return CrosswordImprovable(
+        return cls(
             letters={Coord((i, 0)): j for i, j in enumerate(word)},
             max_h=max_h,
             max_v=max_v,
@@ -133,6 +133,10 @@ class CrosswordImprovable(Crossword):
                 empty_field=".", sep="\n    ", coder=char_for_grid
             ),
         )
+
+    @property
+    def size(self) -> int:
+        return self.max_h * self.max_v
 
     def __repr__(self) -> str:
         # size = self.max

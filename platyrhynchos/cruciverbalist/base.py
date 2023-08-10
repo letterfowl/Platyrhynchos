@@ -20,7 +20,9 @@ class CruciverbalistBase(ABC):
         yield from sorted(col_rows, key=self.eval_colrow, reverse=True)
 
     @abstractmethod
-    async def select_by_regex(self, regexes: list[str], previous: list[str] | None = None) -> list[str]:
+    async def select_by_regex(
+        self, regexes: list[str], previous: list[str] | None = None
+    ) -> list[str]:
         return
 
     @abstractmethod
@@ -34,18 +36,28 @@ class CruciverbalistBase(ABC):
     def _eval_word(self, word: str, colrow: ColRow) -> tuple[str, int]:
         return word, self.eval_word(word, colrow)
 
-    async def find_words(self, colrow: ColRow) -> list[tuple[str, ColRow]]:
-        words = await self.select_by_regex(list(colrow.yield_regexes()), colrow.crossword.words.keys())
+    async def find_words(
+        self, colrow: ColRow, old_words: Iterable[str] = ()
+    ) -> list[tuple[str, ColRow]]:
+        words = await self.select_by_regex(
+            list(colrow.yield_regexes()), list({*colrow.crossword.words.keys(), *old_words})
+        )
         # if self.SAMPLE_SIZE is not None and self.SAMPLE_SIZE < len(words):
         #     words = random.sample(words, self.SAMPLE_SIZE)
 
-        words_len = [self._eval_word(word, colrow) for word in words if word is not None]
+        words_len = [
+            self._eval_word(word, colrow) for word in words if word is not None
+        ]
 
-        return_words = [(word, colrow) for word, _ in sorted(words_len, key=lambda x: x[1])]
+        return_words = [
+            (word, colrow) for word, _ in sorted(words_len, key=lambda x: x[1])
+        ]
         logger.debug(f"Found {len(return_words)} words for {colrow}")
         return return_words
 
-    async def find_word(self, colrows: ColRow | Iterable[ColRow]) -> tuple[str | None, ColRow | None]:
+    async def find_word(
+        self, colrows: ColRow | Iterable[ColRow]
+    ) -> tuple[str | None, ColRow | None]:
         if isinstance(colrows, ColRow):
             colrows = [colrows]
         for colrow in colrows:
@@ -56,7 +68,9 @@ class CruciverbalistBase(ABC):
                 return choice
         return None, None
 
-    async def choose_and_fill(self, crossword: CrosswordImprovable) -> tuple[str | None, ColRow | None]:
+    async def choose_and_fill(
+        self, crossword: CrosswordImprovable
+    ) -> tuple[str | None, ColRow | None]:
         colrows = self.choose_colrows(crossword)
         return await self.find_word(colrows)
 
@@ -64,5 +78,7 @@ class CruciverbalistBase(ABC):
         """Find words that can be removed from a colrow."""
         results: list[tuple[float, str]] = []
         for word, intersections in colrow.removables():
-            bisect.insort(results, (len(word)/(intersections+1), word), key=lambda x: x[0])
+            bisect.insort(
+                results, (len(word) / (intersections + 1), word), key=lambda x: x[0]
+            )
         return [(word, colrow) for _, word in results]
