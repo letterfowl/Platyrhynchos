@@ -29,3 +29,8 @@ class DatabaseException(Exception):
     """Parent of db-related exceptions"""
 
     pass
+
+class WordNotFoundError(CrosswordException):
+    """Word not found in crossword"""
+
+    pass

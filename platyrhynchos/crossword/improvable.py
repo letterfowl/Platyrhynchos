@@ -206,9 +206,9 @@ class CrosswordImprovable(Crossword):
         try:
             for place, letter in enumerate(word, start_index):
                 pos = (
-                    Coord((colrow.dim_num, place))
+                    Coord((colrow.index, place))
                     if colrow.is_column
-                    else Coord((place, colrow.dim_num))
+                    else Coord((place, colrow.index))
                 )
                 self.add_letter(pos, letter)
 

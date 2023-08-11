@@ -17,16 +17,16 @@ class ColRow:
 
     crossword: Crossword
     is_column: bool
-    dim_num: int
+    index: int
 
     def get_coords(self) -> list[Coord]:
         """Returns `Coord` object in the given ColRow"""
         if self.is_column:
             max_v = getattr(self.crossword, "max_v", self.crossword.max[1])
-            return [Coord((self.dim_num, i)) for i in range(max_v)]
+            return [Coord((self.index, i)) for i in range(max_v)]
         else:
             max_h = getattr(self.crossword, "max_h", self.crossword.max[0])
-            return [Coord((i, self.dim_num)) for i in range(max_h)]
+            return [Coord((i, self.index)) for i in range(max_h)]
 
     def get(self) -> list[str | None]:
         """Returns list of letters in the given ColRow, Nones are inserted where no letter was found"""
@@ -39,11 +39,11 @@ class ColRow:
 
     def __repr__(self) -> str:
         vals = "".join(i or ":" for i in self.get())
-        return f"{'Col' if self.is_column else 'Row'}({self.dim_num}, {vals})"
+        return f"{'Col' if self.is_column else 'Row'}({self.index}, {vals})"
 
     def history_id(self):
         """Returns a unique id of the ColRow for a crossword generation task (used in history)"""
-        return (self.is_column, self.dim_num)
+        return (self.is_column, self.index)
 
     @staticmethod
     def _empty_slices(field_vals: list[str | None]) -> list[slice]:
@@ -182,7 +182,7 @@ class ColRow:
 
     def cross_words(self) -> Iterator[tuple[str, set[Coord]]]:
         """Yields words that colide with ColRow with their coordinate sets"""
-        column, row = (self.dim_num, None) if self.is_column else (None, self.dim_num)
+        column, row = (self.index, None) if self.is_column else (None, self.index)
         for word, coords in self.crossword.words.items():
             columns, rows = tuple(zip(*coords))
             if column in set(columns) or row in set(rows):
@@ -211,4 +211,4 @@ class ColRow:
                 yield i
 
     def __hash__(self) -> int:
-        return hash((id(self.crossword), self.is_column, self.dim_num))
+        return hash((id(self.crossword), self.is_column, self.index))
