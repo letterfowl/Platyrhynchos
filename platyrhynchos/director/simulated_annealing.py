@@ -91,7 +91,7 @@ async def find_for_addition(
 async def find_for_removal(
     crossword: CrosswordImprovable,
 ) -> tuple[str, ColRow] | tuple[None, None]:
-    """Finds a word. Returns None if no word was found."""
+    """Finds a word that can be removed from a ColRow in a crossword. Returns `(None, None)` if no word was found."""
     colrow_prios = {
         c: e for e, c in enumerate(list(cruciverbalist.choose_colrows(crossword))[::-1])
     }
