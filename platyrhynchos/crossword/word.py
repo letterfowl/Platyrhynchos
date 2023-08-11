@@ -14,9 +14,6 @@ class Word:
     word: str
     letters: set[Coord]
 
-    def _get_indexes_of_intersecting(self) -> set[int]:
-        return {i for _, i in self.letters} if self.colrow.is_column else {i for i, _ in self.letters}
-
     @classmethod
     def from_crossword(cls, crossword: CrosswordImprovable, word: str) -> Word:
         if (word_coords := crossword.words_horizontal.get(word)) is not None:
@@ -45,8 +42,7 @@ class Word:
     def crossings(self):
         return self.letters & self.crossword.crossings
 
-    def intersecting_colrows(self):
-        return (
-            ColRow(self.crossword, not self.colrow.is_column, index)
-            for index in self._get_indexes_of_intersecting()
+    def cross_colrows(self):
+        yield from (
+            i.colrow for i in self.cross_words()
         )
