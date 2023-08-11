@@ -46,7 +46,7 @@ class Word:
         return self.letters & self.crossword.crossings
 
     def cross_colrows(self):
-        return (
+        yield from (
             ColRow(self.crossword, not self.colrow.is_column, index)
             for index in self._get_indexes_of_crossing_colrows()
         )
