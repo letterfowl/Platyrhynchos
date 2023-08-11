@@ -14,7 +14,7 @@ class Word:
     word: str
     letters: set[Coord]
 
-    def _get_indexes_of_intersecting(self) -> set[int]:
+    def _get_indexes_of_crossing_colrows(self) -> set[int]:
         return {i for _, i in self.letters} if self.colrow.is_column else {i for i, _ in self.letters}
 
     @classmethod
@@ -45,8 +45,8 @@ class Word:
     def crossings(self):
         return self.letters & self.crossword.crossings
 
-    def intersecting_colrows(self):
+    def cross_colrows(self):
         return (
             ColRow(self.crossword, not self.colrow.is_column, index)
-            for index in self._get_indexes_of_intersecting()
+            for index in self._get_indexes_of_crossing_colrows()
         )
