@@ -54,14 +54,14 @@ async def direct_run_routine():
 def direct_run():
     asyncio.run(direct_run_routine())
     
-async def annealing_run_routine():
+async def local_search_routing():
     from asyncio import run
 
-    from .director.simulated_annealing import generate_crossword
+    from .director.local_search import generate_crossword
 
     with catchtime():
         crossword = await generate_crossword(10, 10, 30)
     print_qualities(crossword)
 
-def annealing_run():
-    asyncio.run(annealing_run_routine())
+def local_search_run():
+    asyncio.run(local_search_routing())

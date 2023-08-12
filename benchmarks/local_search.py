@@ -1,11 +1,11 @@
 import asyncio
 from contextlib import suppress
 
-from platyrhynchos.scripts import annealing_run
+from platyrhynchos.scripts import local_search_run
 
 with suppress(ModuleNotFoundError):
     import functiontrace
 
     functiontrace.trace()
 
-annealing_run()
+local_search_run()
