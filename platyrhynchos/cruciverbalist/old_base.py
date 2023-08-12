@@ -8,7 +8,7 @@ from ..crossword.colrow import ColRow
 from ..crossword.improvable import CrosswordImprovable
 
 
-class CruciverbalistBase(ABC):
+class CruciverbalistOldBase(ABC):
     # SAMPLE_SIZE = 100
 
     @abstractmethod

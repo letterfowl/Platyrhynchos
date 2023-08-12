@@ -5,12 +5,12 @@ from typing import Generic, TypeVar, Coroutine, Any
 from ..commons.logger import logger
 from ..commons.utils import random
 from ..crossword import CrosswordImprovable
-from ..cruciverbalist import Cruciverbalist, CruciverbalistBase
+from ..cruciverbalist import Cruciverbalist, CruciverbalistOldBase
 from ..crossword.colrow import ColRow
 
 T = TypeVar("T")
 
-cruciverbalist: CruciverbalistBase = Cruciverbalist()
+cruciverbalist: CruciverbalistOldBase = Cruciverbalist()
 
 
 def goal_function(crossword: CrosswordImprovable, turn: int) -> float:

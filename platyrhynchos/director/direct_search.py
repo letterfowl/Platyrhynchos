@@ -1,8 +1,8 @@
 from ..commons.logger import logger
 from ..crossword import CrosswordImprovable
-from ..cruciverbalist import Cruciverbalist, CruciverbalistBase
+from ..cruciverbalist import Cruciverbalist, CruciverbalistOldBase
 
-cruciverbalist: CruciverbalistBase = Cruciverbalist()
+cruciverbalist: CruciverbalistOldBase = Cruciverbalist()
 
 
 async def generate_crossword(width: int, height: int, word_amount: int) -> CrosswordImprovable:

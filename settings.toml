@@ -13,8 +13,7 @@
     #     diagnose = false
     #     colorize = false
 
-    [default.en_simple]
-        db_file = "en_simple.db"
+    [default.cruciverbalist]
         use_alphabit = true
 
     [default.s3]
