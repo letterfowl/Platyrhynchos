@@ -13,19 +13,29 @@ from .base import Crossword
 
 @dataclass(init=True, repr=True)
 class ColRow:
-    """A reference to the given crossword column or row, compatible with Crossword"""
+    """
+    A reference to the given crossword column or row, compatible with Crossword
+    
+    `ColRow(crossword, True, 0)` is the first column of the crossword ((0, 0), (0, 1), (0, 2), ...)
+    `ColRow(crossword, False, 0)` is the first row of the crossword ((0, 0), (1, 0), (2, 0), ...)
+    """
 
     crossword: Crossword
     is_column: bool
     index: int
 
+    @classmethod
+    def from_coord(cls, crossword: Crossword, coord: Coord) -> tuple[ColRow, ColRow]:
+        """Returns the column and row of the given Coord"""
+        return (cls(crossword, True, coord[0]), cls(crossword, False, coord[1]))
+
     def get_coords(self) -> list[Coord]:
         """Returns `Coord` object in the given ColRow"""
         if self.is_column:
-            max_v = getattr(self.crossword, "max_v", self.crossword.max[1])
+            max_v = self.crossword.max[1]
             return [Coord((self.index, i)) for i in range(max_v)]
         else:
-            max_h = getattr(self.crossword, "max_h", self.crossword.max[0])
+            max_h = self.crossword.max[0]
             return [Coord((i, self.index)) for i in range(max_h)]
 
     def get(self) -> list[str | None]:

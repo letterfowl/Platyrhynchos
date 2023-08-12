@@ -24,6 +24,12 @@ class Crossword:
             tuple(self.words_vertical.items())
         ))
 
+    def get_words(self, coord: Coord) -> tuple[str]:
+        """Returns the words that are at the given coordinate"""
+        return tuple(
+            i for i in self.words if coord in self.words[i]
+        )
+
     @property
     def words(self) -> dict[str, set[Coord]]:
         return self.words_horizontal | self.words_vertical

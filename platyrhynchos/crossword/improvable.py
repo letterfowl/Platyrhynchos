@@ -135,8 +135,8 @@ class CrosswordImprovable(Crossword):
         )
 
     @property
-    def size(self) -> int:
-        return self.max_h * self.max_v
+    def max(self):
+        return self.max_h, self.max_v
 
     def __repr__(self) -> str:
         # size = self.max
