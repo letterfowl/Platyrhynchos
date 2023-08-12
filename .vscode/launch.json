@@ -16,10 +16,10 @@
             },
         },
         {
-            "name": "Simulated Annealing search",
+            "name": "Local search",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/benchmarks/simulated_annealing.py",
+            "program": "${workspaceFolder}/benchmarks/local_search.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "env": {
