@@ -1,11 +1,4 @@
-from tqdm_loggable.auto import tqdm
-
-from ..commons.exceptions import DatabaseException
-from ..commons.logger import logger
-from ..commons.settings import settings
-from ..commons.utils import random
 from ..crossword.colrow import ColRow
-from ..exclusive import download_db
 from .exclusive_word_base import ExclusiveWordBaseCruciverbalist
 from .old_base import CruciverbalistOldBase
 

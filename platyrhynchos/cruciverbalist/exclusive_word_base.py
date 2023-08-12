@@ -1,5 +1,4 @@
 from abc import abstractmethod, ABC
-from .old_base import CruciverbalistOldBase
 from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
 from ..commons.alphabit import Alphabit
 from ..commons.settings import settings
