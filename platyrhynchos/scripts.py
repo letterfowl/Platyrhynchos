@@ -41,8 +41,6 @@ def en_simple_prep():
 
 
 async def direct_run_routine():
-    from asyncio import run
-
     from .director.direct_search import generate_crossword
 
     with catchtime():
@@ -54,9 +52,7 @@ async def direct_run_routine():
 def direct_run():
     asyncio.run(direct_run_routine())
     
-async def local_search_routing():
-    from asyncio import run
-
+async def local_search_routine():
     from .director.local_search import generate_crossword
 
     with catchtime():
@@ -64,4 +60,16 @@ async def local_search_routing():
     print_qualities(crossword)
 
 def local_search_run():
-    asyncio.run(local_search_routing())
+    asyncio.run(local_search_routine())
+
+async def simulated_annealing_routine():
+    from .director.simulated_annealing import SimulatedAnnealingCrosswordSearch
+
+    with catchtime():
+        crossword = await SimulatedAnnealingCrosswordSearch(
+            lambda x: len(x.words) >= 30
+        ).run(10, 10)
+    print_qualities(crossword)
+
+def simulated_annealing_run():
+    asyncio.run(simulated_annealing_routine())
