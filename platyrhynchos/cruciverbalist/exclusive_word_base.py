@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+from typing import Iterable
 from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
 from ..commons.alphabit import Alphabit
 from ..commons.settings import settings
@@ -21,11 +22,12 @@ class ExclusiveWordBaseCruciverbalist(ABC):
     RUN_WITH_ALPHABIT = settings.cruciverbalist["use_alphabit"]
     
     async def select_by_regex(
-        self, regexes: list[str], previous: list[str] | None = None
+        self, regexes: Iterable[str], previous: Iterable[str] | None = None
     ) -> list[str]:
         """
         Select compatible words using regex. It accepts a list of regular expressions and checks all one by one.
         """
+        previous = previous or []
         for i in [i.upper() for i in regexes]:
             if self.RUN_WITH_ALPHABIT:
                 # Returns an alphabit query
@@ -35,9 +37,9 @@ class ExclusiveWordBaseCruciverbalist(ABC):
                     alp.to_query(),
                     alp.as_letters(),
                 )
-                if ret := await get_regex_w_alphabit(i, alp.to_query(), previous):
+                if ret := await get_regex_w_alphabit(i, alp.to_query(), list(previous)):
                     return ret
-            elif ret := await get_regex(i, previous):
+            elif ret := await get_regex(i, list(previous)):
                 return ret
         return []
 
