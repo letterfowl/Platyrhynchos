@@ -1,5 +1,4 @@
-
-from copy import deepcopy
+import asyncio
 from typing import Coroutine, Any
 
 from ..commons.logger import logger
@@ -109,7 +108,7 @@ async def generate_crossword(
             history[addition_colrow.history_id()].add(addition_word)
         else:
             logger.debug("I found both a word to add and a word to remove; I'm comparing them.")
-            removal_test = deepcopy(crossword)
+            removal_test = crossword.copy()
             removal_test.remove(removal_word)
             addition_test = crossword
             addition_test.add(addition_word, addition_colrow)

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from typing import Callable, Iterator, NoReturn, Optional
+from copy import deepcopy
 
 from ..commons.exceptions import TooLargeException, UninsertableException
 from ..commons.misc import ColRowId, Coord, IsColumn, ProxiedDict
@@ -32,6 +33,9 @@ class CrosswordImprovable(Crossword):
             max_v=max_v,
             words_horizontal={word: {Coord((0, i)) for i in range(len(word))}},
         )
+
+    def copy(self):
+        return deepcopy(self)
 
     def check_size(self, horizontal: int, vertical: int) -> NoReturn | None:
         """

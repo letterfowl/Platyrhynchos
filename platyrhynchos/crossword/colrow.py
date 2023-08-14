@@ -7,7 +7,7 @@ from typing import Iterator
 
 from ..commons.exceptions import PartNotFoundException
 from ..commons.logger import logger
-from ..commons.misc import Coord
+from ..commons.misc import Coord, IsColumn, ColRowId
 from .base import Crossword
 
 
@@ -51,9 +51,9 @@ class ColRow:
         vals = "".join(i or ":" for i in self.get())
         return f"{'Col' if self.is_column else 'Row'}({self.index}, {vals})"
 
-    def history_id(self):
+    def history_id(self) -> tuple[IsColumn, ColRowId]:
         """Returns a unique id of the ColRow for a crossword generation task (used in history)"""
-        return (self.is_column, self.index)
+        return (IsColumn(self.is_column), ColRowId(self.index))
 
     @staticmethod
     def _empty_slices(field_vals: list[str | None]) -> list[slice]:
