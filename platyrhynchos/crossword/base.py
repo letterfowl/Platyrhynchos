@@ -1,4 +1,5 @@
 """Base crossword class"""
+from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import cached_property
 from typing import TypeVar
@@ -76,4 +77,5 @@ class Crossword:
             crossings={Coord((j, i)) for (i, j) in self.crossings},
         )
 
-    
+    def copy(self):
+        return deepcopy(self)
