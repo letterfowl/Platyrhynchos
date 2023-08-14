@@ -27,7 +27,7 @@
             },
         },
         {
-            "name": "Local search",
+            "name": "Simulated Annealing",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/benchmarks/simulated_annealing.py",
