@@ -1,7 +1,8 @@
 """Random reusable stuff"""
 from __future__ import annotations
+import bisect
 
-from typing import Any, Callable, NewType, TypeVar
+from typing import Any, Callable, NewType, TypeVar, Generic
 
 T = TypeVar("T")
 T2 = TypeVar("T2")
@@ -9,6 +10,7 @@ T2 = TypeVar("T2")
 Coord = NewType("Coord", tuple[int, int])
 IsColumn = NewType("IsColumn", bool)
 ColRowId = NewType("ColRowId", int)
+WordHistory = NewType("WordHistory", dict[tuple[IsColumn, ColRowId], set[str]])
 
 
 class ProxiedDict(dict):
@@ -35,3 +37,24 @@ class ProxiedDict(dict):
 
     def __hash__(self) -> int:
         return hash(tuple(self.items()))
+
+class HallOfFame(Generic[T]):
+    def __init__(self, n: int):
+        self.n = n
+        self.solutions: list[tuple[float, T]] = []
+
+    def add(self, score: float, solution: T):
+        bisect.insort(self.solutions, (score, solution), key=lambda x: x[0])
+        self.solutions = self.solutions[: self.n]
+
+    def get_best(self) -> list[T]:
+        return [solution for _, solution in self.solutions]
+
+    def get_scores(self) -> list[float]:
+        return [score for score, _ in self.solutions]
+
+    def __iter__(self):
+        return self.get_best()
+
+    def non_empty(self):
+        return bool(self.solutions)

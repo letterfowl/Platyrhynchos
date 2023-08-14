@@ -6,16 +6,19 @@ from ..crossword.word import Word
 from ..crossword.base import Crossword
 from ..commons.misc import Coord
 
-LETTER_FREQ_EN = list("ETAONIHSRLDUCMWYFGPBVKJXQZ"[::-1])
+LETTER_FREQ_EN = list("ETAONIHSRLDUCMWYFGPBVKJXQZ")
 
 
-class LetterFreqEnSimpleCruciverbalist(
+class LetterFreqEnCruciverbalist(
     LocalGoalCruciverbalistBase, ExclusiveWordBaseCruciverbalist
 ):
     """A class for calculating letter frequency in English words for use in crossword puzzles.
 
     This class inherits from LocalGoalCruciverbalistBase and ExclusiveWordBaseCruciverbalist.
     """
+    @property
+    def DB_FILE(self) -> str:
+        return "en_simple.db"
 
     @staticmethod
     def goal_colrow(colrow: ColRow) -> float:
@@ -56,5 +59,5 @@ class LetterFreqEnSimpleCruciverbalist(
         return (
             LETTER_FREQ_EN.index(letter) + 1
             if letter in LETTER_FREQ_EN
-            else len(LETTER_FREQ_EN) + 1
+            else 0
         ) / len(LETTER_FREQ_EN) + 2

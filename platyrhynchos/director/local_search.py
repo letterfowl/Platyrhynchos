@@ -1,14 +1,13 @@
-import asyncio, bisect
+
 from copy import deepcopy
-from typing import Generic, TypeVar, Coroutine, Any
+from typing import Coroutine, Any
 
 from ..commons.logger import logger
 from ..commons.utils import random
+from ..commons.misc import HallOfFame
 from ..crossword import CrosswordImprovable
 from ..cruciverbalist import Cruciverbalist, CruciverbalistOldBase
 from ..crossword.colrow import ColRow
-
-T = TypeVar("T")
 
 cruciverbalist: CruciverbalistOldBase = Cruciverbalist()
 
@@ -21,28 +20,6 @@ def qualifies_for_goal(crossword: CrosswordImprovable, turn: int) -> bool:
     MINIMUM_QUALIFICATION = 0.4
     return goal_function(crossword, turn) > MINIMUM_QUALIFICATION
     # return turn > 100
-
-
-class HallOfFame(Generic[T]):
-    def __init__(self, n: int):
-        self.n = n
-        self.solutions: list[tuple[float, T]] = []
-
-    def add(self, score: float, solution: T):
-        bisect.insort(self.solutions, (score, solution), key=lambda x: x[0])
-        self.solutions = self.solutions[: self.n]
-
-    def get_best(self) -> list[T]:
-        return [solution for _, solution in self.solutions]
-
-    def get_scores(self) -> list[float]:
-        return [score for score, _ in self.solutions]
-
-    def __iter__(self):
-        return self.get_best()
-
-    def non_empty(self):
-        return bool(self.solutions)
 
 
 async def calc_usefulness(

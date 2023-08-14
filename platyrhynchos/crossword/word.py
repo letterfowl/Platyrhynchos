@@ -7,6 +7,7 @@ from .base import Crossword
 from .colrow import ColRow
 from ..commons.misc import Coord
 from ..commons.exceptions import WordNotFoundError
+from ..crossword.improvable import CrosswordImprovable
 
 
 @dataclass
@@ -65,3 +66,9 @@ class Word:
             ColRow(self.crossword, not self.colrow.is_column, index)
             for index in self._get_indexes_of_crossing_colrows()
         )
+
+    def die(self):
+        if isinstance(self.crossword, CrosswordImprovable):
+            self.crossword.remove(self.word)
+        else:
+            raise NotImplementedError("Removing words only available in CrosswordImprovable class")

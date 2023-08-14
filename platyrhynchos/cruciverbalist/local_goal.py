@@ -57,7 +57,7 @@ class LocalGoalCruciverbalistBase(ABC):
         Returns the goal value for the given colrow. This will be added to the field goal before approximation.
         """
 
-    def __init__(self, crossword: Crossword) -> None:
+    def __init__(self, crossword: Crossword | None = None) -> None:
         """
         Initializes a LocalGoalCruciverbalistBase object.
         """
@@ -75,6 +75,8 @@ class LocalGoalCruciverbalistBase(ABC):
         Returns:
         The raw value for the field at the given coordinate.
         """
+        if self.crossword is None:
+            raise ValueError("Crossword not set")
         words = (
             Word.from_crossword(self.crossword, i)
             for i in self.crossword.get_words(coord)
@@ -124,6 +126,8 @@ class LocalGoalCruciverbalistBase(ABC):
         Returns:
         The goal value for the given word.
         """
+        if self.crossword is None:
+            raise ValueError("Crossword not set")
         return sum(self.get_goal_field(i) for i in self.crossword.words[word])
 
     def get_goal_colrow(self, colrow: ColRow) -> float:
@@ -149,6 +153,8 @@ class LocalGoalCruciverbalistBase(ABC):
         """
         Iterates over all words in the crossword starting with the worst ones.
         """
+        if self.crossword is None:
+            raise ValueError("Crossword not set")
         words = [
             Word.from_crossword(self.crossword, word) for word in self.crossword.words
         ]
@@ -158,4 +164,14 @@ class LocalGoalCruciverbalistBase(ABC):
         """
         Iterates over all colrows in the crossword starting with the worst ones.
         """
+        if self.crossword is None:
+            raise ValueError("Crossword not set")
         yield from sorted(ColRow.iter(self.crossword), key=self.goal_colrow)
+
+    def iter_fields(self) -> Iterator[Coord]:
+        """
+        Iterates over all fields in the crossword starting with the worst ones.
+        """
+        if self.crossword is None:
+            raise ValueError("Crossword not set")
+        yield from sorted(self.crossword.letters.keys(), key=self.get_goal_field)
