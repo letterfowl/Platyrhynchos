@@ -38,6 +38,10 @@ class ColRow:
             max_h = self.crossword.max[0]
             return [Coord((i, self.index)) for i in range(max_h)]
 
+    @property
+    def length(self) -> int:
+        return self.crossword.max[1 if self.is_column else 0]
+
     def get(self) -> list[str | None]:
         """Returns list of letters in the given ColRow, Nones are inserted where no letter was found"""
         return [self.crossword.letters.get(i) for i in self.get_coords()]

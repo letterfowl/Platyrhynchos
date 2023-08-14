@@ -8,6 +8,10 @@ from .crossword.improvable import CrosswordImprovable
 
 from time import perf_counter
 
+WIDTH = 15
+LENGTH = 10
+WORDS = 40
+
 class catchtime:
     def __enter__(self):
         self.time = perf_counter()
@@ -44,7 +48,7 @@ async def direct_run_routine():
     from .director.direct_search import generate_crossword
 
     with catchtime():
-        crossword = await generate_crossword(10, 10, 12)
+        crossword = await generate_crossword(WIDTH, LENGTH, WORDS)
     print_qualities(crossword)
     
 
@@ -56,7 +60,7 @@ async def local_search_routine():
     from .director.local_search import generate_crossword
 
     with catchtime():
-        crossword = await generate_crossword(10, 10, 30)
+        crossword = await generate_crossword(WIDTH, LENGTH, WORDS)
     print_qualities(crossword)
 
 def local_search_run():
@@ -67,8 +71,8 @@ async def simulated_annealing_routine():
 
     with catchtime():
         crossword = await SimulatedAnnealingCrosswordSearch(
-            lambda x: len(x.words) >= 30
-        ).run(10, 10)
+            lambda x: len(x.crossings) / len(x.letters) > 0.4 and len(x.letters) / x.size > 0.8
+        ).run(WIDTH, LENGTH)
     print_qualities(crossword)
 
 def simulated_annealing_run():

@@ -30,7 +30,7 @@ class LetterFreqEnCruciverbalist(
         Returns:
             float: The calculated goal value.
         """
-        return 1 / (sum(i is not None for i in colrow.get()) + 1)
+        return sum(i is not None for i in colrow.get()) / colrow.length + len(list(colrow.cross_words())) / colrow.length
 
     @staticmethod
     def goal_word(word: Word) -> float:

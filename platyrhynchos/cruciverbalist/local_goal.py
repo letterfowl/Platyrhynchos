@@ -21,6 +21,7 @@ def avg(iterable):
     Returns:
     The average of the iterable.
     """
+    iterable = list(iterable)
     return sum(iterable) / len(iterable)
 
 
@@ -116,7 +117,7 @@ class LocalGoalCruciverbalistBase(ABC):
             + random.random()
         )
 
-    def get_goal_word(self, word: str) -> float:
+    def get_goal_word(self, word: str | Word) -> float:
         """
         Returns the goal value for the given word.
 
@@ -126,6 +127,8 @@ class LocalGoalCruciverbalistBase(ABC):
         Returns:
         The goal value for the given word.
         """
+        if isinstance(word, Word):
+            word = word.word
         if self.crossword is None:
             raise ValueError("Crossword not set")
         return sum(self.get_goal_field(i) for i in self.crossword.words[word])
@@ -147,7 +150,7 @@ class LocalGoalCruciverbalistBase(ABC):
         """
         Returns the goal value for the whole crossword.
         """
-        return sum(self.get_goal_field(i) for i in self.crossword.letters.keys())
+        return sum(self.raw_get(i) for i in self.crossword.letters.keys())
 
     def iter_words(self) -> Iterator[Word]:
         """
@@ -158,7 +161,7 @@ class LocalGoalCruciverbalistBase(ABC):
         words = [
             Word.from_crossword(self.crossword, word) for word in self.crossword.words
         ]
-        yield from sorted(words, key=self.goal_word)
+        yield from sorted(words, key=self.get_goal_word)
 
     def iter_colrows(self) -> Iterator[ColRow]:
         """
@@ -166,7 +169,7 @@ class LocalGoalCruciverbalistBase(ABC):
         """
         if self.crossword is None:
             raise ValueError("Crossword not set")
-        yield from sorted(ColRow.iter(self.crossword), key=self.goal_colrow)
+        yield from sorted(ColRow.iter(self.crossword), key=self.get_goal_colrow)
 
     def iter_fields(self) -> Iterator[Coord]:
         """

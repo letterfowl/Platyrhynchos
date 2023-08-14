@@ -1,6 +1,7 @@
 from contextlib import suppress
 from os import remove
 from os.path import isfile
+from typing import Optional
 from tempfile import NamedTemporaryFile, _TemporaryFileWrapper
 
 import duckdb
@@ -19,7 +20,6 @@ except ImportError:
     boto3 = None
 
 _db_path = app_dir("user_cache_dir", "words.db")
-
 
 def cursor_execute(sql, **kwargs):
     cursor = duckdb.connect(database=_db_path).cursor()
@@ -80,24 +80,24 @@ def _get_from_s3(file):
 
 
 @convert_result_to_list
-async def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = None):
-    if previous is None:
+async def get_regex_w_alphabit(regex: str, alphabit: str, previous: Optional[list[str]] = None,  word_amount: int = 20):
+    if previous is None or len(previous)==0:
         previous = ["'A'"]
     else:
         previous = [f"'{i}'" for i in previous]
     return cursor_execute(
-        f"select answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)}) limit 20"
+        f"select distinct answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)}) limit {word_amount}"
     )
 
 
 @convert_result_to_list
-async def get_regex(regex: str, previous: list[str] = []):
-    if previous is None:
+async def get_regex(regex: str, previous: Optional[list[str]] = None, word_amount: int = 20):
+    if previous is None or len(previous)==0:
         previous = ["'A'"]
     else:
         previous = [f"'{i}'" for i in previous]
     return cursor_execute(
-        f"select answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous)}) limit 20"
+        f"select distinct answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous)}) limit {word_amount}"
     )
 
 
