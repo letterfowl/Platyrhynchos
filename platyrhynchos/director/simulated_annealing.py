@@ -3,7 +3,6 @@
 """
 import asyncio
 from dataclasses import dataclass
-from functools import cached_property
 from typing import Iterable, Type, Callable
 from ..cruciverbalist.letter_frequency_en import LetterFreqEnCruciverbalist
 from ..crossword.base import Crossword
@@ -159,6 +158,7 @@ class SimulatedAnnealingCrosswordSearch:
         """
         element_count = min(calculate_elements(turn), len(crossword.letters))
         return retrieve_elements(cruciverbalist.iter_fields(), element_count)
+
 
     async def run(self, width: int, height: int) -> CrosswordImprovable:
         """

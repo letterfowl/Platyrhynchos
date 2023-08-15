@@ -22,7 +22,7 @@ pyodide.registerJsModule("_stuff", _stuff);
 await test_connection;
 const crossword = await pyodide.runPythonAsync(`
     from platyrhynchos.director.direct_search import generate_crossword
-    from platyrhynchos.cruciverbalist.en_simple import get_regex_w_alphabit
+    from platyrhynchos.exclusive import get_regex_w_alphabit
 
     if await get_regex_w_alphabit(".+", "11111111111111111111111111", []):
         print("Connection to DB via Pyodide successful!")
