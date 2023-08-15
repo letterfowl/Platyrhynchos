@@ -11,7 +11,6 @@
     # [default.logs]
     #     level = "INFO"
     #     diagnose = false
-    #     colorize = false
 
     [default.cruciverbalist]
         use_alphabit = true

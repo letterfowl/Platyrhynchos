@@ -54,6 +54,7 @@ def download_db(file):
 
 
 def _get_from_s3(file):
+    """Download `file` from S3. Requires ENV variables to be set."""
     logger.info("Downloading database")
     assert settings.s3.region and settings.s3.endpoint and settings.s3.bucket, "S3 settings not set"
     assert settings.s3_key_id and settings.s3_key_secret, "S3 credentials not set"

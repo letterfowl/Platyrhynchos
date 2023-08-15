@@ -5,6 +5,27 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Remote Attach",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "."
+                }
+            ],
+            "justMyCode": true
+        },
+        {
+            "type": "firefox",
+            "request": "attach",
+            "name": "Attach to Firefox",
+        },
+        {
             "name": "Direct search",
             "type": "python",
             "request": "launch",
@@ -47,24 +68,31 @@
             "envFile": "${workspaceFolder}/.env"
         },
         {
-            "name": "Launch Firefox",
-            "type": "firefox",
+            "type": "node",
             "request": "launch",
-            "reAttach": true,
-            "url": "http://localhost:5500/deploy/index.html",
-            "tabFilter": "http://localhost:5500/*",
-            "webRoot": "${workspaceFolder}",
-            "reloadOnChange": {
-                "watch": "${workspaceFolder}/**/*",
-                "ignore": "**/node_modules/**"
-            }
+            "name": "Webpack serve",
+            "program": "node_modules/.bin/webpack-cli",
+            "args": [
+                "serve",
+                "--config",
+                "webpack.config.js"
+            ],
+            "cwd": "${workspaceFolder}/app",
+            "autoAttachChildProcesses": true,
+            "stopOnEntry": true
         },
         {
-            "name": "Launch Chrome",
+            "type": "node",
             "request": "launch",
-            "type": "chrome",
-            "urlFilter": "http://localhost:5500/*",
-            "webRoot": "${workspaceFolder}"
-        },
+            "name": "Webpack build",
+            "program": "node_modules/.bin/webpack-cli",
+            "args": [
+                "--config",
+                "webpack.config.js"
+            ],
+            "cwd": "${workspaceFolder}/app",
+            "autoAttachChildProcesses": true,
+            "stopOnEntry": true
+        }
     ]
 }
