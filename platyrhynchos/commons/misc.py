@@ -1,8 +1,8 @@
 """Random reusable stuff"""
 from __future__ import annotations
-import bisect
 
-from typing import Any, Callable, NewType, TypeVar, Generic
+import bisect
+from typing import Any, Callable, Generic, NewType, TypeVar
 
 T = TypeVar("T")
 T2 = TypeVar("T2")
@@ -37,6 +37,7 @@ class ProxiedDict(dict):
 
     def __hash__(self) -> int:
         return hash(tuple(self.items()))
+
 
 class HallOfFame(Generic[T]):
     def __init__(self, n: int):

@@ -7,7 +7,7 @@ from typing import Iterator
 
 from ..commons.exceptions import PartNotFoundException
 from ..commons.logger import logger
-from ..commons.misc import Coord, IsColumn, ColRowId
+from ..commons.misc import ColRowId, Coord, IsColumn
 from .base import Crossword
 
 
@@ -15,7 +15,7 @@ from .base import Crossword
 class ColRow:
     """
     A reference to the given crossword column or row, compatible with Crossword
-    
+
     `ColRow(crossword, True, 0)` is the first column of the crossword ((0, 0), (0, 1), (0, 2), ...)
     `ColRow(crossword, False, 0)` is the first row of the crossword ((0, 0), (1, 0), (2, 0), ...)
     """

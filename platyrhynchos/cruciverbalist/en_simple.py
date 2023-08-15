@@ -2,6 +2,7 @@ from ..crossword.colrow import ColRow
 from .exclusive_word_base import ExclusiveWordBaseCruciverbalist
 from .old_base import CruciverbalistOldBase
 
+
 class EnglishSimpleCruciverbalist(ExclusiveWordBaseCruciverbalist, CruciverbalistOldBase):
     @property
     def DB_FILE(self) -> str:

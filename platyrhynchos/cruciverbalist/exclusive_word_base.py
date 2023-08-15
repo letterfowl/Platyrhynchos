@@ -1,10 +1,12 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from typing import Iterable
-from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
+
 from ..commons.alphabit import Alphabit
-from ..commons.settings import settings
-from ..commons.logger import logger
 from ..commons.exceptions import DatabaseException
+from ..commons.logger import logger
+from ..commons.settings import settings
+from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
+
 
 class ExclusiveWordBaseCruciverbalist(ABC):
     """An abstract Cruciverbalist that uses the database imported from the exclusive module."""
@@ -18,9 +20,9 @@ class ExclusiveWordBaseCruciverbalist(ABC):
     @abstractmethod
     def DB_FILE(self) -> str:
         """The path to the database file."""
-    
+
     RUN_WITH_ALPHABIT = settings.cruciverbalist["use_alphabit"]
-    
+
     async def select_by_regex(
         self, regexes: Iterable[str], previous: Iterable[str] | None = None, word_amount: int = 20
     ) -> list[str]:

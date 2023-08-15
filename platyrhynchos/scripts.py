@@ -2,15 +2,15 @@
 import asyncio
 from contextlib import suppress
 from os import remove as remove_file
+from time import perf_counter
 
 from .commons.utils import app_dir
 from .crossword.improvable import CrosswordImprovable
 
-from time import perf_counter
-
 WIDTH = 15
 LENGTH = 10
 WORDS = 40
+
 
 class catchtime:
     def __enter__(self):
@@ -19,7 +19,7 @@ class catchtime:
 
     def __exit__(self, type, value, traceback):
         self.time = perf_counter() - self.time
-        self.readout = f'Time: {self.time:.3f} seconds'
+        self.readout = f"Time: {self.time:.3f} seconds"
         print(self.readout)
 
 
@@ -50,12 +50,12 @@ async def direct_run_routine():
     with catchtime():
         crossword = await generate_crossword(WIDTH, LENGTH, WORDS)
     print_qualities(crossword)
-    
 
 
 def direct_run():
     asyncio.run(direct_run_routine())
-    
+
+
 async def local_search_routine():
     from .director.local_search import generate_crossword
 
@@ -63,8 +63,10 @@ async def local_search_routine():
         crossword = await generate_crossword(WIDTH, LENGTH, WORDS)
     print_qualities(crossword)
 
+
 def local_search_run():
     asyncio.run(local_search_routine())
+
 
 async def simulated_annealing_routine():
     from .director.simulated_annealing import SimulatedAnnealingCrosswordSearch
@@ -74,6 +76,7 @@ async def simulated_annealing_routine():
             lambda x: len(x.crossings) / len(x.letters) > 0.4 and len(x.letters) / x.size > 0.8
         ).run(WIDTH, LENGTH)
     print_qualities(crossword)
+
 
 def simulated_annealing_run():
     asyncio.run(simulated_annealing_routine())
