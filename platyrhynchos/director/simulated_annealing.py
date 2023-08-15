@@ -159,7 +159,6 @@ class SimulatedAnnealingCrosswordSearch:
         element_count = min(calculate_elements(turn), len(crossword.letters))
         return retrieve_elements(cruciverbalist.iter_fields(), element_count)
 
-
     async def run(self, width: int, height: int) -> CrosswordImprovable:
         """
         Runs the simulated annealing search to find a solution to the crossword puzzle.
