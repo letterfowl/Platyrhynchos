@@ -5,13 +5,14 @@ from ..cruciverbalist import Cruciverbalist, CruciverbalistBase
 cruciverbalist: CruciverbalistBase = Cruciverbalist()
 
 
-async def generate_crossword(width: int, height: int, word_amount: int) -> str:
+async def generate_crossword(width: int, height: int, word_amount: int) -> CrosswordImprovable:
+    """Generate a crossword with the given specifications."""
     logger.info("I'm starting crossword generation. Requested size is {}x{} with {} words", width, height, word_amount)
     start_word = await cruciverbalist.start_word(min(width, height))
     logger.info("Found word: {}", start_word)
     crossword = CrosswordImprovable.make(start_word, width, height)
     # logger.debug("Crossword:\n"+str(crossword))
-    logger.info("I found a start word: {}", start_word)
+    logger.info("Starting crossword with {}", start_word)
 
     while len(crossword.words) < word_amount:
         word, colrow = await cruciverbalist.choose_and_fill(crossword)
