@@ -4,9 +4,10 @@ This module contains an abstract Cruciverbalist based on approximating the goal 
 
 from abc import ABC, abstractmethod
 from typing import Iterator
-from ..crossword.base import Crossword
+
 from ..commons.misc import Coord
 from ..commons.utils import random
+from ..crossword.base import Crossword
 from ..crossword.colrow import ColRow
 from ..crossword.word import Word
 
@@ -78,10 +79,7 @@ class LocalGoalCruciverbalistBase(ABC):
         """
         if self.crossword is None:
             raise ValueError("Crossword not set")
-        words = (
-            Word.from_crossword(self.crossword, i)
-            for i in self.crossword.get_words(coord)
-        )
+        words = (Word.from_crossword(self.crossword, i) for i in self.crossword.get_words(coord))
         column, row = ColRow.from_coord(self.crossword, coord)
         if coord not in self.get_raw_cache:
             self.get_raw_cache[coord] = (
@@ -102,18 +100,10 @@ class LocalGoalCruciverbalistBase(ABC):
         Returns:
         The goal value for the field at the given coordinate.
         """
-        neighbour_rows = range(
-            max(0, coord[-1] - 1), min(self.crossword.max[-1], coord[-1] + 1) + 1
-        )
-        neighbour_cols = range(
-            max(0, coord[0] - 1), min(self.crossword.max[0], coord[0] + 1) + 1
-        )
+        neighbour_rows = range(max(0, coord[-1] - 1), min(self.crossword.max[-1], coord[-1] + 1) + 1)
+        neighbour_cols = range(max(0, coord[0] - 1), min(self.crossword.max[0], coord[0] + 1) + 1)
         return (
-            avg(
-                self.raw_get((col, row))  # type: ignore
-                for col in neighbour_cols
-                for row in neighbour_rows
-            )
+            avg(self.raw_get((col, row)) for col in neighbour_cols for row in neighbour_rows)  # type: ignore
             + random.random()
         )
 
@@ -158,9 +148,7 @@ class LocalGoalCruciverbalistBase(ABC):
         """
         if self.crossword is None:
             raise ValueError("Crossword not set")
-        words = [
-            Word.from_crossword(self.crossword, word) for word in self.crossword.words
-        ]
+        words = [Word.from_crossword(self.crossword, word) for word in self.crossword.words]
         yield from sorted(words, key=self.get_goal_word)
 
     def iter_colrows(self) -> Iterator[ColRow]:

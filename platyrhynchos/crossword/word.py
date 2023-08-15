@@ -1,13 +1,14 @@
 """Word wrapper over the ColRow and Crossword class"""
 from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Iterable
 
+from ..commons.exceptions import WordNotFoundError
+from ..commons.misc import Coord
+from ..crossword.improvable import CrosswordImprovable
 from .base import Crossword
 from .colrow import ColRow
-from ..commons.misc import Coord
-from ..commons.exceptions import WordNotFoundError
-from ..crossword.improvable import CrosswordImprovable
 
 
 @dataclass
@@ -18,11 +19,7 @@ class Word:
     letters: set[Coord]
 
     def _get_indexes_of_crossing_colrows(self) -> set[int]:
-        return (
-            {i for _, i in self.letters}
-            if self.colrow.is_column
-            else {i for i, _ in self.letters}
-        )
+        return {i for _, i in self.letters} if self.colrow.is_column else {i for i, _ in self.letters}
 
     @classmethod
     def from_crossword(cls, crossword: Crossword, word: str) -> Word:

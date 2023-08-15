@@ -30,6 +30,7 @@ class DatabaseException(Exception):
 
     pass
 
+
 class WordNotFoundError(CrosswordException):
     """Word not found in crossword"""
 

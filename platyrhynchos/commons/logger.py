@@ -9,6 +9,7 @@ from loguru import logger
 from .settings import settings
 from .utils import app_dir
 
+
 class InterceptHandler(logging.Handler):
     def emit(self, record):
         # Get corresponding Loguru level if it exists.
@@ -27,4 +28,4 @@ class InterceptHandler(logging.Handler):
 
 
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
-logger.add(app_dir('user_log_path')+"/log.log", retention="1 day")
+logger.add(app_dir("user_log_path") + "/log.log", retention="1 day")

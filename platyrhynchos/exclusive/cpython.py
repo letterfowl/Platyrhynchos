@@ -1,8 +1,8 @@
 from contextlib import suppress
 from os import remove
 from os.path import isfile
-from typing import Optional
 from tempfile import NamedTemporaryFile, _TemporaryFileWrapper
+from typing import Optional
 
 import duckdb
 import requests
@@ -20,6 +20,7 @@ except ImportError:
     boto3 = None
 
 _db_path = app_dir("user_cache_dir", "words.db")
+
 
 def cursor_execute(sql, **kwargs):
     cursor = duckdb.connect(database=_db_path).cursor()
@@ -80,8 +81,8 @@ def _get_from_s3(file):
 
 
 @convert_result_to_list
-async def get_regex_w_alphabit(regex: str, alphabit: str, previous: Optional[list[str]] = None,  word_amount: int = 20):
-    if previous is None or len(previous)==0:
+async def get_regex_w_alphabit(regex: str, alphabit: str, previous: Optional[list[str]] = None, word_amount: int = 20):
+    if previous is None or len(previous) == 0:
         previous = ["'A'"]
     else:
         previous = [f"'{i}'" for i in previous]
@@ -92,7 +93,7 @@ async def get_regex_w_alphabit(regex: str, alphabit: str, previous: Optional[lis
 
 @convert_result_to_list
 async def get_regex(regex: str, previous: Optional[list[str]] = None, word_amount: int = 20):
-    if previous is None or len(previous)==0:
+    if previous is None or len(previous) == 0:
         previous = ["'A'"]
     else:
         previous = [f"'{i}'" for i in previous]

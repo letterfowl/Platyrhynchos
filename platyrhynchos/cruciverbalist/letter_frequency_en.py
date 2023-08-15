@@ -1,21 +1,20 @@
 """Contains a class for calculating letter frequency in English words for use in crossword puzzles."""
-from .local_goal import LocalGoalCruciverbalistBase
-from .exclusive_word_base import ExclusiveWordBaseCruciverbalist
+from ..commons.misc import Coord
+from ..crossword.base import Crossword
 from ..crossword.colrow import ColRow
 from ..crossword.word import Word
-from ..crossword.base import Crossword
-from ..commons.misc import Coord
+from .exclusive_word_base import ExclusiveWordBaseCruciverbalist
+from .local_goal import LocalGoalCruciverbalistBase
 
 LETTER_FREQ_EN = list("ETAONIHSRLDUCMWYFGPBVKJXQZ")
 
 
-class LetterFreqEnCruciverbalist(
-    LocalGoalCruciverbalistBase, ExclusiveWordBaseCruciverbalist
-):
+class LetterFreqEnCruciverbalist(LocalGoalCruciverbalistBase, ExclusiveWordBaseCruciverbalist):
     """A class for calculating letter frequency in English words for use in crossword puzzles.
 
     This class inherits from LocalGoalCruciverbalistBase and ExclusiveWordBaseCruciverbalist.
     """
+
     @property
     def DB_FILE(self) -> str:
         return "en_simple.db"
@@ -30,7 +29,9 @@ class LetterFreqEnCruciverbalist(
         Returns:
             float: The calculated goal value.
         """
-        return sum(i is not None for i in colrow.get()) / colrow.length + len(list(colrow.cross_words())) / colrow.length
+        return (
+            sum(i is not None for i in colrow.get()) / colrow.length + len(list(colrow.cross_words())) / colrow.length
+        )
 
     @staticmethod
     def goal_word(word: Word) -> float:
@@ -56,8 +57,4 @@ class LetterFreqEnCruciverbalist(
             float: The calculated goal value.
         """
         letter = crossword.letters.get(coord, None)
-        return (
-            LETTER_FREQ_EN.index(letter) + 1
-            if letter in LETTER_FREQ_EN
-            else 0
-        ) / len(LETTER_FREQ_EN) + 2
+        return (LETTER_FREQ_EN.index(letter) + 1 if letter in LETTER_FREQ_EN else 0) / len(LETTER_FREQ_EN) + 2
