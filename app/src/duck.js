@@ -64,20 +64,26 @@ export async function prepare_functions() {
   return {
     db: db,
 
-    get_regex_w_alphabit: async function(regex, alphabit, previous = null) {
-      previous = ["'A'"] || previous.map(i => `'${i}'`);
-      const sql = `select answer from en_simple where bit_count('${alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '${regex}') and length(answer) > 1 and length(answer) > 1 and answer not in (${previous.join(',')}) sample 20`;
+    get_regex_w_alphabit: async function(regex, alphabit, previous, limit = 20) {
+      previous = previous.map(i => `'${i}'`);
+      if (previous.length == 0) {
+        previous = ["'A'"];
+      }
+      const sql = `select distinct answer from en_simple where bit_count('${alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '${regex}') and length(answer) > 1 and length(answer) > 1 and answer not in (${previous.join(',')}) order by random() limit ${limit}`;
       return await runSQL(db, sql).then(db => db.map(i => i.answer));
     },
     
-    get_regex: async function(regex, previous = []) {
-      previous = ["'A'"] || previous.map(i => `'${i}'`);
-      const sql = `select answer from en_simple where regexp_matches(answer, '${regex}') and length(answer) > 1 and answer not in (${previous.join(',')}) sample 20`;
+    get_regex: async function(regex, previous, limit = 20) {
+      previous = previous.map(i => `'${i}'`);
+      if (previous.length == 0) {
+        previous = ["'A'"];
+      }
+      const sql = `select distinct answer from en_simple where regexp_matches(answer, '${regex}') and length(answer) > 1 and answer not in (${previous.join(',')}) order by random() limit ${limit}`;
       return await runSQL(db, sql).then(db => db.map(i => i.answer));
     },
     
     get_random: async function(max_size) {
-      const sql = `select answer from en_simple where length(answer) > 1 and length(answer) < ${max_size} using sample 1`;
+      const sql = `select distinct answer from en_simple where length(answer) > 1 and length(answer) < ${max_size} order by random() limit 1`;
       return await runSQL(db, sql).then(db => db.map(i => i.answer));
     }
   }

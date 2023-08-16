@@ -8,13 +8,13 @@ from math import log
 from typing import Callable, Iterable, Type
 
 from ..commons.logger import logger
-from ..commons.misc import Coord, WordHistory
+from ..commons.misc import Coord, WordHistory, ColRowId
 from ..crossword.base import Crossword
 from ..crossword.colrow import ColRow
 from ..crossword.improvable import CrosswordImprovable
 from ..cruciverbalist.letter_frequency_en import LetterFreqEnCruciverbalist
 
-BAD_WORD_THRESHOLD = 0.5
+BAD_WORD_THRESHOLD = 0.3
 GROWTH_CUTTER = 10
 GROWTH_BASE = 0.2
 
@@ -65,7 +65,7 @@ class SimulatedAnnealingCrosswordSearch:
         logger.info("I added the start word: {}", start_word)
         return crossword, history
 
-    async def _disjoint_add_words(self, colrow: ColRow, colrow_history: set[str]) -> list[CrosswordImprovable]:
+    async def _disjoint_add_words(self, colrow: ColRow, colrow_history: set[str]) -> list[tuple[CrosswordImprovable, ColRowId, str]]:
         """
         Adds words to a ColRow object that do not intersect with any existing words in the ColRow.
 
@@ -77,7 +77,7 @@ class SimulatedAnnealingCrosswordSearch:
         A list of CrosswordImprovable objects with the added words.
         """
         words = await self.cruciverbalist(colrow.crossword).select_by_regex(
-            colrow.yield_regexes(), colrow_history, word_amount=3
+            colrow.yield_regexes(), list(colrow_history), word_amount=3
         )
 
         crosswords = []
@@ -85,12 +85,12 @@ class SimulatedAnnealingCrosswordSearch:
             logger.debug("I'm testing the addition of {}", word)
             crossword: CrosswordImprovable = colrow.crossword.copy()  # type: ignore
             crossword.add(word, colrow.history_id())
-            crosswords.append(crossword)
+            crosswords.append((crossword, colrow, word))
         return crosswords
 
     async def _find_word_for_field(
         self, crossword: CrosswordImprovable, field: Coord, history: WordHistory
-    ) -> CrosswordImprovable | None:
+    ) -> tuple[CrosswordImprovable, ColRowId, str] | tuple[None, None, None]:
         """
         Finds a word to add to a given field in the crossword puzzle.
 
@@ -111,13 +111,13 @@ class SimulatedAnnealingCrosswordSearch:
             self._disjoint_add_words(row, blocked_row),
         )
         if len(col_proposals) + len(row_proposals) == 0:
-            return None
+            return None, None, None
         return max(
             col_proposals + row_proposals,
-            key=lambda x: self.cruciverbalist(x).get_goal_crossword(),
+            key=lambda x: self.cruciverbalist(x[0]).get_goal_crossword(),
         )
 
-    async def try_word_addition(self, find_words_tasks, current_goal: float) -> CrosswordImprovable | None:
+    async def try_word_addition(self, find_words_tasks, current_goal: float) -> tuple[CrosswordImprovable, ColRowId, str] | tuple[None, None, None]:
         """
         Tries to add a word to the crossword puzzle from a list of tasks that find words for fields.
 
@@ -129,15 +129,15 @@ class SimulatedAnnealingCrosswordSearch:
         A CrosswordImprovable object with the added word, or None if no word can be added.
         """
         while find_words_tasks:
-            result = await find_words_tasks.pop(0)
+            result, colrow, word = await find_words_tasks.pop(0)
             if result is None:
                 continue
             result_goal = self.cruciverbalist(result).get_goal_crossword()
             if result_goal >= current_goal:
                 for task in find_words_tasks:
                     task.close()
-                return result
-        return None
+                return result, colrow, word
+        return None, None, None
 
     @staticmethod
     def _get_fields_to_check_for_additions(
@@ -181,17 +181,23 @@ class SimulatedAnnealingCrosswordSearch:
 
             fields = self._get_fields_to_check_for_additions(crossword, cruciverbalist, turn)
             find_words_tasks = [self._find_word_for_field(crossword, i, history) for i in fields]
-            result = await self.try_word_addition(find_words_tasks, cruciverbalist.get_goal_crossword())
-            if result is not None:
+            result, colrow, word = await self.try_word_addition(find_words_tasks, cruciverbalist.get_goal_crossword())
+            if result is not None and word is not None and colrow is not None:
+                assert word not in history[colrow.history_id()]
                 logger.success(
                     "I added words to the crossword: {}", "; ".join(set(result.words).difference(crossword.words))
                 )
+                history[colrow.history_id()].add(word)
                 crossword = result
             else:
                 logger.debug("I didn't find any words to add, trying to remove")
                 # worst = next(cruciverbalist.iter_words())
                 # logger.debug("Worst word: {} (goal:{})", worst.word, cruciverbalist.get_goal_word(worst) / len(worst.word))
-                bad_words = (i for i in cruciverbalist.iter_words() if cruciverbalist.goal_word(i) < BAD_WORD_THRESHOLD)
+                bad_words = (
+                    i
+                    for i in cruciverbalist.iter_words()
+                    if cruciverbalist.goal_word(i) < BAD_WORD_THRESHOLD
+                )
                 word_to_remove = next(bad_words, None)
                 if word_to_remove is not None:
                     logger.warning("I'm removing the word {}", word_to_remove.word)

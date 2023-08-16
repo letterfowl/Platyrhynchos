@@ -24,7 +24,7 @@ class ExclusiveWordBaseCruciverbalist(ABC):
     RUN_WITH_ALPHABIT = settings.cruciverbalist["use_alphabit"]
 
     async def select_by_regex(
-        self, regexes: Iterable[str], previous: Iterable[str] | None = None, word_amount: int = 20
+        self, regexes: Iterable[str], previous: list[str] | None = None, word_amount: int = 20
     ) -> list[str]:
         """
         Select compatible words using regex. It accepts a list of regular expressions and checks all one by one.
@@ -39,9 +39,9 @@ class ExclusiveWordBaseCruciverbalist(ABC):
                     alp.to_query(),
                     alp.as_letters(),
                 )
-                if ret := await get_regex_w_alphabit(i, alp.to_query(), list(previous), word_amount):
+                if ret := await get_regex_w_alphabit(i, alp.to_query(), previous, word_amount):
                     return ret
-            elif ret := await get_regex(i, list(previous), word_amount):
+            elif ret := await get_regex(i, previous, word_amount):
                 return ret
         return []
 

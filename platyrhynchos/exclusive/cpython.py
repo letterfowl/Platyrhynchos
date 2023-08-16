@@ -88,7 +88,7 @@ async def get_regex_w_alphabit(regex: str, alphabit: str, previous: Optional[lis
     else:
         previous = [f"'{i}'" for i in previous]
     return cursor_execute(
-        f"select distinct answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)}) limit {word_amount}"
+        f"select distinct answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)}) order by random() limit {word_amount}"
     )
 
 
@@ -99,10 +99,10 @@ async def get_regex(regex: str, previous: Optional[list[str]] = None, word_amoun
     else:
         previous = [f"'{i}'" for i in previous]
     return cursor_execute(
-        f"select distinct answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous)}) limit {word_amount}"
+        f"select distinct answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous)}) order by random() limit {word_amount}"
     )
 
 
 @convert_result_to_list
 async def get_random(max_size: int):
-    return cursor_execute(f"select answer from clues where length(answer) > 1 and length(answer) < {max_size} limit 1")
+    return cursor_execute(f"select answer from clues where length(answer) > 1 and length(answer) < {max_size} order by random() limit 1")

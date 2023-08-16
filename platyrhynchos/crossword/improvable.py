@@ -1,10 +1,11 @@
 """Implements the improvable crossword class"""
 from __future__ import annotations
+from contextlib import suppress
 
 from typing import Callable, Iterator, NoReturn, Optional
 
 from ..commons.exceptions import TooLargeException, UninsertableException
-from ..commons.misc import ColRowId, Coord, IsColumn, ProxiedDict
+from ..commons.misc import ColRowIndex, Coord, IsColumn, ProxiedDict
 from .base import Crossword
 from .colrow import ColRow
 from .exolve_template import EXOLVE_TEMPLATE, Template, char_for_grid
@@ -94,16 +95,17 @@ class CrosswordImprovable(Crossword):
         )
 
     def print_rich_grid(self):
-        from rich import print as rich_print
+        with suppress(ImportError):
+            from rich import print as rich_print
 
-        def _get_coord(h, v):
-            coord = Coord((h, v))
-            v = self.letters.get(coord, "[gray]:[/gray]")
-            if coord in self.crossings:
-                v = f"[green]{v}[/green]"
-            return v
+            def _get_coord(h, v):
+                coord = Coord((h, v))
+                v = self.letters.get(coord, "[gray]:[/gray]")
+                if coord in self.crossings:
+                    v = f"[green]{v}[/green]"
+                return v
 
-        rich_print("\n".join("".join(_get_coord(h, v) for h in range(self.max_h)) for v in range(self.max_v)))
+            rich_print("\n".join("".join(_get_coord(h, v) for h in range(self.max_h)) for v in range(self.max_v)))
 
     def as_exolve(self) -> str:
         """
@@ -136,7 +138,7 @@ class CrosswordImprovable(Crossword):
         self.words_horizontal, self.words_vertical = new_horizontal, new_vertical
         self.crossings = {Coord((j, i)) for (i, j) in self.crossings}
 
-    def colrow(self, is_column: IsColumn, nth: ColRowId) -> ColRow:
+    def colrow(self, is_column: IsColumn, nth: ColRowIndex) -> ColRow:
         """
         Gets ColRow object
 
@@ -160,7 +162,7 @@ class CrosswordImprovable(Crossword):
         """Iterate over all colrows in the crossword that are not full."""
         yield from ColRow.iter_not_full(self)
 
-    def add(self, word: str, colrow: ColRow | tuple[IsColumn, ColRowId]):
+    def add(self, word: str, colrow: ColRow | tuple[IsColumn, ColRowIndex]):
         """
         Adds a word to the crossword row/column. It requires a possible intersection. Works in place.
 

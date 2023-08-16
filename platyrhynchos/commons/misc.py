@@ -9,8 +9,9 @@ T2 = TypeVar("T2")
 
 Coord = NewType("Coord", tuple[int, int])
 IsColumn = NewType("IsColumn", bool)
-ColRowId = NewType("ColRowId", int)
-WordHistory = NewType("WordHistory", dict[tuple[IsColumn, ColRowId], set[str]])
+ColRowIndex = NewType("ColRowId", int)
+ColRowId = NewType("ColRowId", tuple[IsColumn, ColRowIndex])
+WordHistory = NewType("WordHistory", dict[ColRowId, set[str]])
 
 
 class ProxiedDict(dict):

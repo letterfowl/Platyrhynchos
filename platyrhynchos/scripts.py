@@ -73,9 +73,10 @@ async def simulated_annealing_routine():
 
     with catchtime():
         crossword = await SimulatedAnnealingCrosswordSearch(
-            lambda x: len(x.crossings) / len(x.letters) > 0.4 and len(x.letters) / x.size > 0.8
+            lambda x: len(x.crossings) / len(x.letters) > 0.35 and len(x.letters) / x.size > 0.8
         ).run(WIDTH, LENGTH)
     print_qualities(crossword)
+    return crossword
 
 
 def simulated_annealing_run():
