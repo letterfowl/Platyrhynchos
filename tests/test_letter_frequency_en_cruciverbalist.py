@@ -1,9 +1,11 @@
 import pytest
-from platyrhynchos.cruciverbalist.letter_frequency_en import LetterFreqEnCruciverbalist
-from platyrhynchos.crossword.improvable import CrosswordImprovable
+
 from platyrhynchos.commons.misc import Coord
 from platyrhynchos.crossword.colrow import ColRow
+from platyrhynchos.crossword.improvable import CrosswordImprovable
 from platyrhynchos.crossword.word import Word
+from platyrhynchos.cruciverbalist.letter_frequency_en import LetterFreqEnCruciverbalist
+
 
 @pytest.fixture
 def crossword1():
@@ -22,12 +24,10 @@ class TestLetterFrequencyEnCruciverbalist:
         colrow = next(crossword1.iter_colrows())
         assert lfe.goal_colrow(colrow) == 0
 
-
     def test_letter_frequency_en_cruciverbalist_goal_word(self, crossword1: CrosswordImprovable):
         lfe = LetterFreqEnCruciverbalist()
         word = Word.from_crossword(crossword1, "ext")
         assert lfe.goal_word(word) == pytest.approx(0.3, abs=0.04)
-
 
     def test_letter_frequency_en_cruciverbalist_goal_field(self, crossword1: CrosswordImprovable):
         lfe = LetterFreqEnCruciverbalist()
@@ -35,4 +35,4 @@ class TestLetterFrequencyEnCruciverbalist:
         assert lfe.goal_field(crossword1, coord) == 0
 
         coord = Coord((0, 1))
-        assert lfe.goal_field(crossword1, coord) == pytest.approx(1/28)
+        assert lfe.goal_field(crossword1, coord) == pytest.approx(1 / 28)

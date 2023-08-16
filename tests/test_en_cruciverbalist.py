@@ -4,9 +4,9 @@ import pytest
 
 from platyrhynchos import CrosswordImprovable
 from platyrhynchos.commons.alphabit import MAX_ALPHABIT, Alphabit
+from platyrhynchos.commons.exceptions import DatabaseException
 from platyrhynchos.cruciverbalist.en_simple import EnglishSimpleCruciverbalist
 from platyrhynchos.exclusive.cpython import cursor_execute
-from platyrhynchos.commons.exceptions import DatabaseException
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -149,8 +149,8 @@ class TestEnSimpleFindWord:
         t, _ = await cruciverbalist.find_word(crossword1.colrow(False, 3))
         assert len(t) <= 7
 
+
 class TestExclusiveWordBase:
-    
     @pytest.mark.asyncio
     async def test_select_by_regex_empty(self, cruciverbalist: EnglishSimpleCruciverbalist):
         assert await cruciverbalist.select_by_regex([], []) == []
