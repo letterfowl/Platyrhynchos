@@ -115,8 +115,8 @@ class CrosswordImprovable(Crossword):
         # pylint: disable=unpacking-non-sequence
         size_x, size_y = self.max
         return EXOLVE_TEMPLATE.substitute(
-            width=size_x + 1,
-            height=size_y + 1,
+            width=size_x,
+            height=size_y,
             grid=self.as_exolve_grid(empty_field=".", sep="\n    ", coder=char_for_grid),
         )
 

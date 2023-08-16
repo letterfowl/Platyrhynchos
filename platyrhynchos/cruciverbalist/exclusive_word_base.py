@@ -39,7 +39,7 @@ class ExclusiveWordBaseCruciverbalist(ABC):
                     alp.to_query(),
                     alp.as_letters(),
                 )
-                if ret := await get_regex_w_alphabit(i, alp.to_query(), previous, word_amount):
+                if ret := await get_regex_w_alphabit(i, alp.to_query(), ",".join(previous), word_amount):
                     return ret
             elif ret := await get_regex(i, previous, word_amount):
                 return ret

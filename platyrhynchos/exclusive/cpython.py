@@ -82,24 +82,24 @@ def _get_from_s3(file):
 
 
 @convert_result_to_list
-async def get_regex_w_alphabit(regex: str, alphabit: str, previous: Optional[list[str]] = None, word_amount: int = 20):
-    if previous is None or len(previous) == 0:
-        previous = ["'A'"]
+async def get_regex_w_alphabit(regex: str, alphabit: str, previous: str, word_amount: int = 20):
+    if previous is None or not previous:
+        previous_formatted = ["'A'"]
     else:
-        previous = [f"'{i}'" for i in previous]
+        previous_formatted = [f"'{i}'" for i in previous.split(",")]
     return cursor_execute(
-        f"select distinct answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)}) order by random() limit {word_amount}"
+        f"select distinct answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous_formatted)}) order by random() limit {word_amount}"
     )
 
 
 @convert_result_to_list
-async def get_regex(regex: str, previous: Optional[list[str]] = None, word_amount: int = 20):
-    if previous is None or len(previous) == 0:
-        previous = ["'A'"]
+async def get_regex(regex: str, previous: str, word_amount: int = 20):
+    if previous is None or not previous:
+        previous_formatted = ["'A'"]
     else:
-        previous = [f"'{i}'" for i in previous]
+        previous_formatted = [f"'{i}'" for i in previous.split(",")]
     return cursor_execute(
-        f"select distinct answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous)}) order by random() limit {word_amount}"
+        f"select distinct answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous_formatted)}) order by random() limit {word_amount}"
     )
 
 

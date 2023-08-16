@@ -65,20 +65,28 @@ export async function prepare_functions() {
     db: db,
 
     get_regex_w_alphabit: async function(regex, alphabit, previous, limit = 20) {
-      previous = previous.map(i => `'${i}'`);
-      if (previous.length == 0) {
-        previous = ["'A'"];
+      const formatted_previous = previous.split(',').map(i => `'${i}'`).join(',');
+      let not_in_statement;
+      if (formatted_previous.length == 0) {
+        not_in_statement = "";
       }
-      const sql = `select distinct answer from en_simple where bit_count('${alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '${regex}') and length(answer) > 1 and length(answer) > 1 and answer not in (${previous.join(',')}) order by random() limit ${limit}`;
+      else {
+        not_in_statement = `and answer not in (${formatted_previous})`;
+      }
+      const sql = `select distinct answer from en_simple where bit_count('${alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '${regex}') and length(answer) > 1 and length(answer) > 1 ${not_in_statement} order by random() limit ${limit}`;
       return await runSQL(db, sql).then(db => db.map(i => i.answer));
     },
     
     get_regex: async function(regex, previous, limit = 20) {
-      previous = previous.map(i => `'${i}'`);
-      if (previous.length == 0) {
-        previous = ["'A'"];
+      const formatted_previous = previous.split(',').map(i => `'${i}'`).join(',');
+      let not_in_statement;
+      if (formatted_previous.length == 0) {
+        not_in_statement = "";
       }
-      const sql = `select distinct answer from en_simple where regexp_matches(answer, '${regex}') and length(answer) > 1 and answer not in (${previous.join(',')}) order by random() limit ${limit}`;
+      else {
+        not_in_statement = `and answer not in (${formatted_previous})`;
+      }
+      const sql = `select distinct answer from en_simple where regexp_matches(answer, '${regex}') and length(answer) > 1 ${not_in_statement} order by random() limit ${limit}`;
       return await runSQL(db, sql).then(db => db.map(i => i.answer));
     },
     
