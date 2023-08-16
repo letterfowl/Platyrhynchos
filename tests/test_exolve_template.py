@@ -4,7 +4,7 @@ from platyrhynchos.crossword.exolve_template import char_for_grid
 
 
 @pytest.mark.parametrize(
-    "char, expected", [("-", "-!"), ("$", "$!"), (" ", "❈!"), ("A", "A"), ("1", "1"), ("%", "%"), ("❈", "❈")]
+    "char, expected", [("-", "-!"), ("$", "$!"), (" ", "#!"), ("A", "A"), ("1", "1"), ("%", "%")]
 )
 def test_char_for_grid(char, expected):
     """

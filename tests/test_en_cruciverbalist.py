@@ -59,6 +59,33 @@ class TestDB:
         regex = cursor_execute(r"select answer from clues where regexp_matches(answer, '^A')")
         assert set(no_regex) == set(regex)
 
+    @pytest.mark.asyncio
+    async def test_select_by_regex_w_alphabit(self, cruciverbalist: EnglishSimpleCruciverbalist):
+        cruciverbalist.RUN_WITH_ALPHABIT = True
+        words = await cruciverbalist.select_by_regex(["^RESOR."], [], 10)
+        assert "RESORT" in words
+        assert "RESORTS" in words
+        assert all(i.startswith("RESOR") for i in words)
+
+    @pytest.mark.asyncio
+    async def test_select_by_regex_wo_alphabit(self, cruciverbalist: EnglishSimpleCruciverbalist):
+        cruciverbalist.RUN_WITH_ALPHABIT = False
+        words = await cruciverbalist.select_by_regex(["^RESOR."], [], 10)
+        assert "RESORT" in words
+        assert "RESORTS" in words
+        assert all(i.startswith("RESOR") for i in words)
+
+    @pytest.mark.asyncio
+    async def test_select_by_regex_wo_alphabit_exclude(self, cruciverbalist: EnglishSimpleCruciverbalist):
+        cruciverbalist.RUN_WITH_ALPHABIT = False
+        words = await cruciverbalist.select_by_regex(["^RESOR."], ["RESORT"], 10)
+        assert "RESORT" not in words
+        assert "RESORTS" in words
+        assert all(i.startswith("RESOR") for i in words)
+
+    @pytest.mark.asyncio 
+    async def test_select_random(self, cruciverbalist: EnglishSimpleCruciverbalist):
+        assert isinstance(await cruciverbalist.start_word(20), str)
 
 class TestAlphabit:
     def test_single_z(self):
