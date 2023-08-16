@@ -83,9 +83,10 @@ class TestDB:
         assert "RESORTS" in words
         assert all(i.startswith("RESOR") for i in words)
 
-    @pytest.mark.asyncio 
+    @pytest.mark.asyncio
     async def test_select_random(self, cruciverbalist: EnglishSimpleCruciverbalist):
         assert isinstance(await cruciverbalist.start_word(20), str)
+
 
 class TestAlphabit:
     def test_single_z(self):
