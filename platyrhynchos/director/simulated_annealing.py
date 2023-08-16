@@ -8,7 +8,7 @@ from math import log
 from typing import Callable, Iterable, Type
 
 from ..commons.logger import logger
-from ..commons.misc import Coord, WordHistory, ColRowId
+from ..commons.misc import ColRowId, Coord, WordHistory
 from ..crossword.base import Crossword
 from ..crossword.colrow import ColRow
 from ..crossword.improvable import CrosswordImprovable
@@ -65,7 +65,9 @@ class SimulatedAnnealingCrosswordSearch:
         logger.info("I added the start word: {}", start_word)
         return crossword, history
 
-    async def _disjoint_add_words(self, colrow: ColRow, colrow_history: set[str]) -> list[tuple[CrosswordImprovable, ColRowId, str]]:
+    async def _disjoint_add_words(
+        self, colrow: ColRow, colrow_history: set[str]
+    ) -> list[tuple[CrosswordImprovable, ColRowId, str]]:
         """
         Adds words to a ColRow object that do not intersect with any existing words in the ColRow.
 
@@ -117,7 +119,9 @@ class SimulatedAnnealingCrosswordSearch:
             key=lambda x: self.cruciverbalist(x[0]).get_goal_crossword(),
         )
 
-    async def try_word_addition(self, find_words_tasks, current_goal: float) -> tuple[CrosswordImprovable, ColRowId, str] | tuple[None, None, None]:
+    async def try_word_addition(
+        self, find_words_tasks, current_goal: float
+    ) -> tuple[CrosswordImprovable, ColRowId, str] | tuple[None, None, None]:
         """
         Tries to add a word to the crossword puzzle from a list of tasks that find words for fields.
 
@@ -193,11 +197,7 @@ class SimulatedAnnealingCrosswordSearch:
                 logger.debug("I didn't find any words to add, trying to remove")
                 # worst = next(cruciverbalist.iter_words())
                 # logger.debug("Worst word: {} (goal:{})", worst.word, cruciverbalist.get_goal_word(worst) / len(worst.word))
-                bad_words = (
-                    i
-                    for i in cruciverbalist.iter_words()
-                    if cruciverbalist.goal_word(i) < BAD_WORD_THRESHOLD
-                )
+                bad_words = (i for i in cruciverbalist.iter_words() if cruciverbalist.goal_word(i) < BAD_WORD_THRESHOLD)
                 word_to_remove = next(bad_words, None)
                 if word_to_remove is not None:
                     logger.warning("I'm removing the word {}", word_to_remove.word)

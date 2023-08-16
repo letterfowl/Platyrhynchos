@@ -7,7 +7,7 @@ from typing import Iterator
 
 from ..commons.exceptions import PartNotFoundException
 from ..commons.logger import logger
-from ..commons.misc import ColRowIndex, Coord, IsColumn, ColRowId
+from ..commons.misc import ColRowId, ColRowIndex, Coord, IsColumn
 from .base import Crossword
 
 

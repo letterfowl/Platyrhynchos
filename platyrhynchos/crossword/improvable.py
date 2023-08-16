@@ -1,7 +1,7 @@
 """Implements the improvable crossword class"""
 from __future__ import annotations
-from contextlib import suppress
 
+from contextlib import suppress
 from typing import Callable, Iterator, NoReturn, Optional
 
 from ..commons.exceptions import TooLargeException, UninsertableException

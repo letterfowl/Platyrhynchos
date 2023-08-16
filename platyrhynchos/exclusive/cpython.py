@@ -105,4 +105,6 @@ async def get_regex(regex: str, previous: Optional[list[str]] = None, word_amoun
 
 @convert_result_to_list
 async def get_random(max_size: int):
-    return cursor_execute(f"select answer from clues where length(answer) > 1 and length(answer) < {max_size} order by random() limit 1")
+    return cursor_execute(
+        f"select answer from clues where length(answer) > 1 and length(answer) < {max_size} order by random() limit 1"
+    )
