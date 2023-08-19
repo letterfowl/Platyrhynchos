@@ -8,6 +8,7 @@ from typing import Iterator
 from ..commons.exceptions import PartNotFoundException
 from ..commons.logger import logger
 from ..commons.misc import ColRowId, ColRowIndex, Coord, IsColumn
+from ..commons.utils import random
 from .base import Crossword
 
 
@@ -184,15 +185,15 @@ class ColRow:
             for i in range(len(field_vals) - len(word) + 1)
             if all(field_vals[n + i] is None or field_vals[n + i] == letter for n, letter in part_letters)
         ]
-        found = max(
+        found = random.choices(
             offsets,
-            key=lambda i: sum(field_vals[n + i] == letter for n, letter in part_letters),
-            default=None,
+            [1+sum(field_vals[n + i] == letter for n, letter in part_letters) for i in offsets],
+            k=1
         )
-        if found is None:
+        if len(found) == 0:
             raise PartNotFoundException(f"Couldn't locate {word} in {field_vals}")
         else:
-            return found
+            return found[0]
 
     def cross_words(self) -> Iterator[tuple[str, set[Coord]]]:
         """Yields words that colide with ColRow with their coordinate sets"""
