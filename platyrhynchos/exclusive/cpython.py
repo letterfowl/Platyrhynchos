@@ -24,11 +24,7 @@ _db_path = app_dir("user_cache_dir", "words.db")
 
 def cursor_execute(sql, **kwargs):
     cursor = duckdb.connect(database=_db_path).cursor()
-    res = (
-        cursor.execute(sql, kwargs).fetchall()
-        if kwargs
-        else cursor.execute(sql).fetchall()
-    )
+    res = cursor.execute(sql, kwargs).fetchall() if kwargs else cursor.execute(sql).fetchall()
     cursor.close()
     return res
 
@@ -60,9 +56,7 @@ def download_db(file):
 def _get_from_s3(file):
     """Download `file` from S3. Requires ENV variables to be set."""
     logger.info("Downloading database")
-    assert (
-        settings.s3.region and settings.s3.endpoint and settings.s3.bucket
-    ), "S3 settings not set"
+    assert settings.s3.region and settings.s3.endpoint and settings.s3.bucket, "S3 settings not set"
     assert settings.s3_key_id and settings.s3_key_secret, "S3 credentials not set"
     s3_client = boto3.client(
         "s3",
@@ -71,9 +65,7 @@ def _get_from_s3(file):
         aws_access_key_id=settings.s3_key_id,
         aws_secret_access_key=settings.s3_key_secret,
     )
-    size = s3_client.head_object(Bucket=settings.s3.bucket, Key=file).get(
-        "ContentLength"
-    )
+    size = s3_client.head_object(Bucket=settings.s3.bucket, Key=file).get("ContentLength")
     with tqdm(
         total=size,
         unit="B",
@@ -90,9 +82,7 @@ def _get_from_s3(file):
 
 
 @convert_result_to_list
-async def get_regex_w_alphabit(
-    regex: str, alphabit: str, previous: str, word_amount: int = 20
-):
+async def get_regex_w_alphabit(regex: str, alphabit: str, previous: str, word_amount: int = 20):
     if previous is None or not previous:
         previous_formatted = ["'A'"]
     else:
@@ -118,6 +108,7 @@ async def get_random(max_size: int):
     return cursor_execute(
         f"select answer from clues where length(answer) > 1 and length(answer) < {max_size} order by random() limit 1"
     )
+
 
 async def find_clues(words: list[str]):
     """

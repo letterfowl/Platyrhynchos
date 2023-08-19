@@ -46,9 +46,7 @@ class SimulatedAnnealingCrosswordSearch:
     is_finished: Callable[[Crossword], bool]
     cruciverbalist: Type[LetterFreqEnCruciverbalist] = LetterFreqEnCruciverbalist
 
-    async def _init_crossword(
-        self, width: int, height: int
-    ) -> tuple[CrosswordImprovable, WordHistory]:
+    async def _init_crossword(self, width: int, height: int) -> tuple[CrosswordImprovable, WordHistory]:
         """
         Initializes a crossword puzzle with a start word and returns the crossword and its history.
 
@@ -185,15 +183,9 @@ class SimulatedAnnealingCrosswordSearch:
 
             cruciverbalist = self.cruciverbalist(crossword)
 
-            fields = self._get_fields_to_check_for_additions(
-                crossword, cruciverbalist, turn
-            )
-            find_words_tasks = [
-                self._find_word_for_field(crossword, i, history) for i in fields
-            ]
-            result, colrow, word = await self.try_word_addition(
-                find_words_tasks, cruciverbalist.get_goal_crossword()
-            )
+            fields = self._get_fields_to_check_for_additions(crossword, cruciverbalist, turn)
+            find_words_tasks = [self._find_word_for_field(crossword, i, history) for i in fields]
+            result, colrow, word = await self.try_word_addition(find_words_tasks, cruciverbalist.get_goal_crossword())
             if result is not None and word is not None and colrow is not None:
                 assert word not in history[colrow.history_id()]
                 logger.success(
@@ -206,11 +198,7 @@ class SimulatedAnnealingCrosswordSearch:
                 logger.debug("I didn't find any words to add, trying to remove")
                 # worst = next(cruciverbalist.iter_words())
                 # logger.debug("Worst word: {} (goal:{})", worst.word, cruciverbalist.get_goal_word(worst) / len(worst.word))
-                bad_words = (
-                    i
-                    for i in cruciverbalist.iter_words()
-                    if cruciverbalist.goal_word(i) < BAD_WORD_THRESHOLD
-                )
+                bad_words = (i for i in cruciverbalist.iter_words() if cruciverbalist.goal_word(i) < BAD_WORD_THRESHOLD)
                 word_to_remove = next(bad_words, None)
                 if word_to_remove is not None:
                     logger.warning("I'm removing the word {}", word_to_remove.word)
@@ -228,7 +216,8 @@ class SimulatedAnnealingCrosswordSearch:
         logger.success("I'm done!")
         return crossword
 
-    async def gen_react_readable(self,
+    async def gen_react_readable(
+        self,
         crossword: CrosswordImprovable,
     ) -> dict[str, dict[int, dict[str, str | int]]]:
         """Generate a react-readable representation of the crossword puzzle.
@@ -241,23 +230,23 @@ class SimulatedAnnealingCrosswordSearch:
             along with their corresponding clues, answers, and positions.
         """
         clues = await self.cruciverbalist(crossword).get_clues(list(crossword.words))
-        vertical: dict[int, dict[str, str|int]] = {
-                num: {
-                    "answer": word,
-                    "clue": clues[word],
-                    "row": min(i[0] for i in fields),
-                    "column": min(i[1] for i in fields),
-                }
-                for num, (word, fields) in enumerate(crossword.words_vertical.items(), start=1)
+        vertical: dict[int, dict[str, str | int]] = {
+            num: {
+                "answer": word,
+                "clue": clues[word],
+                "row": min(i[0] for i in fields),
+                "column": min(i[1] for i in fields),
+            }
+            for num, (word, fields) in enumerate(crossword.words_vertical.items(), start=1)
         }
-        horizontal: dict[int, dict[str, str|int]] = {
-                num: {
-                    "answer": word,
-                    "clue": clues[word],
-                    "row": min(i[0] for i in fields),
-                    "column": min(i[1] for i in fields),
-                }
-                for num, (word, fields) in enumerate(crossword.words_horizontal.items(), start=len(vertical) + 1)
+        horizontal: dict[int, dict[str, str | int]] = {
+            num: {
+                "answer": word,
+                "clue": clues[word],
+                "row": min(i[0] for i in fields),
+                "column": min(i[1] for i in fields),
+            }
+            for num, (word, fields) in enumerate(crossword.words_horizontal.items(), start=len(vertical) + 1)
         }
         return {
             "vertical": vertical,

@@ -5,7 +5,7 @@ from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
 from ..commons.logger import logger
 from ..commons.settings import settings
-from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit, find_clues
+from ..exclusive import download_db, find_clues, get_random, get_regex, get_regex_w_alphabit
 
 
 class ExclusiveWordBaseCruciverbalist(ABC):
@@ -56,4 +56,4 @@ class ExclusiveWordBaseCruciverbalist(ABC):
         return found_words[0]
 
     async def get_clues(self, words: list[str]) -> dict[str, str]:
-        return {i:j for i, j in await find_clues(words)}
+        return {i: j for i, j in await find_clues(words)}
