@@ -186,9 +186,7 @@ class ColRow:
             if all(field_vals[n + i] is None or field_vals[n + i] == letter for n, letter in part_letters)
         ]
         found = random.choices(
-            offsets,
-            [1+sum(field_vals[n + i] == letter for n, letter in part_letters) for i in offsets],
-            k=1
+            offsets, [1 + sum(field_vals[n + i] == letter for n, letter in part_letters) for i in offsets], k=1
         )
         if len(found) == 0:
             raise PartNotFoundException(f"Couldn't locate {word} in {field_vals}")
