@@ -72,11 +72,12 @@ async def simulated_annealing_routine():
     from .director.simulated_annealing import SimulatedAnnealingCrosswordSearch
 
     with catchtime():
-        crossword = await SimulatedAnnealingCrosswordSearch(
+        crossword_generator = SimulatedAnnealingCrosswordSearch(
             lambda x: len(x.crossings) / len(x.letters) > 0.35 and len(x.letters) / x.size > 0.8
-        ).run(WIDTH, LENGTH)
+        )
+        crossword = await crossword_generator.run(WIDTH, LENGTH)
     print_qualities(crossword)
-    return crossword
+    return await crossword_generator.get_react_readable(crossword)
 
 
 def simulated_annealing_run():

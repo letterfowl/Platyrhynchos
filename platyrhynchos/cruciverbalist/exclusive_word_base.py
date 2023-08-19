@@ -5,7 +5,7 @@ from ..commons.alphabit import Alphabit
 from ..commons.exceptions import DatabaseException
 from ..commons.logger import logger
 from ..commons.settings import settings
-from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit
+from ..exclusive import download_db, get_random, get_regex, get_regex_w_alphabit, find_clues
 
 
 class ExclusiveWordBaseCruciverbalist(ABC):
@@ -54,3 +54,6 @@ class ExclusiveWordBaseCruciverbalist(ABC):
         if found_words is None:
             raise DatabaseException("Couldn't find any words.")
         return found_words[0]
+
+    async def get_clues(self, words: list[str]) -> dict[str, str]:
+        return {i:j for i, j in await find_clues(words)}
