@@ -95,7 +95,7 @@ class CrosswordImprovable(Crossword):
         )
 
     def print_rich_grid(self):
-        with suppress(ImportError):
+        try:
             from rich import print as rich_print
 
             def _get_coord(h, v):
@@ -106,6 +106,8 @@ class CrosswordImprovable(Crossword):
                 return v
 
             rich_print("\n".join("".join(_get_coord(h, v) for h in range(self.max_h)) for v in range(self.max_v)))
+        except ImportError:
+            print(self.as_exolve_grid())
 
     def as_exolve(self) -> str:
         """

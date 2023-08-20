@@ -234,8 +234,8 @@ class SimulatedAnnealingCrosswordSearch:
             num: {
                 "answer": word,
                 "clue": clues[word],
-                "row": min(i[0] for i in fields),
-                "column": min(i[1] for i in fields),
+                "row": min(i[1] for i in fields),
+                "col": min(i[0] for i in fields),
             }
             for num, (word, fields) in enumerate(crossword.words_vertical.items(), start=1)
         }
@@ -243,8 +243,8 @@ class SimulatedAnnealingCrosswordSearch:
             num: {
                 "answer": word,
                 "clue": clues[word],
-                "row": min(i[0] for i in fields),
-                "column": min(i[1] for i in fields),
+                "row": min(i[1] for i in fields),
+                "col": min(i[0] for i in fields),
             }
             for num, (word, fields) in enumerate(crossword.words_horizontal.items(), start=len(vertical) + 1)
         }

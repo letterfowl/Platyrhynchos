@@ -27,7 +27,6 @@ def print_qualities(crossword: CrosswordImprovable):
     """Prints the most important information about the crossword"""
     crossword.print_rich_grid()
     print("\n", "Words:", *list(crossword.words.keys()), sep="\n")
-    print()
     print("Density:", len(crossword.letters) / crossword.size)
     print("Words:", len(crossword.words))
     print("Crossings:", len(crossword.crossings))
