@@ -37,6 +37,28 @@
             },
         },
         {
+            "name": "Local search",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/benchmarks/local_search.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "ENV_FOR_DYNACONF": "development"
+            },
+        },
+        {
+            "name": "Simulated Annealing",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/benchmarks/simulated_annealing.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "ENV_FOR_DYNACONF": "development"
+            },
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",

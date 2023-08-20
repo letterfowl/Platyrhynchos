@@ -1,8 +1,8 @@
 from ..commons.logger import logger
 from ..crossword import CrosswordImprovable
-from ..cruciverbalist import Cruciverbalist, CruciverbalistBase
+from ..cruciverbalist import Cruciverbalist, CruciverbalistOldBase
 
-cruciverbalist: CruciverbalistBase = Cruciverbalist()
+cruciverbalist: CruciverbalistOldBase = Cruciverbalist()
 
 
 async def generate_crossword(width: int, height: int, word_amount: int) -> CrosswordImprovable:
@@ -21,7 +21,7 @@ async def generate_crossword(width: int, height: int, word_amount: int) -> Cross
             break
         logger.info("I'm adding {} to {}", word, colrow)
         crossword.add(word, colrow)  # type: ignore
-        logger.debug("Crossword:\n" + str(crossword))
+        # logger.debug("Crossword:\n" + str(crossword))
     else:
         logger.success("I finished generating the crossword with requested specifications.")
     return crossword

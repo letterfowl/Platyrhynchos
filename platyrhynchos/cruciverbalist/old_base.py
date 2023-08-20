@@ -1,3 +1,4 @@
+import bisect
 from abc import ABC, abstractmethod
 from typing import Iterable, Iterator
 
@@ -7,7 +8,7 @@ from ..crossword.colrow import ColRow
 from ..crossword.improvable import CrosswordImprovable
 
 
-class CruciverbalistBase(ABC):
+class CruciverbalistOldBase(ABC):
     # SAMPLE_SIZE = 100
 
     @abstractmethod
@@ -15,7 +16,7 @@ class CruciverbalistBase(ABC):
         return
 
     def choose_colrows(self, crossword: CrosswordImprovable) -> Iterator[ColRow]:
-        col_rows = crossword.iter_colrows()
+        col_rows = crossword.iter_not_full_colrows()
         yield from sorted(col_rows, key=self.eval_colrow, reverse=True)
 
     @abstractmethod
@@ -33,8 +34,10 @@ class CruciverbalistBase(ABC):
     def _eval_word(self, word: str, colrow: ColRow) -> tuple[str, int]:
         return word, self.eval_word(word, colrow)
 
-    async def find_words(self, colrow: ColRow) -> list[tuple[str, ColRow]]:
-        words = await self.select_by_regex(list(colrow.yield_regexes()), colrow.crossword.words.keys())
+    async def find_words(self, colrow: ColRow, old_words: Iterable[str] = ()) -> list[tuple[str, ColRow]]:
+        words = await self.select_by_regex(
+            list(colrow.yield_regexes()), list({*colrow.crossword.words.keys(), *old_words})
+        )
         # if self.SAMPLE_SIZE is not None and self.SAMPLE_SIZE < len(words):
         #     words = random.sample(words, self.SAMPLE_SIZE)
 
@@ -58,3 +61,10 @@ class CruciverbalistBase(ABC):
     async def choose_and_fill(self, crossword: CrosswordImprovable) -> tuple[str | None, ColRow | None]:
         colrows = self.choose_colrows(crossword)
         return await self.find_word(colrows)
+
+    async def find_removable_words(self, colrow: ColRow):
+        """Find words that can be removed from a colrow."""
+        results: list[tuple[float, str]] = []
+        for word, intersections in colrow.removables():
+            bisect.insort(results, (len(word) / (intersections + 1), word), key=lambda x: x[0])
+        return [(word, colrow) for _, word in results]

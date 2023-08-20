@@ -28,3 +28,4 @@ class InterceptHandler(logging.Handler):
 
 
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+logger.add(app_dir("user_log_path") + "/log.log", retention="1 day")

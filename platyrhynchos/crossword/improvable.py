@@ -1,10 +1,11 @@
 """Implements the improvable crossword class"""
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import Callable, Iterator, NoReturn, Optional
 
 from ..commons.exceptions import TooLargeException, UninsertableException
-from ..commons.misc import ColRowId, Coord, IsColumn, ProxiedDict
+from ..commons.misc import ColRowIndex, Coord, IsColumn, ProxiedDict
 from .base import Crossword
 from .colrow import ColRow
 from .exolve_template import EXOLVE_TEMPLATE, Template, char_for_grid
@@ -15,8 +16,8 @@ EXOLVE_TEMPLATE: Template
 class CrosswordImprovable(Crossword):
     """Crossword subclass used to implement the "smart" insertion algorithm."""
 
-    @staticmethod
-    def make(word: str, max_h: int, max_v: Optional[int] = None) -> CrosswordImprovable:
+    @classmethod
+    def make(cls, word: str, max_h: int, max_v: Optional[int] = None) -> CrosswordImprovable:
         """
         Creates a one word crossword.
 
@@ -26,7 +27,7 @@ class CrosswordImprovable(Crossword):
             max_v -- maximum rows (default: {None})
         """
         max_v = max_v or max_h
-        return CrosswordImprovable(
+        return cls(
             letters={Coord((i, 0)): j for i, j in enumerate(word)},
             max_h=max_h,
             max_v=max_v,
@@ -80,13 +81,31 @@ class CrosswordImprovable(Crossword):
             crossings,
         )
 
-    def as_exolve_grid(self, empty_field: str = ":", sep: str = "\n", coder: Callable[[str], str] = lambda x: x) -> str:
+    def as_exolve_grid(
+        self,
+        empty_field: str = ":",
+        sep: str = "\n",
+        coder: Callable[[str], str] = lambda x: x,
+    ) -> str:
         """Returns a grid representation of the crossword"""
 
         return sep.join(
             "".join((coder(self.letters.get(Coord((h, v)), empty_field)) for h in range(self.max_h)))
             for v in range(self.max_v)
         )
+
+    def print_rich_grid(self):
+        with suppress(ImportError):
+            from rich import print as rich_print
+
+            def _get_coord(h, v):
+                coord = Coord((h, v))
+                v = self.letters.get(coord, "[gray]:[/gray]")
+                if coord in self.crossings:
+                    v = f"[green]{v}[/green]"
+                return v
+
+            rich_print("\n".join("".join(_get_coord(h, v) for h in range(self.max_h)) for v in range(self.max_v)))
 
     def as_exolve(self) -> str:
         """
@@ -96,10 +115,14 @@ class CrosswordImprovable(Crossword):
         # pylint: disable=unpacking-non-sequence
         size_x, size_y = self.max
         return EXOLVE_TEMPLATE.substitute(
-            width=size_x + 1,
-            height=size_y + 1,
+            width=size_x,
+            height=size_y,
             grid=self.as_exolve_grid(empty_field=".", sep="\n    ", coder=char_for_grid),
         )
+
+    @property
+    def max(self):
+        return self.max_h, self.max_v
 
     def __repr__(self) -> str:
         # size = self.max
@@ -115,7 +138,7 @@ class CrosswordImprovable(Crossword):
         self.words_horizontal, self.words_vertical = new_horizontal, new_vertical
         self.crossings = {Coord((j, i)) for (i, j) in self.crossings}
 
-    def colrow(self, is_column: IsColumn, nth: ColRowId) -> ColRow:
+    def colrow(self, is_column: IsColumn, nth: ColRowIndex) -> ColRow:
         """
         Gets ColRow object
 
@@ -135,7 +158,11 @@ class CrosswordImprovable(Crossword):
         """Iterate over all colrows in the crossword."""
         yield from ColRow.iter(self)
 
-    def add(self, word: str, colrow: ColRow | tuple[IsColumn, ColRowId]):
+    def iter_not_full_colrows(self) -> Iterator[ColRow]:
+        """Iterate over all colrows in the crossword that are not full."""
+        yield from ColRow.iter_not_full(self)
+
+    def add(self, word: str, colrow: ColRow | tuple[IsColumn, ColRowIndex]):
         """
         Adds a word to the crossword row/column. It requires a possible intersection. Works in place.
 
@@ -156,7 +183,7 @@ class CrosswordImprovable(Crossword):
 
         try:
             for place, letter in enumerate(word, start_index):
-                pos = Coord((colrow.dim_num, place)) if colrow.is_column else Coord((place, colrow.dim_num))
+                pos = Coord((colrow.index, place)) if colrow.is_column else Coord((place, colrow.index))
                 self.add_letter(pos, letter)
 
                 new_word[word].add(pos)
@@ -187,3 +214,19 @@ class CrosswordImprovable(Crossword):
             raise UninsertableException(
                 f"This field is already occupied ({coord=}; new={letter}; old={self.letters[coord]})"
             )
+
+    def remove(self, word: str) -> Optional[CrosswordImprovable]:
+        letter_coords = self.words.get(word, None)
+        if letter_coords is None:
+            raise ValueError(f"Word {word} not found in {self.words}")
+        new = CrosswordImprovable(
+            letters={
+                coord: i for coord, i in self.letters.items() if coord not in letter_coords or coord in self.crossings
+            },
+            max_h=self.max_h,
+            max_v=self.max_v,
+            words_vertical={w: i for w, i in self.words_vertical.items() if word != w},
+            words_horizontal={w: i for w, i in self.words_horizontal.items() if word != w},
+            crossings={coords for coords in self.crossings if coords not in letter_coords},
+        )
+        return None if len(new.words) == 0 else new

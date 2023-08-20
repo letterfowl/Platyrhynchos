@@ -7,34 +7,58 @@ from typing import Iterator
 
 from ..commons.exceptions import PartNotFoundException
 from ..commons.logger import logger
-from ..commons.misc import Coord
+from ..commons.misc import ColRowId, ColRowIndex, Coord, IsColumn
+from ..commons.utils import random
 from .base import Crossword
 
 
 @dataclass(init=True, repr=True)
 class ColRow:
-    """A reference to the given crossword column or row, compatible with CrosswordImprovable"""
+    """
+    A reference to the given crossword column or row, compatible with Crossword
+
+    `ColRow(crossword, True, 0)` is the first column of the crossword ((0, 0), (0, 1), (0, 2), ...)
+    `ColRow(crossword, False, 0)` is the first row of the crossword ((0, 0), (1, 0), (2, 0), ...)
+    """
 
     crossword: Crossword
     is_column: bool
-    dim_num: int
+    index: int
+
+    @classmethod
+    def from_coord(cls, crossword: Crossword, coord: Coord) -> tuple[ColRow, ColRow]:
+        """Returns the column and row of the given Coord"""
+        return (cls(crossword, True, coord[0]), cls(crossword, False, coord[1]))
 
     def get_coords(self) -> list[Coord]:
         """Returns `Coord` object in the given ColRow"""
         if self.is_column:
-            max_v = getattr(self.crossword, "max_v", self.crossword.max[1])
-            return [Coord((self.dim_num, i)) for i in range(max_v)]
+            max_v = self.crossword.max[1]
+            return [Coord((self.index, i)) for i in range(max_v)]
         else:
-            max_h = getattr(self.crossword, "max_h", self.crossword.max[0])
-            return [Coord((i, self.dim_num)) for i in range(max_h)]
+            max_h = self.crossword.max[0]
+            return [Coord((i, self.index)) for i in range(max_h)]
+
+    @property
+    def length(self) -> int:
+        return self.crossword.max[1 if self.is_column else 0]
 
     def get(self) -> list[str | None]:
         """Returns list of letters in the given ColRow, Nones are inserted where no letter was found"""
         return [self.crossword.letters.get(i) for i in self.get_coords()]
 
+    @property
+    def is_full(self) -> bool:
+        """Returns True if there is no None in the ColRow"""
+        return None not in self.get()
+
     def __repr__(self) -> str:
         vals = "".join(i or ":" for i in self.get())
-        return f"{'Col' if self.is_column else 'Row'}({self.dim_num}, {vals})"
+        return f"{'Col' if self.is_column else 'Row'}({self.index}, {vals})"
+
+    def history_id(self) -> ColRowId:
+        """Returns a unique id of the ColRow for a crossword generation task (used in history)"""
+        return (IsColumn(self.is_column), ColRowIndex(self.index))
 
     @staticmethod
     def _empty_slices(field_vals: list[str | None]) -> list[slice]:
@@ -161,23 +185,28 @@ class ColRow:
             for i in range(len(field_vals) - len(word) + 1)
             if all(field_vals[n + i] is None or field_vals[n + i] == letter for n, letter in part_letters)
         ]
-        found = max(
-            offsets,
-            key=lambda i: sum(field_vals[n + i] == letter for n, letter in part_letters),
-            default=None,
+        found = random.choices(
+            offsets, [1 + sum(field_vals[n + i] == letter for n, letter in part_letters) for i in offsets], k=1
         )
-        if found is None:
+        if len(found) == 0:
             raise PartNotFoundException(f"Couldn't locate {word} in {field_vals}")
         else:
-            return found
+            return found[0]
 
     def cross_words(self) -> Iterator[tuple[str, set[Coord]]]:
         """Yields words that colide with ColRow with their coordinate sets"""
-        column, row = (self.dim_num, None) if self.is_column else (None, self.dim_num)
+        column, row = (self.index, None) if self.is_column else (None, self.index)
         for word, coords in self.crossword.words.items():
             columns, rows = tuple(zip(*coords))
             if column in set(columns) or row in set(rows):
                 yield word, coords
+
+    def removables(self) -> Iterator[tuple[str, int]]:
+        """Yields words that can be removed from ColRow with their intersection count"""
+        colrow_coords = set(self.get_coords())
+        for word, colrows in self.crossword.words.items():
+            if colrow_coords.issuperset(colrows):
+                yield word, len(self.crossword.crossings.intersection(colrows))
 
     @staticmethod
     def iter(crossword: Crossword) -> Iterator[ColRow]:
@@ -186,3 +215,13 @@ class ColRow:
         max_h = getattr(crossword, "max_h", crossword.max[0])
         yield from (ColRow(crossword, False, i) for i in range(max_v))
         yield from (ColRow(crossword, True, i) for i in range(max_h))
+
+    @staticmethod
+    def iter_not_full(crossword: Crossword) -> Iterator[ColRow]:
+        """Iterates over all ColRows of a crossword that are not full"""
+        for i in ColRow.iter(crossword):
+            if not i.is_full:
+                yield i
+
+    def __hash__(self) -> int:
+        return hash((id(self.crossword), self.is_column, self.index))

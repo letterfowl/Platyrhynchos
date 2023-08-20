@@ -2,6 +2,7 @@ from contextlib import suppress
 from os import remove
 from os.path import isfile
 from tempfile import NamedTemporaryFile, _TemporaryFileWrapper
+from typing import Optional
 
 import duckdb
 import requests
@@ -81,25 +82,39 @@ def _get_from_s3(file):
 
 
 @convert_result_to_list
-async def get_regex_w_alphabit(regex: str, alphabit: str, previous: list[str] = None):
-    previous = ["'A'"] if previous is None else [f"'{i}'" for i in previous]
+async def get_regex_w_alphabit(regex: str, alphabit: str, previous: str, word_amount: int = 20):
+    if previous is None or not previous:
+        previous_formatted = ["'A'"]
+    else:
+        previous_formatted = [f"'{i}'" for i in previous.split(",")]
     return cursor_execute(
-        f"select answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous)}) limit 100"
+        f"select distinct answer from clues where bit_count('{alphabit}'::BIT | alphabit)=length(alphabit) and regexp_matches(answer, '{regex}') and length(answer) > 1 and length(answer) > 1 and answer not in ({','.join(previous_formatted)}) order by random() limit {word_amount}"
     )
 
 
 @convert_result_to_list
-async def get_regex(regex: str, previous: list[str] = []):
-    # sourcery skip: assign-if-exp
-    if previous is None:
-        previous = ["'A'"]
+async def get_regex(regex: str, previous: str, word_amount: int = 20):
+    if previous is None or not previous:
+        previous_formatted = ["'A'"]
     else:
-        previous = [f"'{i}'" for i in previous]
+        previous_formatted = [f"'{i}'" for i in previous.split(",")]
     return cursor_execute(
-        f"select answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous)}) limit 100"
+        f"select distinct answer from clues where regexp_matches(answer, '{regex}') and length(answer) > 1 and answer not in ({','.join(previous_formatted)}) order by random() limit {word_amount}"
     )
 
 
 @convert_result_to_list
 async def get_random(max_size: int):
-    return cursor_execute(f"select answer from clues where length(answer) > 1 and length(answer) < {max_size} limit 1")
+    return cursor_execute(
+        f"select answer from clues where length(answer) > 1 and length(answer) < {max_size} order by random() limit 1"
+    )
+
+
+async def find_clues(words: list[str]):
+    """
+    Find clues for the given words.
+    """
+    words = ["'{}'".format(i) for i in words]
+    return cursor_execute(
+        f"select answer, any_value(clue) from clues where answer in ({','.join(words)}) group by answer"
+    )

@@ -1,4 +1,5 @@
 """Base crossword class"""
+from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import cached_property
 from typing import TypeVar
@@ -16,6 +17,15 @@ class Crossword:
     words_vertical: dict[str, set[Coord]] = field(default_factory=dict)
     # clues_vertical: dict[Coord, str] = field(default_factory=dict)
     crossings: set[Coord] = field(default_factory=set)
+
+    def __hash__(self) -> int:
+        return hash(
+            (tuple(self.letters.items()), tuple(self.words_horizontal.items()), tuple(self.words_vertical.items()))
+        )
+
+    def get_words(self, coord: Coord) -> tuple[str]:
+        """Returns the words that are at the given coordinate"""
+        return tuple(i for i in self.words if coord in self.words[i])
 
     @property
     def words(self) -> dict[str, set[Coord]]:
@@ -62,3 +72,6 @@ class Crossword:
             words_vertical={word: {Coord((h, v)) for (v, h) in i} for word, i in self.words_horizontal.items()},
             crossings={Coord((j, i)) for (i, j) in self.crossings},
         )
+
+    def copy(self):
+        return deepcopy(self)

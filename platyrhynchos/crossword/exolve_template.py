@@ -5,15 +5,12 @@ EXOLVE_TEMPLATE: Template = Template(
 exolve-begin
   exolve-id: exolve-example
   exolve-title: Exolve Example
-
-  # Uncomment and edit the next two lines if you want to show the setter's name
-  # and/or show a copyright notice.
   exolve-setter: letterfowl
   exolve-copyright: 2023 All rights reserved.
 
   exolve-width: $width
   exolve-height: $height
-  exolve-option: allow-chars:-❈%
+  exolve-option: allow-chars:-#%
 
   exolve-grid:
     $grid
@@ -35,6 +32,6 @@ def char_for_grid(char: str):
         case "-" | "$":
             return f"{char}!"
         case " ":
-            return "❈!"
+            return "#!"
         case _:
             return char
