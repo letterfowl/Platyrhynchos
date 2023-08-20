@@ -216,7 +216,7 @@ class SimulatedAnnealingCrosswordSearch:
         logger.success("I'm done!")
         return crossword
 
-    async def gen_react_readable(
+    async def get_react_readable(
         self,
         crossword: CrosswordImprovable,
     ) -> dict[str, dict[int, dict[str, str | int]]]:
@@ -249,6 +249,6 @@ class SimulatedAnnealingCrosswordSearch:
             for num, (word, fields) in enumerate(crossword.words_horizontal.items(), start=len(vertical) + 1)
         }
         return {
-            "vertical": vertical,
-            "horizontal": horizontal,
+            "down": vertical,
+            "across": horizontal,
         }

@@ -22,7 +22,7 @@ async function initDatabase({
   return db;
 }
 
-async function runSQL(db, sql) {
+async function runSQL(db: duckdb.AsyncDuckDB, sql: string) {
   const conn = await db.connect();
 
   // Query
@@ -57,14 +57,15 @@ export async function set_up_database() {
   }
   return db;
 }
+const db_promise = set_up_database();
 
-export async function prepare_functions() {
-  const db = await set_up_database();
+export async function database_functions() {
+  const db = await db_promise;
 
   return {
     db: db,
 
-    get_regex_w_alphabit: async function(regex, alphabit, previous, limit = 20) {
+    get_regex_w_alphabit: async function(regex: string, alphabit: string, previous: string, limit = 20) {
       const formatted_previous = previous.split(',').map(i => `'${i}'`).join(',');
       let not_in_statement;
       if (formatted_previous.length == 0) {
@@ -77,7 +78,7 @@ export async function prepare_functions() {
       return await runSQL(db, sql).then(db => db.map(i => i.answer));
     },
     
-    get_regex: async function(regex, previous, limit = 20) {
+    get_regex: async function(regex: string, previous: string, limit = 20) {
       const formatted_previous = previous.split(',').map(i => `'${i}'`).join(',');
       let not_in_statement;
       if (formatted_previous.length == 0) {
@@ -90,9 +91,14 @@ export async function prepare_functions() {
       return await runSQL(db, sql).then(db => db.map(i => i.answer));
     },
     
-    get_random: async function(max_size) {
+    get_random: async function(max_size: number) {
       const sql = `select distinct answer from en_simple where length(answer) > 1 and length(answer) < ${max_size} order by random() limit 1`;
       return await runSQL(db, sql).then(db => db.map(i => i.answer));
+    },
+
+    find_clues: async function(words: string) {
+      const sql = `select answer, any_value(clue) as clue from en_simple where answer in (${words}) group by answer`;
+      return await runSQL(db, sql).then(db => db.map(i => [i.answer, i.clue]));
     }
   }
 }

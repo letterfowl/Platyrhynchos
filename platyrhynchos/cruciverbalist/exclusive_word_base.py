@@ -56,4 +56,4 @@ class ExclusiveWordBaseCruciverbalist(ABC):
         return found_words[0]
 
     async def get_clues(self, words: list[str]) -> dict[str, str]:
-        return {i: j for i, j in await find_clues(words)}
+        return {i[0]: i[-1] for i in await find_clues(",".join(f"'{k}'" for k in words))}

@@ -14,7 +14,7 @@ const stylesHandler = isProduction
   : "style-loader";
 
 const config = {
-  entry: "./src/index.js",
+  entry: "./src/index.tsx",
   output: {
     publicPath: "/",
     path: path.resolve(__dirname, "dist"),
@@ -35,16 +35,16 @@ const config = {
     }
   },
   plugins: [
-    new WebpackShellPluginNext({
-      onBuildStart: {
-        scripts: [
-          "cd .. && poetry build && cd app"
-        ],
-        blocking: true,
-        parallel: false
-      },
-      swallowError: true
-    }),
+    // new WebpackShellPluginNext({
+    //   onBuildStart: {
+    //     scripts: [
+    //       "cd .. && poetry build && cd app"
+    //     ],
+    //     blocking: true,
+    //     parallel: false
+    //   },
+    //   swallowError: true
+    // }),
     new HtmlWebpackPlugin({
       template: "./public/index.html",
     }),
@@ -60,8 +60,9 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/i,
+        test: /\.(js|jsx|ts|tsx)$/i,
         loader: "babel-loader",
+        exclude: /node_modules/,
       },
       {
         test: /\.css$/i,
@@ -81,13 +82,15 @@ const config = {
     ],
   },
   externals: {
-    pyodide: 'loadPyodide'
   },
   experiments: {
     asyncWebAssembly: true,
     topLevelAwait: true,
   },
-  devtool: 'eval-source-map'
+  devtool: 'eval-source-map',
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
+  }
 };
 
 module.exports = () => {

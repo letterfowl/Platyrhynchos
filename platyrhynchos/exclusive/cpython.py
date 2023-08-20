@@ -110,11 +110,10 @@ async def get_random(max_size: int):
     )
 
 
-async def find_clues(words: list[str]):
+async def find_clues(words: str):
     """
     Find clues for the given words.
     """
-    words = ["'{}'".format(i) for i in words]
     return cursor_execute(
-        f"select answer, any_value(clue) from clues where answer in ({','.join(words)}) group by answer"
+        f"select answer, any_value(clue) from clues where answer in ({words}) group by answer"
     )
