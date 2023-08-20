@@ -15,25 +15,27 @@ let worker_request_id = 0;
 const worker: Worker = new Worker(new URL("./py-worker.js", import.meta.url));
 type CrosswordResultObject = {
   down: {
-      [key: number]: {
-          answer: string;
-          clue: string;
-          row: number;
-          col: number;
-      };
+    [key: number]: {
+      answer: string;
+      clue: string;
+      row: number;
+      col: number;
+    };
   };
   across: {
-      [key: number]: {
-          answer: string;
-          clue: string;
-          row: number;
-          col: number;
-      };
+    [key: number]: {
+      answer: string;
+      clue: string;
+      row: number;
+      col: number;
+    };
   };
 };
 
 function App() {
-  const [crossword, setCrossword] = useState<CrosswordResultObject | null>(null);
+  const [crossword, setCrossword] = useState<CrosswordResultObject | null>(
+    null
+  );
   const [worker_response_id, setWorkerResponseId] = useState<number>(
     worker_request_id++
   );
@@ -50,6 +52,12 @@ function App() {
       request_id: worker_response_id,
       code_to_run: GENERATE_CROSSWORD_CODE,
     });
+    return (
+      <div className="App">
+        <h1>Pls wait</h1>
+      </div>
+    );
+  } else if (worker_response_id === 1) {
     return (
       <div className="App">
         <h1>Pls wait</h1>
