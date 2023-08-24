@@ -75,3 +75,29 @@ class Crossword:
 
     def copy(self):
         return deepcopy(self)
+
+    def get_neighbourhood_neumann(self, coord: Coord) -> set[Coord]:
+        """
+        Get the neighbourhood of a coordinate in the Neumann neighbourhood.
+        """
+        return {
+            Coord((coord[0] + 1, coord[-1])),
+            Coord((coord[0] - 1, coord[-1])),
+            Coord((coord[0], coord[-1] + 1)),
+            Coord((coord[0], coord[-1] - 1)),
+        }
+
+    def get_neighbourhood_moore(self, coord: Coord) -> set[Coord]:
+        """
+        Get the neighbourhood of a coordinate in the Moore neighbourhood.
+        """
+        return {
+            Coord((coord[0] + 1, coord[-1])),
+            Coord((coord[0] - 1, coord[-1])),
+            Coord((coord[0], coord[-1] + 1)),
+            Coord((coord[0], coord[-1] - 1)),
+            Coord((coord[0] + 1, coord[-1] + 1)),
+            Coord((coord[0] - 1, coord[-1] - 1)),
+            Coord((coord[0] + 1, coord[-1] - 1)),
+            Coord((coord[0] - 1, coord[-1] + 1)),
+        }

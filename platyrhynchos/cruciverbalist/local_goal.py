@@ -100,10 +100,11 @@ class LocalGoalCruciverbalistBase(ABC):
         Returns:
         The goal value for the field at the given coordinate.
         """
-        neighbour_rows = range(max(0, coord[-1] - 1), min(self.crossword.max[-1], coord[-1] + 1) + 1)
-        neighbour_cols = range(max(0, coord[0] - 1), min(self.crossword.max[0], coord[0] + 1) + 1)
+        if self.crossword is None:
+            raise ValueError("Crossword not set")
+        neighbourhood = self.crossword.get_neighbourhood_moore(coord) | {coord}
         return (
-            avg(self.raw_get((col, row)) for col in neighbour_cols for row in neighbour_rows)  # type: ignore
+            avg(self.raw_get(i) for i in neighbourhood)  # type: ignore
             + random.random()
         )
 
