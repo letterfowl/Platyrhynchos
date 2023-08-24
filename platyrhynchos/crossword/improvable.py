@@ -17,7 +17,9 @@ class CrosswordImprovable(Crossword):
     """Crossword subclass used to implement the "smart" insertion algorithm."""
 
     @classmethod
-    def make(cls, word: str, max_h: int, max_v: Optional[int] = None) -> CrosswordImprovable:
+    def make(
+        cls, word: str, max_h: int, max_v: Optional[int] = None
+    ) -> CrosswordImprovable:
         """
         Creates a one word crossword.
 
@@ -46,7 +48,9 @@ class CrosswordImprovable(Crossword):
             TooLargeException: coordinates don't fit into the crossword
         """
         if horizontal > self.max_h or vertical > self.max_v:
-            raise TooLargeException(f"h={horizontal} vs max_h={self.max_h}; v={vertical} vs max_v={self.max_v}")
+            raise TooLargeException(
+                f"h={horizontal} vs max_h={self.max_h}; v={vertical} vs max_v={self.max_v}"
+            )
 
     def __init__(
         self,
@@ -90,7 +94,12 @@ class CrosswordImprovable(Crossword):
         """Returns a grid representation of the crossword"""
 
         return sep.join(
-            "".join((coder(self.letters.get(Coord((h, v)), empty_field)) for h in range(self.max_h)))
+            "".join(
+                (
+                    coder(self.letters.get(Coord((h, v)), empty_field))
+                    for h in range(self.max_h)
+                )
+            )
             for v in range(self.max_v)
         )
 
@@ -105,7 +114,12 @@ class CrosswordImprovable(Crossword):
                     v = f"[green]{v}[/green]"
                 return v
 
-            rich_print("\n".join("".join(_get_coord(h, v) for h in range(self.max_h)) for v in range(self.max_v)))
+            rich_print(
+                "\n".join(
+                    "".join(_get_coord(h, v) for h in range(self.max_h))
+                    for v in range(self.max_v)
+                )
+            )
         except ImportError:
             print(self.as_exolve_grid())
 
@@ -119,7 +133,9 @@ class CrosswordImprovable(Crossword):
         return EXOLVE_TEMPLATE.substitute(
             width=size_x,
             height=size_y,
-            grid=self.as_exolve_grid(empty_field=".", sep="\n    ", coder=char_for_grid),
+            grid=self.as_exolve_grid(
+                empty_field=".", sep="\n    ", coder=char_for_grid
+            ),
         )
 
     @property
@@ -133,10 +149,18 @@ class CrosswordImprovable(Crossword):
 
     def rotate(self):
         """Rotates the crossword, works in place."""
-        self.letters = {Coord((j, i)): letter for (i, j), letter in self.letters.items()}
+        self.letters = {
+            Coord((j, i)): letter for (i, j), letter in self.letters.items()
+        }
         self.max_h, self.max_v = self.max_v, self.max_h
-        new_horizontal = {word: {Coord((h, v)) for (v, h) in i} for word, i in self.words_vertical.items()}
-        new_vertical = {word: {Coord((h, v)) for (v, h) in i} for word, i in self.words_horizontal.items()}
+        new_horizontal = {
+            word: {Coord((h, v)) for (v, h) in i}
+            for word, i in self.words_vertical.items()
+        }
+        new_vertical = {
+            word: {Coord((h, v)) for (v, h) in i}
+            for word, i in self.words_horizontal.items()
+        }
         self.words_horizontal, self.words_vertical = new_horizontal, new_vertical
         self.crossings = {Coord((j, i)) for (i, j) in self.crossings}
 
@@ -164,6 +188,25 @@ class CrosswordImprovable(Crossword):
         """Iterate over all colrows in the crossword that are not full."""
         yield from ColRow.iter_not_full(self)
 
+    def get_future_word_coords(self, word: str, colrow: ColRow) -> dict[Coord, str]:
+        """
+        Given a word and a ColRow object, returns a potential dictionary of the coordinates and letters of the word in the ColRow object.
+
+        Args:
+        - word (str): The word to find in the ColRow object.
+        - colrow (ColRow): The ColRow object to search for the word in.
+
+        Returns:
+        - dict[Coord, str]: A dictionary where the keys are the coordinates of each letter in the word, and the values are the letters themselves.
+        """
+        start_index = colrow.pos_of_word(word)
+
+        indexes = ((start_index + i, letter) for i, letter in enumerate(word))
+        if colrow.is_column:
+            return {Coord((colrow.index, index)): letter for index, letter in indexes}
+        else:
+            return {Coord((index, colrow.index)): letter for index, letter in indexes}
+
     def add(self, word: str, colrow: ColRow | tuple[IsColumn, ColRowIndex]):
         """
         Adds a word to the crossword row/column. It requires a possible intersection. Works in place.
@@ -177,18 +220,15 @@ class CrosswordImprovable(Crossword):
         """
         if not isinstance(colrow, ColRow):
             colrow = self.colrow(colrow[0], colrow[-1])
-        start_index = colrow.pos_of_word(word)
 
-        new_word = {word: set()}
+        letters_to_add = self.get_future_word_coords(word, colrow)
+        new_word = {word: set(letters_to_add.keys())}
         old_letters = self.letters.copy()
         old_crossings = self.crossings.copy()
 
         try:
-            for place, letter in enumerate(word, start_index):
-                pos = Coord((colrow.index, place)) if colrow.is_column else Coord((place, colrow.index))
+            for pos, letter in letters_to_add.items():
                 self.add_letter(pos, letter)
-
-                new_word[word].add(pos)
         except UninsertableException as exception:
             self.letters = old_letters
             self.crossings = old_crossings
@@ -221,14 +261,20 @@ class CrosswordImprovable(Crossword):
         letter_coords = self.words.get(word, None)
         if letter_coords is None:
             raise ValueError(f"Word {word} not found in {self.words}")
-        new = CrosswordImprovable(
+        new = self.__class__(
             letters={
-                coord: i for coord, i in self.letters.items() if coord not in letter_coords or coord in self.crossings
+                coord: i
+                for coord, i in self.letters.items()
+                if coord not in letter_coords or coord in self.crossings
             },
             max_h=self.max_h,
             max_v=self.max_v,
             words_vertical={w: i for w, i in self.words_vertical.items() if word != w},
-            words_horizontal={w: i for w, i in self.words_horizontal.items() if word != w},
-            crossings={coords for coords in self.crossings if coords not in letter_coords},
+            words_horizontal={
+                w: i for w, i in self.words_horizontal.items() if word != w
+            },
+            crossings={
+                coords for coords in self.crossings if coords not in letter_coords
+            },
         )
         return None if len(new.words) == 0 else new

@@ -1,18 +1,23 @@
 """
     Simulated annealing crossword generation based on local goals
 """
+
 import asyncio
+import contextlib
 from dataclasses import dataclass
 from math import ceil as ceiling
 from math import log
 from typing import Callable, Iterable, Type
 
+from typing import AsyncIterator
 from ..commons.logger import logger
 from ..commons.misc import ColRowId, Coord, WordHistory
+from ..commons.exceptions import UninsertableException
 from ..crossword.base import Crossword
 from ..crossword.colrow import ColRow
 from ..crossword.improvable import CrosswordImprovable
 from ..cruciverbalist.letter_frequency_en import LetterFreqEnCruciverbalist
+from ..crossword.no_conflict import NoConflictCrossword
 
 BAD_WORD_THRESHOLD = 0.3
 GROWTH_CUTTER = 10
@@ -46,7 +51,9 @@ class SimulatedAnnealingCrosswordSearch:
     is_finished: Callable[[Crossword], bool]
     cruciverbalist: Type[LetterFreqEnCruciverbalist] = LetterFreqEnCruciverbalist
 
-    async def _init_crossword(self, width: int, height: int) -> tuple[CrosswordImprovable, WordHistory]:
+    async def _init_crossword(
+        self, width: int, height: int
+    ) -> tuple[CrosswordImprovable, WordHistory]:
         """
         Initializes a crossword puzzle with a start word and returns the crossword and its history.
 
@@ -59,7 +66,7 @@ class SimulatedAnnealingCrosswordSearch:
         """
         start_word = await self.cruciverbalist().start_word(max_size=min(width, height))
         logger.info("Found a start word: {}", start_word)
-        crossword = CrosswordImprovable.make(start_word, width, height)
+        crossword = NoConflictCrossword.make(start_word, width, height)
         history: WordHistory = {i.history_id(): set() for i in crossword.iter_colrows()}  # type: ignore
         history[(False, 0)].add(start_word)  # type: ignore
         logger.info("I added the start word: {}", start_word)
@@ -67,7 +74,7 @@ class SimulatedAnnealingCrosswordSearch:
 
     async def _disjoint_add_words(
         self, colrow: ColRow, colrow_history: set[str]
-    ) -> list[tuple[CrosswordImprovable, ColRowId, str]]:
+    ) -> AsyncIterator[tuple[CrosswordImprovable, ColRow, str]]:
         """
         Adds words to a ColRow object that do not intersect with any existing words in the ColRow.
 
@@ -78,21 +85,29 @@ class SimulatedAnnealingCrosswordSearch:
         Returns:
         A list of CrosswordImprovable objects with the added words.
         """
-        words = await self.cruciverbalist(colrow.crossword).select_by_regex(
-            colrow.yield_regexes(), list(colrow_history), word_amount=3
+        TARGET_WORD_AMOUNT = 6
+
+        words_gen = self.cruciverbalist(colrow.crossword).iter_select_by_regex(
+            colrow.yield_regexes(), list(colrow_history), word_amount=TARGET_WORD_AMOUNT
         )
 
-        crosswords = []
-        for word in words:
-            logger.debug("I'm testing the addition of {}", word)
-            crossword: CrosswordImprovable = colrow.crossword.copy()  # type: ignore
-            crossword.add(word, colrow.history_id())
-            crosswords.append((crossword, colrow, word))
-        return crosswords
+        found = 0
+        while (words := await anext(words_gen)) and found < TARGET_WORD_AMOUNT:
+            for word in words:
+                logger.debug("I'm testing the addition of {}", word)
+                crossword: CrosswordImprovable = colrow.crossword.copy()  # type: ignore
+                try:
+                    crossword.add(word, colrow.history_id())
+                except UninsertableException:
+                    logger.debug("I couldn't add {}", word)
+                    continue
+                yield crossword, colrow, word
+            found += len(words)
 
     async def _find_word_for_field(
         self, crossword: CrosswordImprovable, field: Coord, history: WordHistory
-    ) -> tuple[CrosswordImprovable, ColRowId, str] | tuple[None, None, None]:
+    ):
+        # sourcery skip: reintroduce-else, swap-if-else-branches, use-named-expression
         """
         Finds a word to add to a given field in the crossword puzzle.
 
@@ -108,16 +123,12 @@ class SimulatedAnnealingCrosswordSearch:
         blocked_column = history[column.history_id()] | set(crossword.words)
         blocked_row = history[row.history_id()] | set(crossword.words)
 
-        col_proposals, row_proposals = await asyncio.gather(
-            self._disjoint_add_words(column, blocked_column),
-            self._disjoint_add_words(row, blocked_row),
-        )
-        if len(col_proposals) + len(row_proposals) == 0:
-            return None, None, None
-        return max(
-            col_proposals + row_proposals,
-            key=lambda x: self.cruciverbalist(x[0]).get_goal_crossword(),
-        )
+        col_proposals = self._disjoint_add_words(column, blocked_column)
+        row_proposals = self._disjoint_add_words(row, blocked_row)
+
+        with contextlib.suppress(StopAsyncIteration):
+            while True:
+                yield await asyncio.gather(anext(col_proposals), anext(row_proposals))
 
     async def try_word_addition(
         self, find_words_tasks, current_goal: float
@@ -132,16 +143,15 @@ class SimulatedAnnealingCrosswordSearch:
         Returns:
         A CrosswordImprovable object with the added word, or None if no word can be added.
         """
-        while find_words_tasks:
-            result, colrow, word = await find_words_tasks.pop(0)
-            if result is None:
-                continue
-            result_goal = self.cruciverbalist(result).get_goal_crossword()
-            if result_goal >= current_goal:
-                for task in find_words_tasks:
-                    task.close()
-                return result, colrow, word
+        for task in find_words_tasks:
+            async for result, colrow, word in task:
+                if result is None:
+                    continue
+                result_goal = self.cruciverbalist(result).get_goal_crossword()
+                if result_goal >= current_goal:
+                    return result, colrow, word
         return None, None, None
+
 
     @staticmethod
     def _get_fields_to_check_for_additions(
@@ -183,9 +193,15 @@ class SimulatedAnnealingCrosswordSearch:
 
             cruciverbalist = self.cruciverbalist(crossword)
 
-            fields = self._get_fields_to_check_for_additions(crossword, cruciverbalist, turn)
-            find_words_tasks = [self._find_word_for_field(crossword, i, history) for i in fields]
-            result, colrow, word = await self.try_word_addition(find_words_tasks, cruciverbalist.get_goal_crossword())
+            fields = self._get_fields_to_check_for_additions(
+                crossword, cruciverbalist, turn
+            )
+            find_words_tasks = (
+                self._find_word_for_field(crossword, i, history) for i in fields
+            )
+            result, colrow, word = await self.try_word_addition(
+                find_words_tasks, cruciverbalist.get_goal_crossword()
+            )
             if result is not None and word is not None and colrow is not None:
                 assert word not in history[colrow.history_id()]
                 logger.success(
@@ -198,7 +214,11 @@ class SimulatedAnnealingCrosswordSearch:
                 logger.debug("I didn't find any words to add, trying to remove")
                 # worst = next(cruciverbalist.iter_words())
                 # logger.debug("Worst word: {} (goal:{})", worst.word, cruciverbalist.get_goal_word(worst) / len(worst.word))
-                bad_words = (i for i in cruciverbalist.iter_words() if cruciverbalist.goal_word(i) < BAD_WORD_THRESHOLD)
+                bad_words = (
+                    i
+                    for i in cruciverbalist.iter_words()
+                    if cruciverbalist.goal_word(i) < BAD_WORD_THRESHOLD
+                )
                 word_to_remove = next(bad_words, None)
                 if word_to_remove is not None:
                     logger.warning("I'm removing the word {}", word_to_remove.word)
@@ -237,7 +257,9 @@ class SimulatedAnnealingCrosswordSearch:
                 "row": min(i[1] for i in fields),
                 "col": min(i[0] for i in fields),
             }
-            for num, (word, fields) in enumerate(crossword.words_vertical.items(), start=1)
+            for num, (word, fields) in enumerate(
+                crossword.words_vertical.items(), start=1
+            )
         }
         horizontal: dict[int, dict[str, str | int]] = {
             num: {
@@ -246,7 +268,9 @@ class SimulatedAnnealingCrosswordSearch:
                 "row": min(i[1] for i in fields),
                 "col": min(i[0] for i in fields),
             }
-            for num, (word, fields) in enumerate(crossword.words_horizontal.items(), start=len(vertical) + 1)
+            for num, (word, fields) in enumerate(
+                crossword.words_horizontal.items(), start=len(vertical) + 1
+            )
         }
         return {
             "down": vertical,
