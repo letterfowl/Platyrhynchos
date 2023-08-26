@@ -32,12 +32,27 @@ class ColRow:
 
     def get_coords(self) -> list[Coord]:
         """Returns `Coord` object in the given ColRow"""
+        return [self.get_coord(i) for i in self.coord_indexes()]
+
+    def coord_indexes(self) -> list[int]:
+        """Returns indexes of the `Coord` objects in the given ColRow"""
+        max_h, max_v = self.crossword.max
+        return list(range(max_v)) if self.is_column else list(range(max_h))
+
+    def coord_index(self, coord: Coord) -> int:
+        """Returns the index of the given `Coord` in the given `ColRow`"""
+        return coord[1] if self.is_column else coord[0]
+
+    def get_coord(self, index: int) -> Coord:
+        """Returns the `Coord` in the given `ColRow` with the given index"""
         if self.is_column:
-            max_v = self.crossword.max[1]
-            return [Coord((self.index, i)) for i in range(max_v)]
+            return Coord((self.index, index))
         else:
-            max_h = self.crossword.max[0]
-            return [Coord((i, self.index)) for i in range(max_h)]
+            return Coord((index, self.index))
+
+    def offset(self, offset: int) -> ColRow:
+        """Returns a ColRow with an offset of `offset`"""
+        return ColRow(self.crossword, self.is_column, self.index + offset)
 
     @property
     def length(self) -> int:

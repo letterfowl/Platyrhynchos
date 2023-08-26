@@ -33,7 +33,7 @@ class CrosswordImprovable(Crossword):
             letters={Coord((i, 0)): j for i, j in enumerate(word)},
             max_h=max_h,
             max_v=max_v,
-            words_horizontal={word: {Coord((0, i)) for i in range(len(word))}},
+            words_horizontal={word: {Coord((i, 0)) for i in range(len(word))}},
         )
 
     def check_size(self, horizontal: int, vertical: int) -> NoReturn | None:
@@ -104,24 +104,25 @@ class CrosswordImprovable(Crossword):
         )
 
     def print_rich_grid(self):
-        try:
-            from rich import print as rich_print
+        # try:
+        #     from rich import print as rich_print
 
-            def _get_coord(h, v):
-                coord = Coord((h, v))
-                v = self.letters.get(coord, "[gray]:[/gray]")
-                if coord in self.crossings:
-                    v = f"[green]{v}[/green]"
-                return v
+        #     def _get_coord(h, v):
+        #         coord = Coord((h, v))
+        #         v = self.letters.get(coord, "[gray]:[/gray]")
+        #         if coord in self.crossings:
+        #             v = f"[green]{v}[/green]"
+        #         return v
 
-            rich_print(
-                "\n".join(
-                    "".join(_get_coord(h, v) for h in range(self.max_h))
-                    for v in range(self.max_v)
-                )
-            )
-        except ImportError:
-            print(self.as_exolve_grid())
+        #     rich_print(
+        #         "\n".join(
+        #             "".join(_get_coord(h, v) for h in range(self.max_h))
+        #             for v in range(self.max_v)
+        #         )
+        #     )
+        # except ImportError:
+        #     print(self.as_exolve_grid())
+        print(self.as_exolve_grid())
 
     def as_exolve(self) -> str:
         """

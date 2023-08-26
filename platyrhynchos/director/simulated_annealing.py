@@ -19,10 +19,11 @@ from ..crossword.improvable import CrosswordImprovable
 from ..cruciverbalist.letter_frequency_en import LetterFreqEnCruciverbalist
 from ..crossword.no_conflict import NoConflictCrossword
 
-BAD_WORD_THRESHOLD = 0.3
-GROWTH_CUTTER = 10
-GROWTH_BASE = 0.2
+BAD_WORD_THRESHOLD = 0.1
+GROWTH_CUTTER = 1
+GROWTH_BASE = 0.95
 
+TARGET_WORD_AMOUNT = 12
 
 def retrieve_elements(iterable: Iterable, n_elements: int) -> list:
     """Returns the first n elements of an iterable"""
@@ -85,21 +86,23 @@ class SimulatedAnnealingCrosswordSearch:
         Returns:
         A list of CrosswordImprovable objects with the added words.
         """
-        TARGET_WORD_AMOUNT = 6
 
         words_gen = self.cruciverbalist(colrow.crossword).iter_select_by_regex(
             colrow.yield_regexes(), list(colrow_history), word_amount=TARGET_WORD_AMOUNT
         )
 
         found = 0
-        while (words := await anext(words_gen)) and found < TARGET_WORD_AMOUNT:
+        while (words := await anext(words_gen, None)) and found < TARGET_WORD_AMOUNT:
             for word in words:
                 logger.debug("I'm testing the addition of {}", word)
                 crossword: CrosswordImprovable = colrow.crossword.copy()  # type: ignore
                 try:
                     crossword.add(word, colrow.history_id())
-                except UninsertableException:
-                    logger.debug("I couldn't add {}", word)
+                except UninsertableException as exc:
+                    if hasattr(exc, "message"):
+                        logger.error(getattr(exc, "message"))
+                    else:
+                        logger.error("I couldn't add {}", word)
                     continue
                 yield crossword, colrow, word
             found += len(words)
@@ -126,9 +129,16 @@ class SimulatedAnnealingCrosswordSearch:
         col_proposals = self._disjoint_add_words(column, blocked_column)
         row_proposals = self._disjoint_add_words(row, blocked_row)
 
-        with contextlib.suppress(StopAsyncIteration):
-            while True:
-                yield await asyncio.gather(anext(col_proposals), anext(row_proposals))
+        count_none = 0
+        while count_none < 2:
+            count_none = 0
+            for i in asyncio.as_completed((anext(col_proposals, None), anext(row_proposals, None))):
+                if i is None:
+                    count_none += 1
+                    continue
+                yield await i
+        return
+            
 
     async def try_word_addition(
         self, find_words_tasks, current_goal: float
@@ -144,14 +154,17 @@ class SimulatedAnnealingCrosswordSearch:
         A CrosswordImprovable object with the added word, or None if no word can be added.
         """
         for task in find_words_tasks:
-            async for result, colrow, word in task:
+            async for obj in task:
+                if obj is None:
+                    break
+                result, colrow, word = obj
                 if result is None:
                     continue
+
                 result_goal = self.cruciverbalist(result).get_goal_crossword()
                 if result_goal >= current_goal:
                     return result, colrow, word
         return None, None, None
-
 
     @staticmethod
     def _get_fields_to_check_for_additions(

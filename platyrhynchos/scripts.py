@@ -26,7 +26,7 @@ class catchtime:
 def print_qualities(crossword: CrosswordImprovable):
     """Prints the most important information about the crossword"""
     crossword.print_rich_grid()
-    print("\n", "Words:", *list(crossword.words.keys()), sep="\n")
+    print("\n", "Words:", *sorted(crossword.words.keys()), sep="\n")
     print("Density:", len(crossword.letters) / crossword.size)
     print("Words:", len(crossword.words))
     print("Crossings:", len(crossword.crossings))
@@ -72,7 +72,7 @@ async def simulated_annealing_routine():
 
     with catchtime():
         crossword_generator = SimulatedAnnealingCrosswordSearch(
-            lambda x: len(x.crossings) / len(x.letters) > 0.35 and len(x.letters) / x.size > 0.8
+            lambda x: len(x.crossings) / len(x.letters) > 0.35 and len(x.letters) / x.size > 0.6
         )
         crossword = await crossword_generator.run(WIDTH, LENGTH)
     print_qualities(crossword)

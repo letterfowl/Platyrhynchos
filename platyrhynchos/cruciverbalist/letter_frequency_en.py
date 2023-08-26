@@ -57,4 +57,4 @@ class LetterFreqEnCruciverbalist(LocalGoalCruciverbalistBase, ExclusiveWordBaseC
             float: The calculated goal value.
         """
         letter = crossword.letters.get(coord, " ").upper()
-        return (LETTER_FREQ_EN.index(letter) + 1 if letter in LETTER_FREQ_EN else 0) / (len(LETTER_FREQ_EN) + 2)
+        return (LETTER_FREQ_EN.index(letter) if letter in LETTER_FREQ_EN else len(LETTER_FREQ_EN)) / (len(LETTER_FREQ_EN) + 1)
