@@ -158,4 +158,4 @@ class TestExclusiveWordBase:
     @pytest.mark.asyncio
     async def test_start_word_empty(self, cruciverbalist: EnglishSimpleCruciverbalist):
         with pytest.raises(DatabaseException):
-            cruciverbalist.start_word(0)
+            await cruciverbalist.start_word(0)

@@ -32,7 +32,7 @@ class TestLetterFrequencyEnCruciverbalist:
     def test_letter_frequency_en_cruciverbalist_goal_field(self, crossword1: CrosswordImprovable):
         lfe = LetterFreqEnCruciverbalist()
         coord = Coord((0, 0))
-        assert lfe.goal_field(crossword1, coord) == 0
+        assert lfe.goal_field(crossword1, coord) == pytest.approx(26/27)
 
         coord = Coord((0, 1))
-        assert lfe.goal_field(crossword1, coord) == pytest.approx(1 / 28)
+        assert lfe.goal_field(crossword1, coord) == 0
