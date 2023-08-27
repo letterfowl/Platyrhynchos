@@ -25,6 +25,7 @@ GROWTH_BASE = 0.95
 
 TARGET_WORD_AMOUNT = 12
 
+
 def retrieve_elements(iterable: Iterable, n_elements: int) -> list:
     """Returns the first n elements of an iterable"""
     return [i for i, _ in zip(iterable, range(n_elements))]
@@ -132,13 +133,14 @@ class SimulatedAnnealingCrosswordSearch:
         count_none = 0
         while count_none < 2:
             count_none = 0
-            for i in asyncio.as_completed((anext(col_proposals, None), anext(row_proposals, None))):
+            for i in asyncio.as_completed(
+                (anext(col_proposals, None), anext(row_proposals, None))
+            ):
                 if i is None:
                     count_none += 1
                     continue
                 yield await i
         return
-            
 
     async def try_word_addition(
         self, find_words_tasks, current_goal: float
@@ -263,28 +265,32 @@ class SimulatedAnnealingCrosswordSearch:
             along with their corresponding clues, answers, and positions.
         """
         clues = await self.cruciverbalist(crossword).get_clues(list(crossword.words))
-        vertical: dict[int, dict[str, str | int]] = {
-            num: {
+        clue_fields = {}
+        vertical: dict[int, dict[str, str | int]] = {}
+        for clue_num, (word, fields) in enumerate(crossword.words_vertical.items(), start=1):
+            clue_row = min(i[1] for i in fields)
+            clue_col = min(i[0] for i in fields)
+            vertical[clue_num] = {
+                "answer": word,
+                "clue": clues[word],
+                "row": clue_row,
+                "col": clue_col,
+            }
+            clue_fields[(clue_col, clue_row)] = clue_num
+
+        clue_num = len(vertical)
+        horizontal: dict[int, dict[str, str | int]] = {}
+        for word, fields in crossword.words_horizontal.items():
+            clue_row = min(i[1] for i in fields)
+            clue_col = min(i[0] for i in fields)
+            number = clue_fields.get((clue_col, clue_row), (clue_num := clue_num + 1))
+            horizontal[number] = {
                 "answer": word,
                 "clue": clues[word],
                 "row": min(i[1] for i in fields),
                 "col": min(i[0] for i in fields),
             }
-            for num, (word, fields) in enumerate(
-                crossword.words_vertical.items(), start=1
-            )
-        }
-        horizontal: dict[int, dict[str, str | int]] = {
-            num: {
-                "answer": word,
-                "clue": clues[word],
-                "row": min(i[1] for i in fields),
-                "col": min(i[0] for i in fields),
-            }
-            for num, (word, fields) in enumerate(
-                crossword.words_horizontal.items(), start=len(vertical) + 1
-            )
-        }
+
         return {
             "down": vertical,
             "across": horizontal,
