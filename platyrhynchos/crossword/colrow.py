@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Iterator
+from typing import Generator
 
 from ..commons.exceptions import PartNotFoundException
 from ..commons.logger import logger
@@ -123,6 +123,9 @@ class ColRow:
         yield from cls._subparts(fields[biggest.stop :], biggest.stop - biggest.start, old_right_nones)
         return
 
+    def get_for_subparts(self) -> Generator[list[str | None], None, None]:
+        yield from self.crossword.get_for_subparts(self.history_id())
+
     def subparts(self):
         """
         Finds chunks of letters with sorrounding Nones, they can be used as queries.
@@ -139,9 +142,10 @@ class ColRow:
         5. Yield: _ _ k _ x _
         6. Repeat until slice length is 0
         """
-        yield from self._subparts(self.get(), 0, 0)
+        for i in self.get_for_subparts():
+            yield from self._subparts(i, 0, 0)
 
-    def yield_regexes(self) -> Iterator[str]:
+    def yield_regexes(self) -> Generator[str, None, None]:
         """Finds chunks of letters that can be used as queries and transforms them into regex"""
         found = set()
         for i in self.subparts():
@@ -208,7 +212,7 @@ class ColRow:
         else:
             return found[0]
 
-    def cross_words(self) -> Iterator[tuple[str, set[Coord]]]:
+    def cross_words(self) -> Generator[tuple[str, set[Coord]], None, None]:
         """Yields words that colide with ColRow with their coordinate sets"""
         column, row = (self.index, None) if self.is_column else (None, self.index)
         for word, coords in self.crossword.words.items():
@@ -216,7 +220,15 @@ class ColRow:
             if column in set(columns) or row in set(rows):
                 yield word, coords
 
-    def removables(self) -> Iterator[tuple[str, int]]:
+    def in_words(self) -> Generator[tuple[str, set[Coord]], None, None]:
+        """Yields words that colide with ColRow with their coordinate sets"""
+        column, row = (None, self.index) if self.is_column else (self.index, None)
+        for word, coords in self.crossword.words.items():
+            columns, rows = tuple(zip(*coords))
+            if column in set(columns) or row in set(rows):
+                yield word, coords
+
+    def removables(self) -> Generator[tuple[str, int], None, None]:
         """Yields words that can be removed from ColRow with their intersection count"""
         colrow_coords = set(self.get_coords())
         for word, colrows in self.crossword.words.items():
@@ -224,7 +236,7 @@ class ColRow:
                 yield word, len(self.crossword.crossings.intersection(colrows))
 
     @staticmethod
-    def iter(crossword: Crossword) -> Iterator[ColRow]:
+    def iter(crossword: Crossword) -> Generator[ColRow, None, None]:
         """Iterates over all ColRows of a crossword"""
         max_v = getattr(crossword, "max_v", crossword.max[1])
         max_h = getattr(crossword, "max_h", crossword.max[0])
@@ -232,7 +244,7 @@ class ColRow:
         yield from (ColRow(crossword, True, i) for i in range(max_h))
 
     @staticmethod
-    def iter_not_full(crossword: Crossword) -> Iterator[ColRow]:
+    def iter_not_full(crossword: Crossword) -> Generator[ColRow, None, None]:
         """Iterates over all ColRows of a crossword that are not full"""
         for i in ColRow.iter(crossword):
             if not i.is_full:

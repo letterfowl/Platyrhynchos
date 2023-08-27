@@ -9,7 +9,7 @@ T2 = TypeVar("T2")
 
 Coord = NewType("Coord", tuple[int, int])
 IsColumn = NewType("IsColumn", bool)
-ColRowIndex = NewType("ColRowId", int)
+ColRowIndex = NewType("ColRowIndex", int)
 ColRowId = NewType("ColRowId", tuple[IsColumn, ColRowIndex])
 WordHistory = NewType("WordHistory", dict[ColRowId, set[str]])
 

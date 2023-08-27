@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from typing import TypeVar
 
-from ..commons.misc import Coord
+from ..commons.misc import ColRowId, Coord
 
 CrosswordT = TypeVar("CrosswordT", bound="Crossword")
 
@@ -101,3 +101,6 @@ class Crossword:
             Coord((coord[0] + 1, coord[-1] - 1)),
             Coord((coord[0] - 1, coord[-1] + 1)),
         }
+
+    def get_for_subparts(self, colrow_id: ColRowId):
+        raise NotImplementedError

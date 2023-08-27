@@ -30,7 +30,7 @@ class LetterFreqEnCruciverbalist(LocalGoalCruciverbalistBase, ExclusiveWordBaseC
             float: The calculated goal value.
         """
         return (
-            sum(i is not None for i in colrow.get()) / colrow.length + len(list(colrow.cross_words())) / colrow.length
+            sum(i is not None for i in colrow.get()) / colrow.length + len(list(colrow.cross_words()))
         )
 
     @staticmethod

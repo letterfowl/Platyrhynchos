@@ -5,7 +5,7 @@ from contextlib import suppress
 from typing import Callable, Iterator, NoReturn, Optional
 
 from ..commons.exceptions import TooLargeException, UninsertableException
-from ..commons.misc import ColRowIndex, Coord, IsColumn, ProxiedDict
+from ..commons.misc import ColRowId, ColRowIndex, Coord, IsColumn, ProxiedDict
 from .base import Crossword
 from .colrow import ColRow
 from .exolve_template import EXOLVE_TEMPLATE, Template, char_for_grid
@@ -279,3 +279,6 @@ class CrosswordImprovable(Crossword):
             },
         )
         return None if len(new.words) == 0 else new
+
+    def get_for_subparts(self, colrow_id: ColRowId):
+        return [self.colrow(*colrow_id).get()]

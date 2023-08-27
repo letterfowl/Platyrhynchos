@@ -108,8 +108,9 @@ class ExclusiveWordBaseCruciverbalist(ABC):
             if found >= word_amount:
                 new_task.close()
                 break
-
             old_task = new_task
+        else:
+            yield await old_task
 
     async def start_word(self, max_size: int) -> str:
         """
