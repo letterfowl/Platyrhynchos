@@ -119,8 +119,12 @@ class ColRow:
 
         yield old_left_nones * [None] + fields[: biggest.start] + fields[biggest]
         yield fields[biggest] + fields[biggest.stop :] + old_right_nones * [None]
-        yield from cls._subparts(fields[: biggest.start], old_left_nones, biggest.stop - biggest.start)
-        yield from cls._subparts(fields[biggest.stop :], biggest.stop - biggest.start, old_right_nones)
+        yield from cls._subparts(
+            fields[: biggest.start], old_left_nones, biggest.stop - biggest.start
+        )
+        yield from cls._subparts(
+            fields[biggest.stop :], biggest.stop - biggest.start, old_right_nones
+        )
         return
 
     def get_for_subparts(self) -> Generator[list[str | None], None, None]:
@@ -156,7 +160,9 @@ class ColRow:
                 yield regex
 
     @staticmethod
-    def _regex_of_part(part: list[str | None], letters_before: int = 0, letters_after: int = 0) -> str:
+    def _regex_of_part(
+        part: list[str | None], letters_before: int = 0, letters_after: int = 0
+    ) -> str:
         """
         Generates the regex of a row/column part. For example:
 
@@ -197,15 +203,30 @@ class ColRow:
 
     def pos_of_word(self, word: str) -> int:
         """Finds best offset of a given word in ColRow."""
+        if hasattr(self.crossword, "get_reserved_fields_in_colrow"):
+            excluded: set[Coord] = self.crossword.get_reserved_fields_in_colrow(self)  # type: ignore
+        else:
+            excluded = set()
+
         field_vals = self.get()
         part_letters = list(enumerate(word))
-        offsets = [
-            i
-            for i in range(len(field_vals) - len(word) + 1)
-            if all(field_vals[n + i] is None or field_vals[n + i] == letter for n, letter in part_letters)
-        ]
+
+        possible_offsets: list[int] = []
+        for i in range(len(field_vals) - len(word) + 1):
+            if all(
+                field_vals[n + i] is None or field_vals[n + i] == letter
+                for n, letter in part_letters
+            ):
+                if all((self.get_coord(n + i) not in excluded for n, letter in part_letters)):
+                    possible_offsets.append(i)
+
         found = random.choices(
-            offsets, [1 + sum(field_vals[n + i] == letter for n, letter in part_letters) for i in offsets], k=1
+            possible_offsets,
+            [
+                1 + sum(field_vals[n + i] == letter for n, letter in part_letters)
+                for i in possible_offsets
+            ],
+            k=1,
         )
         if len(found) == 0:
             raise PartNotFoundException(f"Couldn't locate {word} in {field_vals}")

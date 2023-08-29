@@ -100,11 +100,7 @@ class SimulatedAnnealingCrosswordSearch:
                 try:
                     crossword.add(word, colrow.history_id())
                 except UninsertableException as exc:
-                    if hasattr(exc, "message"):
-                        logger.error(getattr(exc, "message"))
-                    else:
-                        logger.error("I couldn't add {}", word)
-                    continue
+                    logger.error(str(exc))
                 yield crossword, colrow, word
             found += len(words)
 
@@ -221,7 +217,7 @@ class SimulatedAnnealingCrosswordSearch:
                 assert word not in history[colrow.history_id()]
                 logger.success(
                     "I added words to the crossword: {}",
-                    "; ".join(set(result.words).difference(crossword.words)),
+                    word
                 )
                 history[colrow.history_id()].add(word)
                 crossword = result

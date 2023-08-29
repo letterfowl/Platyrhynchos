@@ -119,7 +119,7 @@ class ExclusiveWordBaseCruciverbalist(ABC):
         found_words = await get_random(max_size)
         # If there are any words in the database raise a DatabaseException.
         if found_words is None or len(found_words) == 0:
-            raise DatabaseException("Couldn't find any words.")
+            raise DatabaseException("I couldn't find any words.")
         return found_words[0]
 
     async def get_clues(self, words: list[str]) -> dict[str, str]:

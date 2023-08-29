@@ -1,8 +1,10 @@
 from functools import reduce
+from typing import Optional
 from .improvable import CrosswordImprovable
 from .colrow import ColRow
 from ..commons.misc import ColRowId, Coord
 from ..commons.exceptions import UninsertableException
+from .word import Word
 
 
 class NoConflictCrossword(CrosswordImprovable):
@@ -42,10 +44,9 @@ class NoConflictCrossword(CrosswordImprovable):
                 f"Word {word} cannot be inserted because of unreal intersections."
             )
 
-        last_coord = max(coords, key=lambda x: x[0] * x[-1])
-        first_coord = min(coords, key=lambda x: x[0] * x[-1])
-        coord_after_last = self.get_offset_coord_in_colrow(last_coord, colrow, 1)
-        coord_before_first = self.get_offset_coord_in_colrow(first_coord, colrow, -1)
+        coord_after_last, coord_before_first = self.get_reserved_at_beginning_and_end(
+            word, set(coords), colrow
+        )
         if self.letters.get(coord_after_last, None) is not None:
             raise UninsertableException(
                 f"Word {word} cannot be inserted because it lacks an empty field at the end."
@@ -56,6 +57,43 @@ class NoConflictCrossword(CrosswordImprovable):
             )
 
         return coords
+
+    def get_reserved_at_beginning_and_end(
+        self,
+        word: Word | str,
+        coords: Optional[set[Coord]] = None,
+        colrow: Optional[ColRow] = None,
+    ) -> tuple[Coord, Coord]:
+        if colrow is None or coords is None:
+            if isinstance(word, Word):
+                colrow = word.colrow
+                coords = word.letter_fields
+            else:
+                raise ValueError("Either word object or colrow and coords must be given.")
+
+        last_coord = max(coords, key=lambda x: x[0] * x[-1])
+        first_coord = min(coords, key=lambda x: x[0] * x[-1])
+        coord_after_last = self.get_offset_coord_in_colrow(last_coord, colrow, 1)
+        coord_before_first = self.get_offset_coord_in_colrow(first_coord, colrow, -1)
+        return (coord_after_last, coord_before_first)
+
+    def get_reserved_fields_in_colrow(self, colrow: ColRow) -> set[Coord]:
+        """
+        Returns a set of coordinates representing the reserved fields in a given ColRow.
+
+        Args:
+            self: The instance of the class.
+            colrow: The ColRow to find the used fields for.
+
+        Returns:
+            set[Coord]: A set of coordinates representing the used fields.
+        """
+        in_words = reduce(lambda x, y: x | y[-1], colrow.in_words(), set())
+        for word, _ in colrow.in_words():
+            in_words.update(
+                self.get_reserved_at_beginning_and_end(Word.from_colrow(colrow, word))
+            )
+        return in_words
 
     def get_cross_word_fields(self, colrow: ColRow) -> set[Coord]:
         """
@@ -84,7 +122,7 @@ class NoConflictCrossword(CrosswordImprovable):
         colrow = self.colrow(*colrow_id)
         colrow_values = zip(colrow.get_coords(), colrow.get())
 
-        in_words = reduce(lambda x, y: x | y[-1], colrow.in_words(), set())
+        in_words = self.get_reserved_fields_in_colrow(colrow)
 
         excluded = self.get_cross_word_fields(colrow)
         segment = []
@@ -95,4 +133,5 @@ class NoConflictCrossword(CrosswordImprovable):
                 segment = []
             else:
                 segment.append(letter)
-        yield segment
+        if segment:
+            yield segment

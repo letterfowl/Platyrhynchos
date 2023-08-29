@@ -16,10 +16,10 @@ class Word:
     crossword: Crossword
     colrow: ColRow
     word: str
-    letters: set[Coord]
+    letter_fields: set[Coord]
 
     def _get_indexes_of_crossing_colrows(self) -> set[int]:
-        return {i for _, i in self.letters} if self.colrow.is_column else {i for i, _ in self.letters}
+        return {i for _, i in self.letter_fields} if self.colrow.is_column else {i for i, _ in self.letter_fields}
 
     @classmethod
     def from_crossword(cls, crossword: Crossword, word: str) -> Word:
@@ -51,12 +51,12 @@ class Word:
         yield from (
             Word.from_crossword(self.crossword, other_word)
             for other_word, other_letters in self.colrow.cross_words()
-            if self.letters & other_letters
+            if self.letter_fields & other_letters
         )
 
     @property
     def crossings(self):
-        return self.letters & self.crossword.crossings
+        return self.letter_fields & self.crossword.crossings
 
     def cross_colrows(self):
         yield from (
