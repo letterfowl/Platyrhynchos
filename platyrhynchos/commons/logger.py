@@ -9,6 +9,7 @@ from loguru import logger
 from .settings import settings
 from .utils import app_dir
 
+logger.configure(handlers=[{"sink": sys.stderr, "level": "INFO"}])
 
 class InterceptHandler(logging.Handler):
     def emit(self, record):
