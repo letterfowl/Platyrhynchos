@@ -71,8 +71,8 @@ class NoConflictCrossword(CrosswordImprovable):
             else:
                 raise ValueError("Either word object or colrow and coords must be given.")
 
-        last_coord = max(coords, key=lambda x: x[0] * x[-1])
-        first_coord = min(coords, key=lambda x: x[0] * x[-1])
+        last_coord = max(coords, key=lambda x: (1+x[0]) * (1+x[-1]))
+        first_coord = min(coords, key=lambda x: (1+x[0]) * (1+x[-1]))
         coord_after_last = self.get_offset_coord_in_colrow(last_coord, colrow, 1)
         coord_before_first = self.get_offset_coord_in_colrow(first_coord, colrow, -1)
         return (coord_after_last, coord_before_first)
