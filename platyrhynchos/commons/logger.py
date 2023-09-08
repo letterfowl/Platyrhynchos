@@ -9,7 +9,19 @@ from loguru import logger
 from .settings import settings
 from .utils import app_dir
 
-logger.configure(handlers=[{"sink": sys.stderr, "level": "INFO"}])
+open(f"{app_dir('user_log_path')}/last.log", "w").close()
+
+logger.configure(
+    handlers=[
+        # {"sink": sys.stderr, "level": "DEBUG"},
+        {
+            "sink": f"{app_dir('user_log_path')}/last.log", 
+            "level": "DEBUG",
+            "format": "{level} | {message}",
+        }
+    ]
+)
+
 
 class InterceptHandler(logging.Handler):
     def emit(self, record):
@@ -25,8 +37,9 @@ class InterceptHandler(logging.Handler):
             frame = frame.f_back
             depth += 1
 
-        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+        logger.opt(depth=depth, exception=record.exc_info).log(
+            level, record.getMessage()
+        )
 
 
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
-logger.add(app_dir("user_log_path") + "/log.log", retention="1 day")
