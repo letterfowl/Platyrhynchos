@@ -11,6 +11,7 @@ from ..commons.misc import ColRowId, ColRowIndex, Coord, IsColumn
 from ..commons.utils import random
 from .base import Crossword
 
+USE_CHOICES_IN_POS_OF_WORD = False
 
 @dataclass(init=True, repr=True)
 class ColRow:
@@ -68,7 +69,7 @@ class ColRow:
         return None not in self.get()
 
     def __repr__(self) -> str:
-        vals = "".join(i or ":" for i in self.get())
+        vals = ", ".join(f"{n}:{i or '+'}" for n,i in enumerate(self.get()))
         return f"{'Col' if self.is_column else 'Row'}({self.index}, {vals})"
 
     def history_id(self) -> ColRowId:
@@ -193,16 +194,15 @@ class ColRow:
 
         reg_list = [
             "^",
-            ".{0,%s}" % letters_before,
+            ".{0,%s}" % max(letters_before-1, 0),
             *reg_list,
-            ".{0,%s}" % letters_after,
+            ".{0,%s}" % max(letters_after-1, 0), #TODO: replace to yield regexes with letters in last column/row of crossword
             "$",
         ]
         reg_list = [i for i in reg_list if i not in {".{0}", ".{0,0}"}]
         return "".join(reg_list)
 
-    def pos_of_word(self, word: str) -> int:
-        """Finds best offset of a given word in ColRow."""
+    def pos_of_word_iter(self, word: str) -> Generator[int, None, None]:
         if hasattr(self.crossword, "get_reserved_fields_in_colrow"):
             excluded: set[Coord] = self.crossword.get_reserved_fields_in_colrow(self)  # type: ignore
         else:
@@ -211,27 +211,38 @@ class ColRow:
         field_vals = self.get()
         part_letters = list(enumerate(word))
 
-        possible_offsets: list[int] = []
         for i in range(len(field_vals) - len(word) + 1):
             if all(
                 field_vals[n + i] is None or field_vals[n + i] == letter
                 for n, letter in part_letters
             ):
                 if all((self.get_coord(n + i) not in excluded for n, letter in part_letters)):
-                    possible_offsets.append(i)
+                    yield i
 
-        found = random.choices(
-            possible_offsets,
-            [
-                1 + sum(field_vals[n + i] == letter for n, letter in part_letters)
-                for i in possible_offsets
-            ],
-            k=1,
-        )
-        if len(found) == 0:
+    def pos_of_word(self, word: str) -> int:
+        """Finds best offset of a given word in ColRow."""
+        field_vals = self.get()
+        part_letters = list(enumerate(word))
+        possible_offsets = list(self.pos_of_word_iter(word))
+
+        if USE_CHOICES_IN_POS_OF_WORD:
+            found_list = random.choices(
+                possible_offsets,
+                [
+                    1 + sum(field_vals[n + i] == letter for n, letter in part_letters)
+                    for i in possible_offsets
+                ],
+                k=1,
+            )
+            found = found_list[0] if found_list else None
+        else:
+            found = max(possible_offsets, key=lambda x: sum(field_vals[n + x] == letter for n, letter in part_letters))
+
+        if found is None:
             raise PartNotFoundException(f"Couldn't locate {word} in {field_vals}")
         else:
-            return found[0]
+            logger.debug("Found place for {} in {} at {} (out of {})", word, self, found, possible_offsets)
+            return found
 
     def cross_words(self) -> Generator[tuple[str, set[Coord]], None, None]:
         """Yields words that colide with ColRow with their coordinate sets"""

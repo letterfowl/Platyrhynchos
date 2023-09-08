@@ -20,9 +20,9 @@ from ..crossword.improvable import CrosswordImprovable
 from ..cruciverbalist.letter_frequency_en import LetterFreqEnCruciverbalist
 from ..crossword.no_conflict import NoConflictCrossword
 
-BAD_WORD_THRESHOLD = 0.1
-GROWTH_CUTTER = 1
-GROWTH_BASE = 0.95
+BAD_WORD_THRESHOLD = 0.3
+GROWTH_CUTTER = 2
+GROWTH_BASE = 0.99
 
 TARGET_WORD_AMOUNT = 12
 
@@ -213,12 +213,14 @@ class SimulatedAnnealingCrosswordSearch:
         tested_in_last_turn = set()
         while not self.is_finished(crossword) and turn < 200:
             turn += 1
-            logger.info(
-                "Turn {}; Crossings: {}; Letters: {}; Words: {}",
+            print(
+                "Turn {}; Crossings: {}; Letters: {}; Words: {}\n{}".format(
                 turn,
                 len(crossword.crossings) / len(crossword.letters),
                 len(crossword.letters) / crossword.size,
                 len(crossword.words),
+                crossword.as_exolve_grid()
+                )
             )
 
             cruciverbalist = self.cruciverbalist(crossword)

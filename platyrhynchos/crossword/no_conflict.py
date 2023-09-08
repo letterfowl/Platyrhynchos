@@ -3,6 +3,7 @@ from typing import Optional
 from .improvable import CrosswordImprovable
 from .colrow import ColRow
 from ..commons.misc import ColRowId, Coord
+from ..commons.logger import logger
 from ..commons.exceptions import UninsertableException
 from .word import Word
 
@@ -35,28 +36,32 @@ class NoConflictCrossword(CrosswordImprovable):
             else Coord((coord_x + offset, coord_y))
         )
 
+    def _get_possible_indexes(self, word:str, colrow: ColRow):
+        for start_index in colrow.pos_of_word_iter(word):
+            indexes = ((start_index + i, letter) for i, letter in enumerate(word))
+            if colrow.is_column:
+                yield {Coord((colrow.index, index)): letter for index, letter in indexes}
+            else:
+                yield {Coord((index, colrow.index)): letter for index, letter in indexes}
+
     def get_future_word_coords(self, word: str, colrow: ColRow):
-        coords = super().get_future_word_coords(word, colrow)
+        possible_offsets = []
+        for coords in self._get_possible_indexes(word, colrow):
+            excluded = self.get_cross_word_fields(colrow)
+            
+            # This is used to detect any intrusions into existing words (also detecting unreal intersections)
+            if self.check_for_conflicts_all(coords, excluded):
+                logger.debug(
+                    f"Word {word} cannot be inserted into {colrow} ({min(coords, key=lambda x: x[0]*x[-1])}) because of unreal intersections."
+                )
+                continue
 
-        excluded = self.get_cross_word_fields(colrow)
-        if self.check_for_conflicts_all(coords, excluded):
+            possible_offsets.append(coords)
+        if not possible_offsets:
             raise UninsertableException(
-                f"Word {word} cannot be inserted because of unreal intersections."
+                f"Word {word} cannot be inserted into {colrow} because it lacks a possible offset."
             )
-
-        coord_after_last, coord_before_first = self.get_reserved_at_beginning_and_end(
-            word, set(coords), colrow
-        )
-        if self.letters.get(coord_after_last, None) is not None:
-            raise UninsertableException(
-                f"Word {word} cannot be inserted because it lacks an empty field at the end."
-            )
-        if self.letters.get(coord_before_first, None) is not None:
-            raise UninsertableException(
-                f"Word {word} cannot be inserted because it lacks an empty field before the beginning."
-            )
-
-        return coords
+        return max(possible_offsets, key=lambda x: len(set(x) & set(self.letters)))
 
     def get_reserved_at_beginning_and_end(
         self,

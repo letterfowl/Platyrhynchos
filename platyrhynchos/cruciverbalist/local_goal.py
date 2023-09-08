@@ -124,6 +124,22 @@ class LocalGoalCruciverbalistBase(ABC):
             raise ValueError("Crossword not set")
         return sum(self.get_goal_field(i) for i in self.crossword.words[word])
 
+    def get_quick_goal_word(self, word: str | Word) -> float:
+        """
+        Returns the goal value for the given word.
+
+        Args:
+        word: A string representing a word.
+
+        Returns:
+        The goal value for the given word.
+        """
+        if self.crossword is None:
+            raise ValueError("Crossword not set")
+        if not isinstance(word, Word):
+            word = Word.from_crossword(self.crossword, word)
+        return self.goal_word(word)
+
     def get_goal_colrow(self, colrow: ColRow) -> float:
         """
         Returns the goal value for the given colrow.
@@ -150,7 +166,7 @@ class LocalGoalCruciverbalistBase(ABC):
         if self.crossword is None:
             raise ValueError("Crossword not set")
         words = [Word.from_crossword(self.crossword, word) for word in self.crossword.words]
-        yield from sorted(words, key=self.get_goal_word)
+        yield from sorted(words, key=self.goal_word)
 
     def iter_colrows(self) -> Iterator[ColRow]:
         """
