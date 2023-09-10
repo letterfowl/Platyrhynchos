@@ -26,6 +26,7 @@ GROWTH_BASE = 0.99
 
 TARGET_WORD_AMOUNT = 12
 
+BLOCK_LATELY_TESTED = False
 
 def retrieve_elements(iterable: Iterable, n_elements: int) -> list:
     """Returns the first n elements of an iterable"""
@@ -260,13 +261,18 @@ class SimulatedAnnealingCrosswordSearch:
                         logger.success("I removed the word {}", word_to_remove.word)
                         continue
                 else:
-                    async with self.lately_tested_lock:
-                        tested_in_last_turn = self.lately_tested.copy()
-                        self.lately_tested.clear()
-                    logger.error(
-                        "No more options found, blocking options and trying again"
-                    )
-                    continue
+                    if BLOCK_LATELY_TESTED:
+                        async with self.lately_tested_lock:
+                            tested_in_last_turn = self.lately_tested.copy()
+                            self.lately_tested.clear()
+                        logger.error(
+                            "No more options found, blocking options and trying again"
+                        )
+                        continue
+                    else:
+                        logger.error("No more options found, terminating")
+                        return crossword
+                    
 
         logger.success("I'm done!")
         return crossword

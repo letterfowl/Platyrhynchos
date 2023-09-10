@@ -254,10 +254,10 @@ class ColRow:
 
     def in_words(self) -> Generator[tuple[str, set[Coord]], None, None]:
         """Yields words that colide with ColRow with their coordinate sets"""
-        column, row = (None, self.index) if self.is_column else (self.index, None)
+        column, row = (self.index, -1) if self.is_column else (-1, self.index)
         for word, coords in self.crossword.words.items():
             columns, rows = tuple(zip(*coords))
-            if column in set(columns) or row in set(rows):
+            if all(i == column for i in columns) or all(i == row for i in rows):
                 yield word, coords
 
     def removables(self) -> Generator[tuple[str, int], None, None]:

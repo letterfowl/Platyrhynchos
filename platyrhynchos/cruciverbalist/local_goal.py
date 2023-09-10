@@ -4,6 +4,7 @@ This module contains an abstract Cruciverbalist based on approximating the goal 
 
 from abc import ABC, abstractmethod
 from typing import Iterator
+from functools import lru_cache
 
 from ..commons.misc import Coord
 from ..commons.utils import random
@@ -140,6 +141,16 @@ class LocalGoalCruciverbalistBase(ABC):
             word = Word.from_crossword(self.crossword, word)
         return self.goal_word(word)
 
+    @lru_cache(maxsize=3)
+    def bilance_col_vs_row(self, crossword: Crossword) -> float:
+        all_colrows = ColRow.iter(crossword)
+        columns = (i for i in all_colrows if i.is_column)
+        rows = (i for i in all_colrows if not i.is_column)
+        return avg(i.get() is not None for i in columns)/avg(i.get() is not None for i in rows)
+
+    def bilance_row_vs_col(self, crossword: Crossword) -> float:
+        return 1/self.bilance_col_vs_row(crossword)
+
     def get_goal_colrow(self, colrow: ColRow) -> float:
         """
         Returns the goal value for the given colrow.
@@ -150,8 +161,10 @@ class LocalGoalCruciverbalistBase(ABC):
         Returns:
         The goal value for the given colrow.
         """
-
-        return sum(self.get_goal_field(i) for i in colrow.get_coords())
+        if self.crossword is None:
+            raise ValueError("Crossword not set")
+        bilance = self.bilance_col_vs_row(self.crossword) if colrow.is_column else self.bilance_row_vs_col(self.crossword)
+        return sum(self.raw_get(i) for i in colrow.get_coords()) - 20*bilance
 
     def get_goal_crossword(self) -> float:
         """

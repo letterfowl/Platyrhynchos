@@ -36,7 +36,7 @@ class NoConflictCrossword(CrosswordImprovable):
             else Coord((coord_x + offset, coord_y))
         )
 
-    def _get_possible_indexes(self, word:str, colrow: ColRow):
+    def _get_possible_offset_coords(self, word:str, colrow: ColRow):
         for start_index in colrow.pos_of_word_iter(word):
             indexes = ((start_index + i, letter) for i, letter in enumerate(word))
             if colrow.is_column:
@@ -46,7 +46,11 @@ class NoConflictCrossword(CrosswordImprovable):
 
     def get_future_word_coords(self, word: str, colrow: ColRow):
         possible_offsets = []
-        for coords in self._get_possible_indexes(word, colrow):
+        coords_of_inwords = reduce(lambda x, y: x | y[-1], colrow.in_words(), set())
+        for coords in self._get_possible_offset_coords(word, colrow):
+            if set(coords) & coords_of_inwords:
+                logger.debug("Word {word} cannot be inserted into {colrow} because it overlaps with an existing word.", word=word, colrow=colrow)
+                continue
             excluded = self.get_cross_word_fields(colrow)
             
             # This is used to detect any intrusions into existing words (also detecting unreal intersections)
