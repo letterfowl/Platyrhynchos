@@ -43,7 +43,7 @@ class LetterFreqEnCruciverbalist(LocalGoalCruciverbalistBase, ExclusiveWordBaseC
         Returns:
             float: The calculated goal value.
         """
-        return len(list(word.cross_words())) / len(word.word)
+        return len(list(word.cross_words())) / len(word.word) + len(word.word) / len(word.colrow.get())
 
     @staticmethod
     def goal_field(crossword: Crossword, coord: Coord):
