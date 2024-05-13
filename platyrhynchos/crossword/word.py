@@ -1,4 +1,5 @@
 """Word wrapper over the ColRow and Crossword class"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

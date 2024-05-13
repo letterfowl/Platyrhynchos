@@ -1,6 +1,7 @@
 """
     Simulated annealing crossword generation based on local goals
 """
+
 import asyncio
 from dataclasses import dataclass
 from math import ceil as ceiling

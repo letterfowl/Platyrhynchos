@@ -1,4 +1,5 @@
 """Redundant code used to implement addable crosswords"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -161,13 +162,17 @@ class CrosswordAddable(Crossword):
                 coord: i for coord, i in self.letters.items() if coord not in letter_coords or coord in self.crossings
             },
             words_vertical={w: i for w, i in self.words_vertical.items() if word != w},
-            clues_vertical=self.clues_vertical
-            if word in self.words_horizontal
-            else {coord: i for coord, i in self.clues_vertical.items() if coord not in letter_coords},
+            clues_vertical=(
+                self.clues_vertical
+                if word in self.words_horizontal
+                else {coord: i for coord, i in self.clues_vertical.items() if coord not in letter_coords}
+            ),
             words_horizontal={w: i for w, i in self.words_horizontal.items() if word != w},
-            clues_horizontal=self.clues_horizontal
-            if word in self.words_vertical
-            else {coord: i for coord, i in self.clues_horizontal.items() if coord not in letter_coords},
+            clues_horizontal=(
+                self.clues_horizontal
+                if word in self.words_vertical
+                else {coord: i for coord, i in self.clues_horizontal.items() if coord not in letter_coords}
+            ),
             crossings={coords for coords in self.crossings if coords not in letter_coords},
         )
         if len(new.words) == 0:

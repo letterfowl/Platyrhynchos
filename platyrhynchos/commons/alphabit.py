@@ -3,6 +3,7 @@ Implements the Alphabit system for row filtering in SQL
 Also contains `MIN_ALPHABIT` and `MAX_ALPHABIT` constants that represent a string with no letters
 and a string with all letters.
 """
+
 from string import ascii_uppercase
 from typing import Optional
 

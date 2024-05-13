@@ -1,4 +1,5 @@
 """Implements simple scripts as functions"""
+
 import asyncio
 from contextlib import suppress
 from os import remove as remove_file

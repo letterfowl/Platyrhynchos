@@ -1,4 +1,5 @@
 """Defines ColRow class -- a reference to the given crossword column or row"""
+
 from __future__ import annotations
 
 import re

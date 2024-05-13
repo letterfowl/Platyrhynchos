@@ -1,4 +1,5 @@
 """Contains a class for calculating letter frequency in English words for use in crossword puzzles."""
+
 from ..commons.misc import Coord
 from ..crossword.base import Crossword
 from ..crossword.colrow import ColRow

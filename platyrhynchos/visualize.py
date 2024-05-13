@@ -1,4 +1,5 @@
 """Old LaTeX rendering library"""
+
 import os
 from string import ascii_letters
 

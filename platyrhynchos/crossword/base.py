@@ -1,4 +1,5 @@
 """Base crossword class"""
+
 from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import cached_property
